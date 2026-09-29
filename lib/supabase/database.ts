@@ -59,6 +59,39 @@ export type Database = {
         };
         Relationships: [];
       };
+      deliveries: {
+        Row: {
+          id: string;
+          weekly_report_id: string;
+          title: string;
+          description: string;
+          status: "delivered" | "in_progress" | "waiting_third_party" | "blocked";
+          icon_key: string;
+          position: number;
+          created_at: string;
+          updated_at: string;
+        };
+        Insert: {
+          id?: string;
+          weekly_report_id: string;
+          title: string;
+          description: string;
+          status: "delivered" | "in_progress" | "waiting_third_party" | "blocked";
+          icon_key: string;
+          position?: number;
+          created_at?: string;
+          updated_at?: string;
+        };
+        Update: {
+          title?: string;
+          description?: string;
+          status?: "delivered" | "in_progress" | "waiting_third_party" | "blocked";
+          icon_key?: string;
+          position?: number;
+          updated_at?: string;
+        };
+        Relationships: [];
+      };
     };
     Views: Record<string, never>;
     Functions: Record<string, never>;
