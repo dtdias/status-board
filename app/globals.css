@@ -95,6 +95,14 @@ button:disabled { cursor: not-allowed; opacity: .5; }
 .routine-form .outline-button { justify-self: start; padding: 8px 13px; }
 .text-delete { background: none; border: 0; color: #ad1019; cursor: pointer; padding: 0; text-align: left; text-decoration: underline; text-underline-offset: 4px; }
 .routine-limit { color: var(--muted); font-size: .85rem; }
+.attention-stack { display: grid; gap: 9px; margin-top: 18px; }
+.attention-label { border-top: 1px solid var(--line); font-size: .68rem; font-weight: 700; letter-spacing: .08em; padding-top: 12px; text-transform: uppercase; }
+.attention-label:first-child { border-top: 0; padding-top: 0; }
+.attention-card { gap: 6px; }
+.attention-card span { color: var(--muted); font-size: .7rem; }
+.attention-card .attention-status { color: var(--ink); font-weight: 700; }
+.attention-empty { color: var(--muted); font-size: .78rem; }
+.attention-add { color: var(--ink); font-size: .75rem; text-decoration: underline; text-underline-offset: 4px; }
 
 @media (max-width: 900px) {
   .board { grid-template-columns: repeat(2, minmax(0, 1fr)); }
