@@ -40,6 +40,7 @@ export function presentationSummary(input: PresentationInput) {
 }
 
 export function presentationFileName(input: PresentationInput) {
-  const name = input.report.name.normalize("NFD").replace(/[\u0300-\u036f]/g, "").replace(/[^a-zA-Z0-9]+/g, "-").replace(/^-|-$/g, "").toLowerCase() || "status-semanal";
-  return `${name}-${input.report.startDate}.pptx`;
+  const startDate = input.report.startDate.slice(8, 10) + "-" + input.report.startDate.slice(5, 7);
+  const endDate = input.report.endDate.slice(8, 10) + "-" + input.report.endDate.slice(5, 7);
+  return `Status Semanal - ${input.report.name} - ${startDate} a ${endDate}.pptx`;
 }

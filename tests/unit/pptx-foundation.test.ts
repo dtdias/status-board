@@ -2,6 +2,7 @@ import JSZip from "jszip";
 import { describe, expect, it } from "vitest";
 import { composePresentationSections, demandPhaseColors, presentationFileName, presentationSummary, statusColors } from "@/lib/pptx/compose";
 import { assertPptxIntegrity, assertTemplateIntegrity } from "@/lib/pptx/integrity";
+import { generatedPresentationPath, nextPresentationVersion } from "@/lib/storage/generated-presentation";
 import type { PresentationInput } from "@/lib/pptx/types";
 
 function input(): PresentationInput {
@@ -23,12 +24,23 @@ describe("PPTX composition", () => {
 
   it("calculates summary from report content and creates a safe filename", () => {
     expect(presentationSummary(input())).toEqual({ deliveries: 5, resolvedIncidents: 3, newDemands: 2, supportRoutines: 3 });
-    expect(presentationFileName(input())).toBe("joao-silva-2026-09-21.pptx");
+    expect(presentationFileName(input())).toBe("Status Semanal - João Silva - 21-09 a 27-09.pptx");
   });
 
   it("uses PRD status and demand phase colors", () => {
     expect(statusColors.blocked).toBe("#D7191C");
     expect(demandPhaseColors("development")).toEqual(["#2E8B57", "#2E8B57", "#FFD400", "#A6A6A6"]);
+  });
+});
+
+describe("generated presentation storage", () => {
+  it("uses an immutable, user-scoped path for each version", () => {
+    expect(generatedPresentationPath("user-1", "report-1", 3)).toBe("user-1/report-1/v3.pptx");
+  });
+
+  it("selects the next version after the current highest version", () => {
+    expect(nextPresentationVersion([])).toBe(1);
+    expect(nextPresentationVersion([1, 3, 2])).toBe(4);
   });
 });
 

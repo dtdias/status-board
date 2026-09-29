@@ -123,12 +123,22 @@ export type Database = {
         Update: { title?: string; description?: string | null; owner?: string | null; due_date?: string | null; position?: number; };
         Relationships: [];
       };
+      generated_presentations: {
+        Row: { id: string; weekly_report_id: string; version: number; storage_path: string; file_name: string; generated_at: string; generated_by: string; };
+        Insert: { id?: string; weekly_report_id: string; version: number; storage_path: string; file_name: string; generated_at?: string; generated_by: string; };
+        Update: never;
+        Relationships: [];
+      };
     };
     Views: Record<string, never>;
     Functions: {
       reorder_deliveries: {
         Args: { target_report_id: string; ordered_ids: string[] };
         Returns: undefined;
+      };
+      reserve_generated_presentation: {
+        Args: { target_report_id: string; target_file_name: string };
+        Returns: { id: string; version: number; storage_path: string; file_name: string; generated_at: string; }[];
       };
     };
     Enums: Record<string, never>;
