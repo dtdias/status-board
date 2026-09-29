@@ -1,5 +1,0 @@
-"use client";
-import { useActionState } from "react";
-import { demandPhaseLabels, demandPhases } from "@/lib/demands/demand";
-import { createDemand } from "../actions";
-export function DemandForm({ reportId }: { reportId: string }) { const [state, action] = useActionState(createDemand, {}); return <form action={action} className="auth-panel auth-form"><input name="reportId" type="hidden" value={reportId} /><p className="eyebrow">Nova demanda</p><h1>O que foi solicitado?</h1>{[["title", "Título"],["requesterName", "Solicitante"],["requesterArea", "Área solicitante"],["involvedAreas", "Áreas envolvidas"],["objective", "Objetivo"],["statusText", "Status"]].map(([name,label]) => <label key={name}>{label}<input name={name} required={name !== "statusText"} /></label>)}<label>Fase<select name="currentPhase">{demandPhases.map((phase, index) => <option key={phase} value={phase}>{demandPhaseLabels[index]}</option>)}</select></label>{state.error && <p className="form-error">{state.error}</p>}<button className="primary-button">Salvar demanda</button></form>; }
