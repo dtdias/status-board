@@ -2,6 +2,7 @@ import { NextResponse } from "next/server";
 import { generatePptx } from "@/lib/pptx/generate";
 import { presentationFileName } from "@/lib/pptx/compose";
 import { loadPresentationInput, presentationValidationInput } from "@/lib/reports/load-presentation-input";
+import { discardGeneratedPresentation, reserveGeneratedPresentation, uploadGeneratedPresentation } from "@/lib/storage/generated-presentation";
 import { getPresentationTemplateBuffer } from "@/lib/storage/presentation-template";
 import { createClient } from "@/lib/supabase/server";
 import { validateReport } from "@/lib/validation/report";
@@ -23,12 +24,21 @@ export async function POST(_: Request, { params }: { params: Promise<{ reportId:
 
     const templateBuffer = await getPresentationTemplateBuffer(supabase);
     const output = await generatePptx(input, templateBuffer);
-    const body = output.buffer.slice(output.byteOffset, output.byteOffset + output.byteLength) as ArrayBuffer;
-    return new Response(body, {
-      headers: {
-        "Content-Type": "application/vnd.openxmlformats-officedocument.presentationml.presentation",
-        "Content-Disposition": `attachment; filename="${presentationFileName(input)}"`,
-        "Cache-Control": "no-store",
+    const presentation = await reserveGeneratedPresentation(supabase, reportId, presentationFileName(input));
+    try {
+      await uploadGeneratedPresentation(supabase, presentation.storage_path, output);
+    } catch (error) {
+      await discardGeneratedPresentation(supabase, presentation.id, presentation.storage_path);
+      throw error;
+    }
+
+    return NextResponse.json({
+      presentation: {
+        id: presentation.id,
+        version: presentation.version,
+        fileName: presentation.file_name,
+        generatedAt: presentation.generated_at,
+        downloadUrl: `/api/reports/${reportId}/presentations/${presentation.id}/download`,
       },
     });
   } catch (error) {
