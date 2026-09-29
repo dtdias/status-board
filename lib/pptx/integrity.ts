@@ -3,7 +3,7 @@ import JSZip from "jszip";
 export async function assertPptxIntegrity(buffer: Buffer, expectedSlides?: number) {
   let zip: JSZip;
   try {
-    zip = await JSZip.loadAsync(buffer);
+    zip = await JSZip.loadAsync(buffer, { checkCRC32: true });
   } catch {
     throw new Error("Generated file is not a valid PPTX ZIP archive.");
   }
@@ -19,7 +19,7 @@ export async function assertPptxIntegrity(buffer: Buffer, expectedSlides?: numbe
   }
 
   const slideFiles = Object.keys(zip.files).filter((path) => /^ppt\/slides\/slide\d+\.xml$/.test(path));
-  if (slideFiles.length < slideCount) throw new Error("Generated presentation has missing slide XML parts.");
+  if (slideFiles.length !== slideCount) throw new Error("Generated presentation slide XML parts do not match the presentation slide count.");
   return { slideCount, slideFiles };
 }
 
