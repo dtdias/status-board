@@ -52,6 +52,16 @@ h2 { max-width: 620px; font-size: clamp(2.25rem, 6vw, 5.8rem); letter-spacing: -
 .primary-button { background: var(--yellow); border-color: var(--yellow); color: var(--ink); font-weight: 700; }
 button:disabled { cursor: not-allowed; opacity: .5; }
 
+.auth-shell { align-items: center; background: var(--ink); display: flex; justify-content: center; min-height: 100vh; padding: 20px; }
+.auth-panel { background: var(--surface); border-top: 6px solid var(--yellow); max-width: 560px; padding: clamp(30px, 7vw, 68px); width: 100%; }
+.auth-panel h1 { font-size: clamp(2.6rem, 7vw, 5rem); margin-top: 14px; }
+.brand { color: var(--ink); display: inline-block; font-size: .8rem; font-weight: 700; letter-spacing: .08em; margin-bottom: 62px; text-decoration: none; text-transform: uppercase; }
+.auth-form { display: grid; gap: 18px; margin-top: 34px; }
+.auth-form label { display: grid; font-size: .75rem; font-weight: 700; gap: 8px; letter-spacing: .08em; text-transform: uppercase; }
+.auth-form input { background: transparent; border: 0; border-bottom: 1px solid var(--ink); border-radius: 0; font-size: 1rem; outline-offset: 4px; padding: 10px 0; }
+.auth-form .primary-button { justify-self: start; margin-top: 8px; }
+.form-error { color: #ad1019; font-size: .85rem; }
+
 @media (max-width: 900px) {
   .board { grid-template-columns: repeat(2, minmax(0, 1fr)); }
   .intro { align-items: start; flex-direction: column; }
