@@ -83,6 +83,7 @@ button:disabled { cursor: not-allowed; opacity: .5; }
 .auth-form textarea { resize: vertical; }
 .delete-form { margin-top: 24px; }
 .delete-form button { background: none; border: 0; color: #ad1019; cursor: pointer; padding: 0; text-decoration: underline; text-underline-offset: 4px; }
+.phase-line { display: flex; gap: 4px; } .phase-line span { height: 5px; flex: 1; background: #bfbfbf; } .phase-line .done { background: #2e8b57; } .phase-line .current { background: var(--yellow); }
 
 @media (max-width: 900px) {
   .board { grid-template-columns: repeat(2, minmax(0, 1fr)); }
