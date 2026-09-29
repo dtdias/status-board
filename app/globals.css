@@ -71,6 +71,18 @@ button:disabled { cursor: not-allowed; opacity: .5; }
 .empty-reports { align-items: start; border-top: 1px solid var(--line); display: grid; gap: 18px; margin-top: 30px; padding: 26px 0; }
 .empty-reports p { color: var(--muted); }
 .empty-reports .primary-button { text-decoration: none; }
+.board-brand { margin-bottom: 20px; }
+.report-board { margin-top: 38px; }
+.delivery-stack { display: grid; gap: 9px; margin-top: 18px; }
+.delivery-card { background: #fff; border: 1px solid var(--line); color: var(--ink); display: grid; gap: 8px; padding: 12px; text-decoration: none; }
+.delivery-card strong { font-size: .95rem; }
+.delivery-card p { color: var(--muted); font-size: .8rem; line-height: 1.35; }
+.delivery-icon { align-items: center; background: var(--yellow); border-radius: 50%; display: inline-flex; font-size: .7rem; font-weight: 700; height: 22px; justify-content: center; width: 22px; }
+.delivery-status { color: #fff; font-size: .65rem; font-weight: 700; justify-self: start; padding: 4px 7px; }
+.auth-form textarea, .auth-form select { background: transparent; border: 0; border-bottom: 1px solid var(--ink); border-radius: 0; font: inherit; outline-offset: 4px; padding: 10px 0; }
+.auth-form textarea { resize: vertical; }
+.delete-form { margin-top: 24px; }
+.delete-form button { background: none; border: 0; color: #ad1019; cursor: pointer; padding: 0; text-decoration: underline; text-underline-offset: 4px; }
 
 @media (max-width: 900px) {
   .board { grid-template-columns: repeat(2, minmax(0, 1fr)); }
