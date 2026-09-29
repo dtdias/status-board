@@ -1,10 +1,11 @@
 import { z } from "zod";
+import { CONTENT_LIMITS } from "@/lib/validation/report";
 
 export const attentionLimits = {
-  dependencyTitle: 60,
-  dependencyDescription: 160,
-  nextStepTitle: 60,
-  nextStepDescription: 160,
+  dependencyTitle: CONTENT_LIMITS.dependencyTitle,
+  dependencyDescription: CONTENT_LIMITS.dependencyDescription,
+  nextStepTitle: CONTENT_LIMITS.nextStepTitle,
+  nextStepDescription: CONTENT_LIMITS.nextStepDescription,
 } as const;
 
 const optionalText = (max: number) => z.string().trim().max(max).transform((value) => value || null);

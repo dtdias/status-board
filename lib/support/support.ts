@@ -1,15 +1,16 @@
 import { z } from "zod";
+import { CONTENT_LIMITS } from "@/lib/validation/report";
 
 export const supportIcons = ["routine", "process", "server", "database", "cloud", "network", "security", "notification"] as const;
 
 export const supportFrontSchema = z.object({
-  title: z.string().trim().min(1, "Informe o nome da frente.").max(50, "Nome deve ter no máximo 50 caracteres."),
-  activityType: z.string().trim().min(1, "Informe o tipo de atividade.").max(80, "Tipo deve ter no máximo 80 caracteres."),
+  title: z.string().trim().min(1, "Informe o nome da frente.").max(CONTENT_LIMITS.supportFrontTitle, "Nome deve ter no máximo 50 caracteres."),
+  activityType: z.string().trim().min(1, "Informe o tipo de atividade.").max(CONTENT_LIMITS.supportActivityType, "Tipo deve ter no máximo 80 caracteres."),
   iconKey: z.enum(supportIcons, "Selecione o ícone."),
 });
 
 export const supportRoutineSchema = z.object({
-  title: z.string().trim().min(1, "Informe a rotina.").max(90, "Rotina deve ter no máximo 90 caracteres."),
+  title: z.string().trim().min(1, "Informe a rotina.").max(CONTENT_LIMITS.supportRoutine, "Rotina deve ter no máximo 90 caracteres."),
 });
 
 export const supportFrontWithRoutinesSchema = supportFrontSchema.extend({
