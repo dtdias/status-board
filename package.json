@@ -20,7 +20,9 @@
     "@dnd-kit/utilities": "^3.2.2",
     "@supabase/ssr": "^0.12.7",
     "@supabase/supabase-js": "^2.117.2",
+    "jszip": "^3.10.2",
     "next": "^16.3.7",
+    "pptx-automizer": "^0.9.4",
     "react": "^19.3.0",
     "react-dom": "^19.3.0",
     "zod": "^4.6.5"
