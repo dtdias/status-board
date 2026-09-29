@@ -1,0 +1,18 @@
+"use client";
+
+import { useActionState } from "react";
+import { saveDependency, saveNextStep, type AttentionState } from "./actions";
+
+type Dependency = { id: string; title: string; description: string; owner: string; waiting_since: string; status: string | null };
+type NextStep = { id: string; title: string; description: string | null; owner: string | null; due_date: string | null };
+const initialState: AttentionState = {};
+
+export function DependencyForm({ reportId, dependency }: { reportId: string; dependency?: Dependency }) {
+  const [state, formAction, pending] = useActionState(saveDependency, initialState);
+  return <form action={formAction} className="auth-form"><input name="reportId" type="hidden" value={reportId} />{dependency ? <input name="dependencyId" type="hidden" value={dependency.id} /> : null}<label>Título<input defaultValue={dependency?.title} maxLength={60} name="title" required /></label><label>Descrição<textarea defaultValue={dependency?.description} maxLength={160} name="description" required rows={4} /></label><label>Responsável<input defaultValue={dependency?.owner} maxLength={80} name="owner" required /></label><label>Aguardando desde<input defaultValue={dependency?.waiting_since} name="waitingSince" required type="date" /></label><label>Status<input defaultValue={dependency?.status ?? ""} maxLength={100} name="status" /></label>{state.error ? <p className="form-error" role="alert">{state.error}</p> : null}<button className="primary-button" disabled={pending} type="submit">{pending ? "Salvando..." : "Salvar dependência"}</button></form>;
+}
+
+export function NextStepForm({ reportId, nextStep }: { reportId: string; nextStep?: NextStep }) {
+  const [state, formAction, pending] = useActionState(saveNextStep, initialState);
+  return <form action={formAction} className="auth-form"><input name="reportId" type="hidden" value={reportId} />{nextStep ? <input name="nextStepId" type="hidden" value={nextStep.id} /> : null}<label>Título<input defaultValue={nextStep?.title} maxLength={60} name="title" required /></label><label>Descrição<textarea defaultValue={nextStep?.description ?? ""} maxLength={160} name="description" rows={4} /></label><label>Responsável<input defaultValue={nextStep?.owner ?? ""} maxLength={80} name="owner" /></label><label>Prazo<input defaultValue={nextStep?.due_date ?? ""} name="dueDate" type="date" /></label>{state.error ? <p className="form-error" role="alert">{state.error}</p> : null}<button className="primary-button" disabled={pending} type="submit">{pending ? "Salvando..." : "Salvar próximo passo"}</button></form>;
+}
