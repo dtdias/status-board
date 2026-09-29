@@ -30,6 +30,12 @@
 - Inspect generated PPTX as ZIP. Verify required presentation/XML parts, expected slide count/text, no template slides 1–3, no placeholders, and no corruption.
 - Before architecture changes, document concrete problem, alternatives, decision, and impact in the change context.
 
+## Stage Workflow
+
+- Before each new implementation stage, ask which branch to use; create a new branch for that stage instead of working directly on the current branch.
+- Add unit tests with each stage; run focused tests and applicable lint/typecheck/build checks before committing.
+- Commit incrementally as work advances; inspect status and diff, then stage only files belonging to the current stage.
+
 ## Local Agent Skills
 
 - For UI work, consult `.opencode/skills/ui-styling/SKILL.md` and `.opencode/skills/ui-ux-pro-max/SKILL.md`; for tokens or slide generation, consult `.opencode/skills/design-system/SKILL.md`.
