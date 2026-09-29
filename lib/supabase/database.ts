@@ -99,6 +99,18 @@ export type Database = {
         Relationships: [];
       };
       demands: { Row: { id: string; weekly_report_id: string; title: string; requester_name: string; requester_area: string; involved_areas: string[]; objective: string; status_text: string | null; current_phase: "request_received" | "feasibility_requirements" | "development" | "validation"; icon_key: string; position: number; created_at: string; updated_at: string; }; Insert: { weekly_report_id: string; title: string; requester_name: string; requester_area: string; involved_areas: string[]; objective: string; status_text?: string | null; current_phase: "request_received" | "feasibility_requirements" | "development" | "validation"; icon_key?: string; position?: number; }; Update: { title?: string; requester_name?: string; requester_area?: string; involved_areas?: string[]; objective?: string; status_text?: string | null; current_phase?: "request_received" | "feasibility_requirements" | "development" | "validation"; }; Relationships: []; };
+      support_fronts: {
+        Row: { id: string; weekly_report_id: string; title: string; activity_type: string; icon_key: string; position: number; };
+        Insert: { id?: string; weekly_report_id: string; title: string; activity_type: string; icon_key: string; position?: number; };
+        Update: { title?: string; activity_type?: string; icon_key?: string; position?: number; };
+        Relationships: [];
+      };
+      support_routines: {
+        Row: { id: string; support_front_id: string; title: string; position: number; };
+        Insert: { id?: string; support_front_id: string; title: string; position?: number; };
+        Update: { title?: string; position?: number; };
+        Relationships: [];
+      };
     };
     Views: Record<string, never>;
     Functions: Record<string, never>;
