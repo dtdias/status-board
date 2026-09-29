@@ -92,6 +92,12 @@ export type Database = {
         };
         Relationships: [];
       };
+      incidents: {
+        Row: { id: string; weekly_report_id: string; affected_system: string; symptom: string; cause: string | null; action_taken: string; support_people: string | null; status: "resolved" | "in_progress" | "waiting_third_party" | "blocked"; resolved_at: string | null; icon_key: string; position: number; created_at: string; updated_at: string; };
+        Insert: { id?: string; weekly_report_id: string; affected_system: string; symptom: string; cause?: string | null; action_taken: string; support_people?: string | null; status: "resolved" | "in_progress" | "waiting_third_party" | "blocked"; resolved_at?: string | null; icon_key: string; position?: number; created_at?: string; updated_at?: string; };
+        Update: { affected_system?: string; symptom?: string; cause?: string | null; action_taken?: string; support_people?: string | null; status?: "resolved" | "in_progress" | "waiting_third_party" | "blocked"; resolved_at?: string | null; icon_key?: string; position?: number; updated_at?: string; };
+        Relationships: [];
+      };
     };
     Views: Record<string, never>;
     Functions: Record<string, never>;
