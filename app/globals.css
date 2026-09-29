@@ -84,6 +84,17 @@ button:disabled { cursor: not-allowed; opacity: .5; }
 .delete-form { margin-top: 24px; }
 .delete-form button { background: none; border: 0; color: #ad1019; cursor: pointer; padding: 0; text-decoration: underline; text-underline-offset: 4px; }
 .phase-line { display: flex; gap: 4px; } .phase-line span { height: 5px; flex: 1; background: #bfbfbf; } .phase-line .done { background: #2e8b57; } .phase-line .current { background: var(--yellow); }
+.support-card ul { color: var(--muted); font-size: .76rem; line-height: 1.4; margin: 0; padding-left: 16px; }
+.routine-count { color: var(--muted); font-size: .7rem; font-weight: 700; text-transform: uppercase; }
+.routines { border-top: 1px solid var(--line); display: grid; gap: 16px; margin-top: 38px; padding-top: 24px; }
+.routines h2 { font-size: 1.6rem; letter-spacing: -.04em; }
+.routine-row { border-bottom: 1px solid var(--line); display: grid; gap: 8px; padding-bottom: 16px; }
+.routine-form { display: grid; gap: 10px; }
+.routine-form label { display: grid; font-size: .7rem; font-weight: 700; gap: 7px; letter-spacing: .08em; text-transform: uppercase; }
+.routine-form input { background: transparent; border: 0; border-bottom: 1px solid var(--ink); font: inherit; padding: 8px 0; }
+.routine-form .outline-button { justify-self: start; padding: 8px 13px; }
+.text-delete { background: none; border: 0; color: #ad1019; cursor: pointer; padding: 0; text-align: left; text-decoration: underline; text-underline-offset: 4px; }
+.routine-limit { color: var(--muted); font-size: .85rem; }
 
 @media (max-width: 900px) {
   .board { grid-template-columns: repeat(2, minmax(0, 1fr)); }
