@@ -62,4 +62,23 @@ describe("PPTX ZIP integrity", () => {
     const buffer = await zip.generateAsync({ type: "nodebuffer" });
     await expect(assertTemplateIntegrity(buffer)).rejects.toThrow("10 mapped slides");
   });
+
+  it("rejects archives whose slide XML parts do not match the presentation", async () => {
+    const zip = new JSZip();
+    zip.file("[Content_Types].xml", "<Types />");
+    zip.file("ppt/presentation.xml", "<p:presentation><p:sldIdLst><p:sldId /></p:sldIdLst></p:presentation>");
+    zip.file("ppt/slides/slide1.xml", "<p:sld />");
+    zip.file("ppt/slides/slide2.xml", "<p:sld />");
+    const buffer = await zip.generateAsync({ type: "nodebuffer" });
+
+    await expect(assertPptxIntegrity(buffer, 1)).rejects.toThrow("slide XML parts do not match");
+  });
+
+  it("rejects archives missing required PPTX parts", async () => {
+    const zip = new JSZip();
+    zip.file("[Content_Types].xml", "<Types />");
+    const buffer = await zip.generateAsync({ type: "nodebuffer" });
+
+    await expect(assertPptxIntegrity(buffer)).rejects.toThrow("missing required PPTX XML parts");
+  });
 });
