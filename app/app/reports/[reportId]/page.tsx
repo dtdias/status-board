@@ -6,6 +6,7 @@ import { createClient } from "@/lib/supabase/server";
 import { deliveryStatusMeta } from "@/lib/deliveries/delivery";
 import { incidentStatusMeta } from "@/lib/incidents/incident";
 import { demandPhaseLabels, demandPhases, phaseTone } from "@/lib/demands/demand";
+import { calculateReportSummary } from "@/lib/reports/summary";
 
 export default async function ReportPage({ params }: { params: Promise<{ reportId: string }> }) {
   const { reportId } = await params;
@@ -36,10 +37,27 @@ export default async function ReportPage({ params }: { params: Promise<{ reportI
   const { data: supportRoutines } = supportFrontIds.length
     ? await supabase.from("support_routines").select("id, support_front_id, title, position").in("support_front_id", supportFrontIds).order("position")
     : { data: [] };
+  const summary = calculateReportSummary({
+    deliveries: deliveries ?? [],
+    incidents: incidents ?? [],
+    demands: demands ?? [],
+    supportFronts: (supportFronts ?? []).map((front) => ({
+      routines: (supportRoutines ?? []).filter((routine) => routine.support_front_id === front.id),
+    })),
+  });
 
   return (
     <main className="shell">
       <header className="topbar"><div><Link className="brand board-brand" href={"/app" as Route}>Status Board</Link><p className="eyebrow">Apresentação em {report.presentation_date}</p><h1>{formatWeekRange(report.start_date, report.end_date)}</h1></div><Link className="outline-button" href={`/app/reports/${reportId}/support-fronts/new` as Route}>Nova frente</Link></header>
+      <section className="report-summary" aria-label="Resumo automático da semana">
+        <p className="eyebrow">Resumo automático</p>
+        <dl className="summary-metrics">
+          <div><dt>Entregas</dt><dd>{summary.deliveries}</dd></div>
+          <div><dt>Incidentes resolvidos</dt><dd>{summary.resolvedIncidents}</dd></div>
+          <div><dt>Demandas novas</dt><dd>{summary.newDemands}</dd></div>
+          <div><dt>Rotinas de sustentação</dt><dd>{summary.supportRoutines}</dd></div>
+        </dl>
+      </section>
       <section className="board report-board" aria-label="Board semanal">
         <article className="board-column deliveries-column"><div className="column-heading"><span className="status-dot green" /><h3>Entregas</h3><span className="count">{deliveries?.length ?? 0}</span></div>{deliveries?.length ? <div className="delivery-stack">{deliveries.map((delivery) => <Link className="delivery-card" href={`/app/reports/${reportId}/deliveries/${delivery.id}` as Route} key={delivery.id}><span className="delivery-icon">{delivery.icon_key.slice(0, 1).toUpperCase()}</span><strong>{delivery.title}</strong><p>{delivery.description}</p><span className="delivery-status" style={{ background: deliveryStatusMeta[delivery.status].color }}>{deliveryStatusMeta[delivery.status].label}</span></Link>)}</div> : <div className="empty-state"><span className="empty-mark">+</span><p>Sem ocorrências na semana.</p><Link href={`/app/reports/${reportId}/deliveries/new` as Route}>Adicionar entrega</Link></div>}</article>
         <article className="board-column"><div className="column-heading"><span className="status-dot red" /><h3>Incidentes</h3><span className="count">{incidents?.length ?? 0}</span></div>{incidents?.length ? <div className="delivery-stack">{incidents.map((incident) => <Link className="delivery-card" href={`/app/reports/${reportId}/incidents/${incident.id}` as Route} key={incident.id}><strong>{incident.affected_system}</strong><p>{incident.symptom}</p><span className="delivery-status" style={{ background: incidentStatusMeta[incident.status].color }}>{incidentStatusMeta[incident.status].label}{incident.resolved_at ? ` · ${incident.resolved_at}` : ""}</span></Link>)}</div> : <div className="empty-state"><p>Sem incidentes na semana.</p><Link href={`/app/reports/${reportId}/incidents/new` as Route}>Adicionar incidente</Link></div>}</article>
