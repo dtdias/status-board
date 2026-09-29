@@ -23,6 +23,42 @@ export type Database = {
         };
         Relationships: [];
       };
+      weekly_reports: {
+        Row: {
+          id: string;
+          user_id: string;
+          start_date: string;
+          end_date: string;
+          presentation_date: string | null;
+          highlight: string | null;
+          status: "draft" | "ready" | "generated" | "presented" | "archived";
+          template_version: string;
+          created_at: string;
+          updated_at: string;
+        };
+        Insert: {
+          id?: string;
+          user_id: string;
+          start_date: string;
+          end_date: string;
+          presentation_date: string;
+          highlight?: string | null;
+          status?: "draft" | "ready" | "generated" | "presented" | "archived";
+          template_version?: string;
+          created_at?: string;
+          updated_at?: string;
+        };
+        Update: {
+          start_date?: string;
+          end_date?: string;
+          presentation_date?: string | null;
+          highlight?: string | null;
+          status?: "draft" | "ready" | "generated" | "presented" | "archived";
+          template_version?: string;
+          updated_at?: string;
+        };
+        Relationships: [];
+      };
     };
     Views: Record<string, never>;
     Functions: Record<string, never>;

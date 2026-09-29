@@ -61,6 +61,16 @@ button:disabled { cursor: not-allowed; opacity: .5; }
 .auth-form input { background: transparent; border: 0; border-bottom: 1px solid var(--ink); border-radius: 0; font-size: 1rem; outline-offset: 4px; padding: 10px 0; }
 .auth-form .primary-button { justify-self: start; margin-top: 8px; }
 .form-error { color: #ad1019; font-size: .85rem; }
+.report-list { padding: 64px 0; }
+.report-list h2 { font-size: clamp(2rem, 5vw, 4.5rem); margin-top: 12px; }
+.reports { display: grid; gap: 10px; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); margin-top: 30px; }
+.report-card { background: var(--surface); border: 1px solid var(--line); color: var(--ink); display: grid; gap: 12px; min-height: 170px; padding: 20px; text-decoration: none; transition: background .15s ease; }
+.report-card:hover { background: #fff; }
+.report-card strong { font-size: 1.15rem; }
+.report-card span:last-child { color: var(--muted); font-size: .8rem; }
+.empty-reports { align-items: start; border-top: 1px solid var(--line); display: grid; gap: 18px; margin-top: 30px; padding: 26px 0; }
+.empty-reports p { color: var(--muted); }
+.empty-reports .primary-button { text-decoration: none; }
 
 @media (max-width: 900px) {
   .board { grid-template-columns: repeat(2, minmax(0, 1fr)); }
