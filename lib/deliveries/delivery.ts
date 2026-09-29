@@ -1,4 +1,5 @@
 import { z } from "zod";
+import { CONTENT_LIMITS } from "@/lib/validation/report";
 
 export const deliveryStatuses = ["delivered", "in_progress", "waiting_third_party", "blocked"] as const;
 
@@ -12,8 +13,8 @@ export const deliveryStatusMeta = {
 export const deliveryIcons = ["integration", "process", "routine", "code", "report", "server", "database", "cloud"] as const;
 
 export const deliverySchema = z.object({
-  title: z.string().trim().min(1, "Informe o nome da entrega.").max(60, "Nome deve ter no máximo 60 caracteres."),
-  description: z.string().trim().min(1, "Informe a descrição.").max(150, "Descrição deve ter no máximo 150 caracteres."),
+  title: z.string().trim().min(1, "Informe o nome da entrega.").max(CONTENT_LIMITS.deliveryTitle, "Nome deve ter no máximo 60 caracteres."),
+  description: z.string().trim().min(1, "Informe a descrição.").max(CONTENT_LIMITS.deliveryDescription, "Descrição deve ter no máximo 150 caracteres."),
   status: z.enum(deliveryStatuses, "Selecione o status."),
   iconKey: z.enum(deliveryIcons, "Selecione o ícone."),
 });
