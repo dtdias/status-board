@@ -111,6 +111,18 @@ export type Database = {
         Update: { title?: string; position?: number; };
         Relationships: [];
       };
+      dependencies: {
+        Row: { id: string; weekly_report_id: string; title: string; description: string; owner: string; waiting_since: string; status: string | null; position: number; };
+        Insert: { id?: string; weekly_report_id: string; title: string; description: string; owner: string; waiting_since: string; status?: string | null; position?: number; };
+        Update: { title?: string; description?: string; owner?: string; waiting_since?: string; status?: string | null; position?: number; };
+        Relationships: [];
+      };
+      next_steps: {
+        Row: { id: string; weekly_report_id: string; title: string; description: string | null; owner: string | null; due_date: string | null; position: number; };
+        Insert: { id?: string; weekly_report_id: string; title: string; description?: string | null; owner?: string | null; due_date?: string | null; position?: number; };
+        Update: { title?: string; description?: string | null; owner?: string | null; due_date?: string | null; position?: number; };
+        Relationships: [];
+      };
     };
     Views: Record<string, never>;
     Functions: Record<string, never>;
