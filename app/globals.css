@@ -50,6 +50,9 @@ h2 { max-width: 620px; font-size: clamp(2.25rem, 6vw, 5.8rem); letter-spacing: -
 .actionbar { border-top: 1px solid var(--line); gap: 20px; margin-top: 30px; padding-top: 18px; }
 .actionbar p { color: var(--muted); font-size: .85rem; }
 .actions { display: flex; gap: 8px; }
+.generate-presentation { display: grid; gap: 7px; }
+.generate-presentation .form-error, .generate-presentation .form-success { max-width: 250px; }
+.generate-presentation .form-success { text-underline-offset: 3px; }
 .muted-button { background: transparent; border-color: var(--line); color: var(--muted); }
 .primary-button { background: var(--yellow); border-color: var(--yellow); color: var(--ink); font-weight: 700; }
 button:disabled { cursor: not-allowed; opacity: .5; }
@@ -192,6 +195,6 @@ button:disabled { cursor: not-allowed; opacity: .5; }
   .board-column { min-height: 190px; }
   .empty-state { min-height: 130px; }
   .actionbar { align-items: start; flex-direction: column; }
-  .actions { flex-wrap: wrap; }
+  .actions { flex-wrap: wrap; }.generate-presentation { width: 100%; }.generate-presentation .form-error, .generate-presentation .form-success { max-width: none; }
   .slide { aspect-ratio: auto; min-height: 420px; }.slide-grid.four { grid-template-columns: repeat(2, 1fr); }.slide-grid.two, .attention-slide { grid-template-columns: 1fr; }.slide-demand > .preview-source { max-width: none; }.slide-metrics { grid-template-columns: repeat(2, 1fr); }
 }
