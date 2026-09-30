@@ -1,41 +1,43 @@
 # Agent Instructions
 
-## Repository State
+## Source Of Truth
 
-- `PRD.md` is current functional and technical source of truth; read relevant sections before changing architecture or PPTX behavior.
-- Repository currently contains no app source, package manifest, lockfile, test config, CI workflow, or executable build/test command. Do not invent commands; inspect newly added manifests first.
-- `README.md` is only a project title and adds no setup guidance.
+- Read relevant `PRD.md` sections before changing behavior, architecture, or PPTX output.
+- `app/` owns App Router pages, route handlers, and server actions; business logic belongs in `lib/`; Supabase migrations live in `supabase/migrations/`.
+- `README.md` links to production and E2E runbooks; use `docs/production-setup.md`, `docs/e2e.md`, and `docs/template-administration.md` for operational details.
+- For architecture, ownership, or cross-file relationship questions, check `graphify-out/graph.json` first and query Graphify before broad manual searches; build the graph with `/graphify` when absent. Do not commit generated `graphify-out/` artifacts unless requested.
 
-## Architecture Constraints
+## Commands
 
-- Target stack: Next.js App Router, TypeScript, Node.js 22+, Tailwind/shadcn-style accessible UI, Supabase, `dnd-kit`, Zod, Vitest, Playwright, Vercel.
-- PPTX generation must run in Vercel Node runtime (`runtime = "nodejs"`), never Edge; do not use Office, LibreOffice, or Python in the server path.
-- Treat function filesystem as temporary. Pass PPTX through `Buffer`/streams and persist templates/generated files in Supabase Storage; `/tmp` is execution-only.
-- Keep business logic in `lib/`; PPTX layer consumes an independent `PresentationInput` DTO and must not query the database directly.
-- Use one `pptx-automizer` instance per generation. Confirm installed-library API against the actual dependency version.
-
-## PPTX Invariants
-
-- Reuse `Template(1).pptx` as visual master; preserve its shapes, icons, fonts, colors, and positions where possible. Do not redraw the template or replace its PPTX icons with Lucide.
-- Exclude template slides 1–3 from final output. Final order is cover, summary, deliveries, incidents, demands, support, attention.
-- Empty sections remain present with the specified absence message. Never expose placeholders.
-- Preserve board/card ordering in generated slides; paginate deliveries by 4, incidents by 2, support fronts by 2, and demands as 1 slide each.
-- Calculate summary totals from content, not user input. Update generated page numbers; never trust template numbers.
-- Validate character/layout limits before generation; do not shrink fonts indefinitely. Dependencies require owner and waiting date.
-
-## Verification
-
-- Generator tests must cover chunking, summary, status colors, demand phases, validation, cloning, and filename.
-- PPTX integration fixture: 5 deliveries, 3 incidents, 2 demands, 3 support fronts; expected final deck has 11 slides: 1 cover, 1 summary, 2 deliveries, 2 incidents, 2 demands, 2 support, 1 attention.
-- Inspect generated PPTX as ZIP. Verify required presentation/XML parts, expected slide count/text, no template slides 1–3, no placeholders, and no corruption.
-- Before architecture changes, document concrete problem, alternatives, decision, and impact in the change context.
+- Required verification order: `npm ci` with Node 22/npm 10, `npm run lint`, `npm run typecheck`, `npm test`, `npm run build`.
+- `npm run lint` intentionally scopes `app lib tests` and root configs; do not replace it with `eslint .`, which also lints unrelated `.opencode` scripts.
+- Focus one unit file with `npm test -- tests/unit/<name>.test.ts`.
+- `npm run test:e2e` is environment-gated and does not start Next.js. It skips unless `E2E_RUN=true`, `E2E_BASE_URL`, `E2E_USER_EMAIL`, and `E2E_USER_PASSWORD` exist; install Chromium with `npx playwright install chromium`.
+- CI runs the same unit/build checks in `.github/workflows/verification.yml`; optional E2E requires isolated Supabase secrets and `E2E_TEMPLATE_READY=true`.
 
 ## Stage Workflow
 
-- Before each new implementation stage, ask which branch to use; create a new branch for that stage instead of working directly on the current branch.
-- Add unit tests with each stage; run focused tests and applicable lint/typecheck/build checks before committing.
-- Commit incrementally as work advances; inspect status and diff, then stage only files belonging to the current stage.
+- Before each implementation stage, ask which new branch to use; never start a stage directly on the current branch.
+- Add unit tests with each stage; run focused tests plus lint/typecheck/build before commit.
+- Commit incrementally; inspect status/diff and stage only files belonging to the current stage.
 
-## Local Agent Skills
+## Architecture Constraints
 
-- For UI work, consult `.opencode/skills/ui-styling/SKILL.md` and `.opencode/skills/ui-ux-pro-max/SKILL.md`; for tokens or slide generation, consult `.opencode/skills/design-system/SKILL.md`.
+- Target stack: Next.js App Router, TypeScript, Node.js 22+, Supabase, Tailwind/shadcn-style UI, `dnd-kit`, Zod, Vitest, Playwright, Vercel.
+- PPTX routes must declare Node runtime, never Edge. Generator uses one `pptx-automizer` instance per generation and returns a `Buffer`; it must consume independent `PresentationInput`, never query DB.
+- Treat Vercel filesystem as temporary. Store templates/generated PPTX in private Supabase Storage; do not use Office, LibreOffice, Python, or persistent local files in server generation.
+- Apply migrations `0001_initial_schema.sql` through `0005_template_admin_authorization.sql` in order. Keep `generated-presentations` and `presentation-templates` buckets private; no service-role key is used by app.
+- Template uploads require `template_admins` allowlist. Template path is `status-weekly/<version>/template.pptx`; configured version defaults to `v1` via `PPTX_TEMPLATE_VERSION`.
+
+## PPTX Invariants
+
+- Reuse `Template(1).pptx` as visual master; preserve shapes, icons, fonts, colors, and positions. Do not replace template PPTX icons with Lucide.
+- Exclude template slides 1–3. Final order: cover, summary, deliveries, incidents, demands, support, attention.
+- Keep empty sections with their absence message; never expose placeholders.
+- Preserve board order; paginate deliveries by 4, incidents by 2, support fronts by 2, demands by 1 slide each.
+- Calculate summary from content, update generated page numbers, and validate content limits before generation; dependency owner and waiting date are mandatory.
+- Real PPTX integration requires the reviewed template at `presentation-templates/status-weekly/v1/template.pptx`; do not fabricate a fixture/template. ZIP checks must cover required XML, slide count/text, excluded slides, placeholders, CRC/corruption.
+
+## UI Skills
+
+- For UI work consult `.opencode/skills/ui-styling/SKILL.md` and `.opencode/skills/ui-ux-pro-max/SKILL.md`; for tokens/slides consult `.opencode/skills/design-system/SKILL.md`.

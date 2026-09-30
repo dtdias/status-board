@@ -141,3 +141,4 @@ Template(1).pptx
 # Playwright artifacts
 test-results/
 playwright-report/
+/graphify-out
