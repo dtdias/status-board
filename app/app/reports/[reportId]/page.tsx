@@ -6,8 +6,10 @@ import { createClient } from "@/lib/supabase/server";
 import { incidentStatusMeta } from "@/lib/incidents/incident";
 import { demandPhaseLabels, demandPhases, phaseTone } from "@/lib/demands/demand";
 import { calculateReportSummary } from "@/lib/reports/summary";
+import { listGeneratedPresentations, type GeneratedPresentation } from "@/lib/storage/generated-presentation";
 import { DeliverySortableList } from "./delivery-sortable-list";
 import { GeneratePresentation } from "./generate-presentation";
+import { PresentationHistory } from "./presentation-history";
 
 export default async function ReportPage({ params }: { params: Promise<{ reportId: string }> }) {
   const { reportId } = await params;
@@ -34,6 +36,13 @@ export default async function ReportPage({ params }: { params: Promise<{ reportI
   const { data: supportFronts } = await supabase.from("support_fronts").select("id, title, activity_type, icon_key, position").eq("weekly_report_id", reportId).order("position");
   const { data: dependencies } = await supabase.from("dependencies").select("id, title, description, owner, waiting_since, status, position").eq("weekly_report_id", reportId).order("position");
   const { data: nextSteps } = await supabase.from("next_steps").select("id, title, description, owner, due_date, position").eq("weekly_report_id", reportId).order("position");
+  let presentations: GeneratedPresentation[] = [];
+  let presentationHistoryError: string | null = null;
+  try {
+    presentations = await listGeneratedPresentations(supabase, reportId);
+  } catch {
+    presentationHistoryError = "Não foi possível carregar o histórico de apresentações. Atualize a página para tentar novamente.";
+  }
   const supportFrontIds = supportFronts?.map((front) => front.id) ?? [];
   const { data: supportRoutines } = supportFrontIds.length
     ? await supabase.from("support_routines").select("id, support_front_id, title, position").in("support_front_id", supportFrontIds).order("position")
@@ -59,6 +68,7 @@ export default async function ReportPage({ params }: { params: Promise<{ reportI
           <div><dt>Rotinas de sustentação</dt><dd>{summary.supportRoutines}</dd></div>
         </dl>
       </section>
+      {presentationHistoryError ? <p className="form-error" role="alert">{presentationHistoryError}</p> : <PresentationHistory presentations={presentations} reportId={reportId} />}
       <section className="board report-board" aria-label="Board semanal">
         <article className="board-column deliveries-column"><div className="column-heading"><span className="status-dot green" /><h3>Entregas</h3><span className="count">{deliveries?.length ?? 0}</span></div>{deliveries?.length ? <DeliverySortableList deliveries={deliveries} reportId={reportId} /> : <div className="empty-state"><span className="empty-mark">+</span><p>Sem ocorrências na semana.</p><Link href={`/app/reports/${reportId}/deliveries/new` as Route}>Adicionar entrega</Link></div>}</article>
         <article className="board-column"><div className="column-heading"><span className="status-dot red" /><h3>Incidentes</h3><span className="count">{incidents?.length ?? 0}</span></div>{incidents?.length ? <div className="delivery-stack">{incidents.map((incident) => <Link className="delivery-card" href={`/app/reports/${reportId}/incidents/${incident.id}` as Route} key={incident.id}><strong>{incident.affected_system}</strong><p>{incident.symptom}</p><span className="delivery-status" style={{ background: incidentStatusMeta[incident.status].color }}>{incidentStatusMeta[incident.status].label}{incident.resolved_at ? ` · ${incident.resolved_at}` : ""}</span></Link>)}</div> : <div className="empty-state"><p>Sem incidentes na semana.</p><Link href={`/app/reports/${reportId}/incidents/new` as Route}>Adicionar incidente</Link></div>}</article>
