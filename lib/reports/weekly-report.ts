@@ -1,5 +1,24 @@
 import { z } from "zod";
 
+export const reportStatuses = ["draft", "ready", "generated", "presented", "archived"] as const;
+export type ReportStatus = (typeof reportStatuses)[number];
+
+const allowedTransitions: Record<ReportStatus, readonly ReportStatus[]> = {
+  draft: ["ready"],
+  ready: ["draft", "generated"],
+  generated: ["ready", "presented", "archived"],
+  presented: ["archived"],
+  archived: [],
+};
+
+export function canTransitionReportStatus(from: ReportStatus, to: ReportStatus) {
+  return allowedTransitions[from].includes(to);
+}
+
+export function reportStatusLabel(status: ReportStatus) {
+  return { draft: "Rascunho", ready: "Pronto para gerar", generated: "Gerado", presented: "Apresentado", archived: "Arquivado" }[status];
+}
+
 export const weeklyReportSchema = z
   .object({
     startDate: z.iso.date("Informe a data inicial."),

@@ -10,6 +10,7 @@ import { listGeneratedPresentations, type GeneratedPresentation } from "@/lib/st
 import { DeliverySortableList } from "./delivery-sortable-list";
 import { GeneratePresentation } from "./generate-presentation";
 import { PresentationHistory } from "./presentation-history";
+import { ReportStatusActions } from "./report-status-actions";
 
 export default async function ReportPage({ params }: { params: Promise<{ reportId: string }> }) {
   const { reportId } = await params;
@@ -22,7 +23,7 @@ export default async function ReportPage({ params }: { params: Promise<{ reportI
 
   const { data: report } = await supabase
     .from("weekly_reports")
-    .select("id, start_date, end_date, presentation_date")
+    .select("id, start_date, end_date, presentation_date, status")
     .eq("id", reportId)
     .maybeSingle();
 
@@ -56,9 +57,12 @@ export default async function ReportPage({ params }: { params: Promise<{ reportI
     })),
   });
 
+  const isArchived = report.status === "archived";
+
   return (
     <main className="shell">
-      <header className="topbar"><div><Link className="brand board-brand" href={"/app" as Route}>Status Board</Link><p className="eyebrow">Apresentação em {report.presentation_date}</p><h1>{formatWeekRange(report.start_date, report.end_date)}</h1></div><div className="actions"><Link className="outline-button" href={`/app/reports/${reportId}/details` as Route}>Editar detalhes</Link><Link className="outline-button" href={`/app/reports/${reportId}/preview` as Route}>Pré-visualizar</Link><Link className="outline-button" href={`/app/reports/${reportId}/support-fronts/new` as Route}>Nova frente</Link><GeneratePresentation reportId={reportId} /></div></header>
+      <header className="topbar"><div><Link className="brand board-brand" href={"/app" as Route}>Status Board</Link><p className="eyebrow">Apresentação em {report.presentation_date}</p><h1>{formatWeekRange(report.start_date, report.end_date)}</h1></div><div className="actions">{isArchived ? null : <Link className="outline-button" href={`/app/reports/${reportId}/details` as Route}>Editar detalhes</Link>}<Link className="outline-button" href={`/app/reports/${reportId}/preview` as Route}>Pré-visualizar</Link>{isArchived ? null : <Link className="outline-button" href={`/app/reports/${reportId}/support-fronts/new` as Route}>Nova frente</Link>}{report.status === "ready" ? <GeneratePresentation reportId={reportId} /> : null}<ReportStatusActions reportId={reportId} status={report.status} /></div></header>
+      {isArchived ? <p className="form-success" role="status">Este relatório está arquivado e disponível somente para consulta e download.</p> : null}
       <section className="report-summary" aria-label="Resumo automático da semana">
         <p className="eyebrow">Resumo automático</p>
         <dl className="summary-metrics">
@@ -69,7 +73,7 @@ export default async function ReportPage({ params }: { params: Promise<{ reportI
         </dl>
       </section>
       {presentationHistoryError ? <p className="form-error" role="alert">{presentationHistoryError}</p> : <PresentationHistory presentations={presentations} reportId={reportId} />}
-      <section className="board report-board" aria-label="Board semanal">
+      <section className="board report-board" aria-label="Board semanal" inert={isArchived ? true : undefined}>
         <article className="board-column deliveries-column" aria-labelledby="deliveries-heading"><div className="column-heading"><span className="status-dot green" aria-hidden="true" /><h3 id="deliveries-heading">Entregas</h3><span className="count" aria-label={`${deliveries?.length ?? 0} entregas`}>{deliveries?.length ?? 0}</span></div>{deliveries?.length ? <DeliverySortableList deliveries={deliveries} reportId={reportId} /> : <div className="empty-state"><span className="empty-mark" aria-hidden="true">+</span><p>Sem ocorrências na semana.</p><Link href={`/app/reports/${reportId}/deliveries/new` as Route}>Adicionar entrega</Link></div>}</article>
         <article className="board-column" aria-labelledby="incidents-heading"><div className="column-heading"><span className="status-dot red" aria-hidden="true" /><h3 id="incidents-heading">Incidentes</h3><span className="count" aria-label={`${incidents?.length ?? 0} incidentes`}>{incidents?.length ?? 0}</span></div>{incidents?.length ? <div className="delivery-stack">{incidents.map((incident) => <Link className="delivery-card" href={`/app/reports/${reportId}/incidents/${incident.id}` as Route} key={incident.id}><strong>{incident.affected_system}</strong><p>{incident.symptom}</p><span className="delivery-status" style={{ background: incidentStatusMeta[incident.status].color }}>{incidentStatusMeta[incident.status].label}{incident.resolved_at ? ` · ${incident.resolved_at}` : ""}</span></Link>)}</div> : <div className="empty-state"><p>Sem incidentes na semana.</p><Link href={`/app/reports/${reportId}/incidents/new` as Route}>Adicionar incidente</Link></div>}</article>
         <article className="board-column" aria-labelledby="demands-heading"><div className="column-heading"><span className="status-dot yellow" aria-hidden="true" /><h3 id="demands-heading">Demandas</h3><span className="count" aria-label={`${demands?.length ?? 0} demandas`}>{demands?.length ?? 0}</span></div>{demands?.length ? <div className="delivery-stack">{demands.map((demand) => <Link className="delivery-card" href={`/app/reports/${reportId}/demands/${demand.id}` as Route} key={demand.id}><strong>{demand.title}</strong><div className="phase-line" role="img" aria-label={`Fase atual: ${demandPhaseLabels[demandPhases.indexOf(demand.current_phase)]}`}>{demandPhases.map((phase) => <span className={phaseTone(phase, demand.current_phase)} key={phase} />)}</div></Link>)}</div> : <div className="empty-state"><p>Sem ocorrências na semana.</p><Link href={`/app/reports/${reportId}/demands/new` as Route}>Adicionar demanda</Link></div>}</article>

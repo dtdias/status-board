@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { formatWeekRange, reportDetailsSchema, weeklyReportSchema } from "@/lib/reports/weekly-report";
+import { canTransitionReportStatus, formatWeekRange, reportDetailsSchema, weeklyReportSchema } from "@/lib/reports/weekly-report";
 
 describe("weeklyReportSchema", () => {
   const validInput = {
@@ -42,5 +42,22 @@ describe("reportDetailsSchema", () => {
 describe("formatWeekRange", () => {
   it("formats the report period for pt-BR", () => {
     expect(formatWeekRange("2026-09-21", "2026-09-27")).toBe("21 de set. de 2026 a 27 de set. de 2026");
+  });
+});
+
+describe("report status transitions", () => {
+  it("allows only the defined forward lifecycle and a return to ready for revisions", () => {
+    expect(canTransitionReportStatus("draft", "ready")).toBe(true);
+    expect(canTransitionReportStatus("ready", "generated")).toBe(true);
+    expect(canTransitionReportStatus("generated", "ready")).toBe(true);
+    expect(canTransitionReportStatus("generated", "presented")).toBe(true);
+    expect(canTransitionReportStatus("presented", "archived")).toBe(true);
+  });
+
+  it("rejects skipping states and reopening archives", () => {
+    expect(canTransitionReportStatus("draft", "generated")).toBe(false);
+    expect(canTransitionReportStatus("ready", "archived")).toBe(false);
+    expect(canTransitionReportStatus("presented", "ready")).toBe(false);
+    expect(canTransitionReportStatus("archived", "draft")).toBe(false);
   });
 });

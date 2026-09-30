@@ -22,6 +22,9 @@ export async function POST(_: Request, { params }: { params: Promise<{ reportId:
   let stage: PptxGenerationStage = "load";
   try {
     console.info("pptx_generation_started", { requestId, reportId, userId: user.id });
+    const { data: report } = await supabase.from("weekly_reports").select("status").eq("id", reportId).eq("user_id", user.id).maybeSingle();
+    if (!report) return NextResponse.json({ error: "Not found" }, { status: 404 });
+    if (report.status !== "ready") return NextResponse.json({ error: "Report must be ready before generating." }, { status: 409 });
     const input = await loadPresentationInput(supabase, reportId, user.id);
     if (!input) return NextResponse.json({ error: "Not found" }, { status: 404 });
     const validation = validateReport(presentationValidationInput(input));
@@ -39,6 +42,8 @@ export async function POST(_: Request, { params }: { params: Promise<{ reportId:
     try {
       stage = "upload";
       await uploadGeneratedPresentation(supabase, presentation.storage_path, output);
+      const { error: statusError } = await supabase.from("weekly_reports").update({ status: "generated" }).eq("id", reportId).eq("status", "ready");
+      if (statusError) throw statusError;
     } catch (error) {
       try {
         await discardGeneratedPresentation(supabase, presentation.id, presentation.storage_path);
