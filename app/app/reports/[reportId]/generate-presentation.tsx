@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import { useRouter } from "next/navigation";
 
 type Presentation = {
   downloadUrl: string;
@@ -8,6 +9,7 @@ type Presentation = {
 };
 
 export function GeneratePresentation({ reportId }: { reportId: string }) {
+  const router = useRouter();
   const [error, setError] = useState<string | null>(null);
   const [presentation, setPresentation] = useState<Presentation | null>(null);
   const [isGenerating, setIsGenerating] = useState(false);
@@ -29,6 +31,7 @@ export function GeneratePresentation({ reportId }: { reportId: string }) {
         return;
       }
       setPresentation(body.presentation);
+      router.refresh();
     } catch {
       setError("Network error while generating the presentation. Check your connection and try again.");
     } finally {

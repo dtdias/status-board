@@ -89,6 +89,16 @@ button:disabled { cursor: not-allowed; opacity: .5; }
 .summary-metrics div { background: var(--surface); border: 1px solid var(--line); min-height: 100px; padding: 14px; }
 .summary-metrics dt { color: var(--muted); font-size: .68rem; font-weight: 700; letter-spacing: .08em; text-transform: uppercase; }
 .summary-metrics dd { font-size: 2.5rem; font-weight: 700; letter-spacing: -.08em; line-height: 1; margin: 17px 0 0; }
+.presentation-history { border-bottom: 1px solid var(--ink); display: grid; gap: 18px; padding: 28px 0; }
+.presentation-history h2 { font-size: clamp(1.5rem, 3vw, 2.4rem); letter-spacing: -.05em; margin-top: 8px; }
+.presentation-list { display: grid; gap: 8px; list-style: none; margin: 0; padding: 0; }
+.presentation-list li { align-items: center; background: var(--surface); border: 1px solid var(--line); display: flex; gap: 18px; justify-content: space-between; padding: 14px; }
+.presentation-list li > div { display: grid; gap: 4px; min-width: 0; }
+.presentation-version, .presentation-list time { color: var(--muted); font-size: .72rem; }
+.presentation-version { font-weight: 700; letter-spacing: .08em; text-transform: uppercase; }
+.presentation-list strong { overflow-wrap: anywhere; }
+.presentation-list .outline-button { flex: 0 0 auto; text-decoration: none; }
+.presentation-history-empty { color: var(--muted); font-size: .9rem; }
 .delivery-stack { display: grid; gap: 9px; margin-top: 18px; }
 .delivery-card { background: #fff; border: 1px solid var(--line); color: var(--ink); display: grid; gap: 8px; padding: 12px; text-decoration: none; }
 .sortable-delivery-card { grid-template-columns: 18px minmax(0, 1fr); padding: 0; }
@@ -192,6 +202,7 @@ button:disabled { cursor: not-allowed; opacity: .5; }
   .intro { padding: 48px 0 28px; }
   .board { grid-template-columns: 1fr; }
   .summary-metrics { grid-template-columns: 1fr; }
+  .presentation-list li { align-items: start; flex-direction: column; }
   .board-column { min-height: 190px; }
   .empty-state { min-height: 130px; }
   .actionbar { align-items: start; flex-direction: column; }
