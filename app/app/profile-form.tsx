@@ -5,22 +5,27 @@ import { saveProfile, type ProfileState } from "./actions";
 
 const initialState: ProfileState = {};
 
-export function ProfileForm() {
+type ProfileFormProps = {
+  profile?: { name: string; area: string };
+  submitLabel?: string;
+};
+
+export function ProfileForm({ profile, submitLabel = "Continuar" }: ProfileFormProps) {
   const [state, formAction, pending] = useActionState(saveProfile, initialState);
 
   return (
     <form action={formAction} className="auth-form">
       <label>
         Nome
-        <input autoComplete="name" name="name" required />
+        <input autoComplete="name" defaultValue={profile?.name} maxLength={80} name="name" required />
       </label>
       <label>
         Área
-        <input name="area" placeholder="Ex.: Tecnologia" required />
+        <input defaultValue={profile?.area} maxLength={80} name="area" placeholder="Ex.: Tecnologia" required />
       </label>
       {state.error ? <p className="form-error" role="alert">{state.error}</p> : null}
       <button className="primary-button" disabled={pending} type="submit">
-        {pending ? "Salvando..." : "Continuar"}
+        {pending ? "Salvando..." : submitLabel}
       </button>
     </form>
   );
