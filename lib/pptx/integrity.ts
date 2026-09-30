@@ -18,8 +18,18 @@ export async function assertPptxIntegrity(buffer: Buffer, expectedSlides?: numbe
     throw new Error(`Generated presentation has ${slideCount} slides; expected ${expectedSlides}.`);
   }
 
-  const slideFiles = Object.keys(zip.files).filter((path) => /^ppt\/slides\/slide\d+\.xml$/.test(path));
+  const relationships = zip.file("ppt/_rels/presentation.xml.rels");
+  let slideFiles: string[];
+  if (relationships) {
+    const relationshipXml = await relationships.async("string");
+    const ids = [...presentationXml.matchAll(/<p:sldId\b[^>]*\br:id="([^"]+)"/g)].map((match) => match[1]);
+    const targets = new Map([...relationshipXml.matchAll(/<Relationship\b(?=[^>]*\bId="([^"]+)")(?=[^>]*\bTarget="([^"]+)")[^>]*\/>/g)].map((match) => [match[1], match[2]]));
+    slideFiles = ids.map((id) => `ppt/${targets.get(id)}`);
+  } else {
+    slideFiles = Object.keys(zip.files).filter((path) => /^ppt\/slides\/slide\d+\.xml$/.test(path));
+  }
   if (slideFiles.length !== slideCount) throw new Error("Generated presentation slide XML parts do not match the presentation slide count.");
+  if (slideFiles.some((path) => !zip.file(path))) throw new Error("Generated presentation references missing slide XML parts.");
   return { slideCount, slideFiles };
 }
 
