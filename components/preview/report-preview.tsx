@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useRef, useState, type KeyboardEvent } from "react";
 import { demandPhaseLabels, demandPhases, phaseTone } from "@/lib/demands/demand";
 import { deliveryStatusMeta } from "@/lib/deliveries/delivery";
 import { incidentStatusMeta } from "@/lib/incidents/incident";
@@ -18,19 +18,42 @@ function SourceLink({ href, children }: { href: string; children: React.ReactNod
 
 export function ReportPreview({ input, slides, overflow }: Props) {
   const [active, setActive] = useState(0);
+  const slideTabs = useRef<Array<HTMLButtonElement | null>>([]);
   const slide = slides[active];
   const page = active + 1;
   const route = `/app/reports/${input.report.id}`;
+
+  function selectSlide(index: number) {
+    setActive(index);
+  }
+
+  function handleSlideTabKeyDown(event: KeyboardEvent<HTMLButtonElement>, index: number) {
+    const nextIndex = event.key === "ArrowRight" || event.key === "ArrowDown"
+      ? Math.min(slides.length - 1, index + 1)
+      : event.key === "ArrowLeft" || event.key === "ArrowUp"
+        ? Math.max(0, index - 1)
+        : event.key === "Home"
+          ? 0
+          : event.key === "End"
+            ? slides.length - 1
+            : null;
+
+    if (nextIndex === null) return;
+    event.preventDefault();
+    selectSlide(nextIndex);
+    slideTabs.current[nextIndex]?.focus();
+  }
 
   return (
     <div className="preview-layout">
       <aside className="preview-rail" aria-label="Navegação dos slides">
         <p className="eyebrow">Slides</p>
-        <ol>{slides.map((item, index) => <li key={`${item.kind}-${index}`}><button className={index === active ? "is-active" : ""} type="button" onClick={() => setActive(index)} aria-current={index === active ? "page" : undefined}><span>{index + 1}</span>{item.title}</button></li>)}</ol>
+        <ol role="tablist" aria-orientation="vertical">{slides.map((item, index) => <li key={`${item.kind}-${index}`}><button className={index === active ? "is-active" : ""} type="button" role="tab" ref={(element) => { slideTabs.current[index] = element; }} onClick={() => selectSlide(index)} onKeyDown={(event) => handleSlideTabKeyDown(event, index)} aria-controls="preview-slide" aria-selected={index === active} tabIndex={index === active ? 0 : -1}><span aria-hidden="true">{index + 1}</span>{item.title}</button></li>)}</ol>
       </aside>
       <section className="preview-stage" aria-live="polite">
         {overflow.length ? <p className="preview-warning">{overflow.length} campo{overflow.length > 1 ? "s" : ""} excede{overflow.length === 1 ? "" : "m"} limite visual. Revise antes de gerar.</p> : null}
-        <article className={`slide slide-${slide.kind}`} aria-label={`Slide ${page}: ${slide.title}`}>
+        <div className="preview-canvas">
+        <article className={`slide slide-${slide.kind}`} id="preview-slide" role="tabpanel" aria-label={`Slide ${page}: ${slide.title}`} tabIndex={-1}>
           {slide.kind === "cover" ? <><p className="slide-area">{input.report.area}</p><h1>{slide.title}</h1><p className="slide-week">Semana de {date(input.report.startDate)} a {date(input.report.endDate)}</p><p className="slide-footer">{input.report.name} | {date(input.report.presentationDate)}</p></> : null}
           {slide.kind === "summary" ? <><SlideHeader title={slide.title} page={page} /><div className="slide-metrics"><Metric label="Entregas" value={slide.summary.deliveries} /><Metric label="Incidentes resolvidos" value={slide.summary.resolvedIncidents} /><Metric label="Demandas novas" value={slide.summary.newDemands} /><Metric label="Rotinas" value={slide.summary.supportRoutines} /></div><section className="slide-highlight"><p>Destaque da semana</p><strong>{input.report.highlight || "Sem destaque informado."}</strong></section></> : null}
           {slide.kind === "deliveries" ? <><SlideHeader title={slide.title} page={page} /><div className="slide-grid four">{slide.items.length ? slide.items.map((item) => <SourceLink href={`${route}/deliveries/${item.id}`} key={item.id}><span className="slide-icon">{item.iconKey[0]?.toUpperCase()}</span><strong>{item.title}</strong><p>{item.description}</p><b style={{ background: deliveryStatusMeta[item.status].color }}>{deliveryStatusMeta[item.status].label}</b></SourceLink>) : <Empty />}</div></> : null}
@@ -39,6 +62,7 @@ export function ReportPreview({ input, slides, overflow }: Props) {
           {slide.kind === "support" ? <><SlideHeader title={slide.title} page={page} /><div className="slide-grid two">{slide.items.length ? slide.items.map((item) => <SourceLink href={`${route}/support-fronts/${item.id}`} key={item.id}><span className="slide-icon">{item.iconKey[0]?.toUpperCase()}</span><strong>{item.title}</strong><p>{item.activityType}</p><ul>{item.routines.map((routine) => <li key={routine.id}>{routine.title}</li>)}</ul></SourceLink>) : <Empty />}</div></> : null}
           {slide.kind === "attention" ? <><SlideHeader title={slide.title} page={page} /><div className="attention-slide"><AttentionList label="Dependências" empty="Nenhuma dependência." items={slide.dependencies} href={(id) => `${route}/attention/dependencies/${id}`} dateLabel="Desde" dateValue={(item) => item.waitingSince} /><AttentionList label="Próximos passos" empty="Nenhum próximo passo." items={slide.nextSteps} href={(id) => `${route}/attention/next-steps/${id}`} dateLabel="Prazo" dateValue={(item) => item.dueDate} /></div></> : null}
         </article>
+        </div>
         <nav className="preview-controls" aria-label="Controles do preview"><button type="button" onClick={() => setActive((current) => Math.max(0, current - 1))} disabled={active === 0}>Anterior</button><span>{page} / {slides.length}</span><button type="button" onClick={() => setActive((current) => Math.min(slides.length - 1, current + 1))} disabled={active === slides.length - 1}>Próximo</button></nav>
       </section>
     </div>
