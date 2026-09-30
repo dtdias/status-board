@@ -20,7 +20,7 @@ function reportDates() {
 test.describe("weekly report PRD flow", () => {
   test.skip(!enabled, "Set E2E_RUN=true, E2E_BASE_URL, E2E_USER_EMAIL, and E2E_USER_PASSWORD to run against an isolated Supabase environment.");
 
-  test("logs in, creates a week, adds delivery and incident, then validates", async ({ page }) => {
+  test("logs in, creates a week, adds delivery and incident, updates details, then validates", async ({ page }) => {
     await page.goto("/login");
     await page.getByLabel("E-mail").fill(process.env.E2E_USER_EMAIL!);
     await page.getByLabel("Senha").fill(process.env.E2E_USER_PASSWORD!);
@@ -51,17 +51,18 @@ test.describe("weekly report PRD flow", () => {
     await page.getByRole("button", { name: "Salvar incidente" }).click();
     await expect(page.getByText("Sistema E2E", { exact: true })).toBeVisible();
 
+    await page.getByRole("link", { name: "Editar detalhes" }).click();
+    await page.getByLabel("Destaque da semana").fill("Entrega E2E publicada com sucesso.");
+    await page.getByRole("button", { name: "Salvar detalhes" }).click();
+    await expect(page.getByText("Entrega E2E", { exact: true })).toBeVisible();
+
     const validation = await page.request.post(`/api/reports/${reportId}/validate`);
     expect(validation.status()).toBe(200);
-    const result = await validation.json() as { valid: boolean; errors: Array<{ field?: string }> };
-    expect(result.valid).toBe(false);
-    expect(result.errors).toContainEqual(expect.objectContaining({ field: "highlight" }));
+    const result = await validation.json() as { valid: boolean };
+    expect(result.valid).toBe(true);
   });
 
-  test.fixme("validates, generates a PPTX, and lists it in history", async () => {
-    // Blocked: no current UI or authenticated API updates weekly_reports.highlight,
-    // though validation requires it before the generation endpoint can succeed.
-    // Activate after a report-edit flow exists, then cover POST validate, POST
-    // generate-pptx, and GET presentations using the report created above.
+  test.fixme("generates a PPTX and lists it in history", async () => {
+    // Activate when the generator fixture and storage environment are available.
   });
 });
