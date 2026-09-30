@@ -20,7 +20,9 @@ function reportDates() {
 test.describe("weekly report PRD flow", () => {
   test.skip(!enabled, "Set E2E_RUN=true, E2E_BASE_URL, E2E_USER_EMAIL, and E2E_USER_PASSWORD to run against an isolated Supabase environment.");
 
-  test("logs in, creates a week, adds delivery and incident, updates details, then validates", async ({ page }) => {
+  test("creates, validates, generates, and downloads a weekly report presentation", async ({ page }) => {
+    test.setTimeout(120_000);
+
     await page.goto("/login");
     await page.getByLabel("E-mail").fill(process.env.E2E_USER_EMAIL!);
     await page.getByLabel("Senha").fill(process.env.E2E_USER_PASSWORD!);
@@ -58,11 +60,43 @@ test.describe("weekly report PRD flow", () => {
 
     const validation = await page.request.post(`/api/reports/${reportId}/validate`);
     expect(validation.status()).toBe(200);
-    const result = await validation.json() as { valid: boolean };
+    const result = await validation.json() as { valid: boolean; errors: unknown[] };
     expect(result.valid).toBe(true);
-  });
+    expect(result.errors).toEqual([]);
 
-  test.fixme("generates a PPTX and lists it in history", async () => {
-    // Activate when the generator fixture and storage environment are available.
+    await Promise.all([
+      page.waitForURL(new RegExp(`/app/reports/${reportId}$`)),
+      page.getByRole("button", { name: "Marcar como pronto" }).click(),
+    ]);
+    await expect(page.getByText("Status: Pronto para gerar", { exact: true })).toBeVisible();
+
+    const generatedResponsePromise = page.waitForResponse((response) =>
+      response.request().method() === "POST"
+      && new URL(response.url()).pathname === `/api/reports/${reportId}/generate-pptx`,
+    );
+    await page.getByRole("button", { name: "Gerar PowerPoint" }).click();
+    const generatedResponse = await generatedResponsePromise;
+    expect(generatedResponse.status()).toBe(200);
+    const generated = await generatedResponse.json() as {
+      presentation: { id: string; version: number; fileName: string; downloadUrl: string };
+    };
+    expect(generated.presentation).toMatchObject({ version: 1 });
+
+    await expect(page.getByRole("link", { name: "PowerPoint pronto. Baixar arquivo." })).toHaveAttribute("href", generated.presentation.downloadUrl);
+    await expect(page.getByRole("link", { name: "Baixar PowerPoint" })).toHaveAttribute("href", generated.presentation.downloadUrl);
+
+    const history = await page.request.get(`/api/reports/${reportId}/presentations`);
+    expect(history.status()).toBe(200);
+    const historyResult = await history.json() as {
+      presentations: Array<{ id: string; version: number; fileName: string; downloadUrl: string }>;
+    };
+    expect(historyResult.presentations).toEqual([expect.objectContaining(generated.presentation)]);
+
+    const download = await page.request.get(generated.presentation.downloadUrl);
+    expect(download.status()).toBe(200);
+    expect(download.headers()["content-type"]).toContain("application/vnd.openxmlformats-officedocument.presentationml.presentation");
+    expect(download.headers()["content-disposition"]).toContain("attachment;");
+    const pptx = await download.body();
+    expect([...pptx.subarray(0, 4)]).toEqual([0x50, 0x4b, 0x03, 0x04]);
   });
 });
