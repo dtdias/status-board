@@ -3,6 +3,7 @@ import type { Route } from "next";
 import Link from "next/link";
 import { formatWeekRange } from "@/lib/reports/weekly-report";
 import { createClient } from "@/lib/supabase/server";
+import { getTemplateAdminAccess } from "@/lib/auth/template-admin";
 import { ProfileForm } from "./profile-form";
 
 export default async function AppPage() {
@@ -32,6 +33,8 @@ export default async function AppPage() {
     );
   }
 
+  const { isAdmin } = await getTemplateAdminAccess(supabase);
+
   const { data: reports } = await supabase
     .from("weekly_reports")
     .select("id, start_date, end_date, presentation_date, status")
@@ -46,6 +49,7 @@ export default async function AppPage() {
         </div>
         <div className="topbar-actions">
           <Link className="text-link" href={"/app/settings" as Route}>Perfil</Link>
+          {isAdmin ? <Link className="text-link" href={"/app/admin/templates" as Route}>Templates</Link> : null}
           <Link className="outline-button" href={"/app/reports/new" as Route}>Nova semana</Link>
         </div>
       </header>
