@@ -1,6 +1,12 @@
 export type Database = {
   public: {
     Tables: {
+      template_admins: {
+        Row: { user_id: string; granted_at: string; };
+        Insert: { user_id: string; granted_at?: string; };
+        Update: never;
+        Relationships: [];
+      };
       profiles: {
         Row: {
           id: string;

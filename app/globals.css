@@ -67,6 +67,8 @@ button:disabled { cursor: not-allowed; opacity: .5; }
 .clone-options label { display: flex; font-size: .85rem; font-weight: 400; gap: 9px; letter-spacing: 0; text-transform: none; }
 .clone-options input { accent-color: var(--ink); }
 .form-error { color: #ad1019; font-size: .85rem; }
+.form-success { color: #176b42; font-size: .85rem; }
+.form-hint { color: var(--muted); font-size: .8rem; line-height: 1.4; }
 .report-list { padding: 64px 0; }
 .report-list h2 { font-size: clamp(2rem, 5vw, 4.5rem); margin-top: 12px; }
 .reports { display: grid; gap: 10px; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); margin-top: 30px; }
