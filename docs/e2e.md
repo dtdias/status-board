@@ -20,19 +20,26 @@ Install Chromium once before running against a configured environment:
 npx playwright install chromium
 ```
 
-Use an isolated Supabase project and a dedicated E2E user. It must have a
-`profiles` row because the application blocks report creation until profile
-setup is complete. Apply all migrations, configure the application with that
-project's Supabase variables, and upload the required template to private
-Storage at `presentation-templates/status-weekly/v1/template.pptx`.
+Use an isolated Supabase project and a dedicated E2E user. The user must be
+able to sign in and have a completed `profiles` row because the application
+blocks report creation until profile setup is complete. Apply migrations
+`0001_initial_schema.sql` through `0006_report_status_lifecycle.sql` in order.
+Configure the app served at `E2E_BASE_URL` with that project's Supabase
+variables and a `PPTX_TEMPLATE_VERSION` that matches the uploaded template.
 
-The current suite verifies login, creating a week, creating a delivery and a
-resolved incident, then validation. It correctly expects validation to fail:
-`weekly_reports.highlight` is required by the PRD but the application has no
-report-edit UI or authenticated endpoint to set it. The generate/history case
-is intentionally marked `fixme` until that gap is implemented. It must then
-exercise `POST /api/reports/:id/validate`, `POST /api/reports/:id/generate-pptx`,
-and `GET /api/reports/:id/presentations` against the real template.
+Upload the reviewed production-compatible template, not a generated fixture,
+to private Storage at `presentation-templates/status-weekly/v1/template.pptx`
+when using the default version. The authenticated E2E user needs only normal
+application permissions; do not add a service-role key or relax RLS policies.
+Each run creates a report and a private generated PPTX in this isolated
+environment, so retain it for test data only.
+
+The current suite signs in, creates a report, saves the required weekly
+highlight through the details UI, creates a delivery and resolved incident,
+validates through `POST /api/reports/:id/validate`, marks the report ready
+through the UI, and generates through the UI. It then asserts the generated
+presentation through `GET /api/reports/:id/presentations` and downloads the
+real PPTX from its authenticated download route.
 
 Do not treat skipped or `fixme` tests as integration coverage.
 
