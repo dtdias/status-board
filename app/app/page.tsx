@@ -44,7 +44,10 @@ export default async function AppPage() {
           <p className="eyebrow">{profile.area}</p>
           <h1>Olá, {profile.name}.</h1>
         </div>
-        <Link className="outline-button" href={"/app/reports/new" as Route}>Nova semana</Link>
+        <div className="topbar-actions">
+          <Link className="text-link" href={"/app/settings" as Route}>Perfil</Link>
+          <Link className="outline-button" href={"/app/reports/new" as Route}>Nova semana</Link>
+        </div>
       </header>
       <section className="report-list" aria-labelledby="reports-heading">
         <div>
