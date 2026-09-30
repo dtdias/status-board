@@ -19,6 +19,30 @@ export function reportStatusLabel(status: ReportStatus) {
   return { draft: "Rascunho", ready: "Pronto para gerar", generated: "Gerado", presented: "Apresentado", archived: "Arquivado" }[status];
 }
 
+export function reportStatusFromSearchParam(status: string | undefined): ReportStatus | undefined {
+  return reportStatuses.includes(status as ReportStatus) ? status as ReportStatus : undefined;
+}
+
+export function reportStatusNextStep(status: ReportStatus) {
+  return {
+    draft: "Complete o conteúdo e marque como pronto.",
+    ready: "Revise o conteúdo e gere a apresentação.",
+    generated: "Registre a apresentação ou retorne para edição.",
+    presented: "Arquive quando não precisar mais alterar.",
+    archived: "Consulta e download somente.",
+  }[status];
+}
+
+export function reportStatusDashboardAction(status: ReportStatus) {
+  return {
+    draft: "Continuar edição",
+    ready: "Revisar e gerar",
+    generated: "Registrar apresentação",
+    presented: "Arquivar relatório",
+    archived: "Abrir consulta",
+  }[status];
+}
+
 export const weeklyReportSchema = z
   .object({
     startDate: z.iso.date("Informe a data inicial."),
