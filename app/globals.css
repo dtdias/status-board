@@ -60,6 +60,10 @@ button:disabled { cursor: not-allowed; opacity: .5; }
 .auth-form label { display: grid; font-size: .75rem; font-weight: 700; gap: 8px; letter-spacing: .08em; text-transform: uppercase; }
 .auth-form input { background: transparent; border: 0; border-bottom: 1px solid var(--ink); border-radius: 0; font-size: 1rem; outline-offset: 4px; padding: 10px 0; }
 .auth-form .primary-button { justify-self: start; margin-top: 8px; }
+.clone-options { border: 0; border-top: 1px solid var(--line); display: grid; gap: 10px; margin: 10px 0 0; padding: 18px 0 0; }
+.clone-options legend { font-size: .75rem; font-weight: 700; letter-spacing: .08em; padding: 0; text-transform: uppercase; }
+.clone-options label { display: flex; font-size: .85rem; font-weight: 400; gap: 9px; letter-spacing: 0; text-transform: none; }
+.clone-options input { accent-color: var(--ink); }
 .form-error { color: #ad1019; font-size: .85rem; }
 .report-list { padding: 64px 0; }
 .report-list h2 { font-size: clamp(2rem, 5vw, 4.5rem); margin-top: 12px; }
