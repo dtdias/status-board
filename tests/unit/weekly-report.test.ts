@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { canTransitionReportStatus, formatWeekRange, reportDetailsSchema, weeklyReportSchema } from "@/lib/reports/weekly-report";
+import { canTransitionReportStatus, formatWeekRange, reportDetailsSchema, reportStatusDashboardAction, reportStatusFromSearchParam, reportStatusNextStep, weeklyReportSchema } from "@/lib/reports/weekly-report";
 
 describe("weeklyReportSchema", () => {
   const validInput = {
@@ -59,5 +59,18 @@ describe("report status transitions", () => {
     expect(canTransitionReportStatus("ready", "archived")).toBe(false);
     expect(canTransitionReportStatus("presented", "ready")).toBe(false);
     expect(canTransitionReportStatus("archived", "draft")).toBe(false);
+  });
+});
+
+describe("report dashboard status helpers", () => {
+  it("accepts only known status filters", () => {
+    expect(reportStatusFromSearchParam("ready")).toBe("ready");
+    expect(reportStatusFromSearchParam("invalid")).toBeUndefined();
+    expect(reportStatusFromSearchParam(undefined)).toBeUndefined();
+  });
+
+  it("keeps archived reports explicitly read-only", () => {
+    expect(reportStatusNextStep("archived")).toBe("Consulta e download somente.");
+    expect(reportStatusDashboardAction("archived")).toBe("Abrir consulta");
   });
 });
