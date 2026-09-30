@@ -9,7 +9,7 @@ export default function NewReportPage() {
         <Link className="brand" href={"/app" as Route}>Status Board</Link>
         <p className="eyebrow">Nova semana</p>
         <h1>Comece pelo período.</h1>
-        <p className="intro-copy">A semana nasce vazia. Itens em andamento poderão ser copiados depois.</p>
+        <p className="intro-copy">Escolha o período e, se necessário, traga o que continua da semana anterior.</p>
         <ReportForm />
       </section>
     </main>
