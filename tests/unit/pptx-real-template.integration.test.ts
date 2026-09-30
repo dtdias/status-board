@@ -1,3 +1,4 @@
+import { existsSync } from "node:fs";
 import { readFile } from "node:fs/promises";
 import { resolve } from "node:path";
 import JSZip from "jszip";
@@ -7,6 +8,11 @@ import { assertPptxIntegrity } from "@/lib/pptx/integrity";
 import type { PresentationInput } from "@/lib/pptx/types";
 
 const templatePath = resolve(process.cwd(), "Template(1).pptx");
+const hasMasterTemplate = existsSync(templatePath);
+
+// This suite verifies generation against the reviewed master, not synthetic PPTX integrity.
+// CI without that private file must report the missing integration coverage explicitly.
+const describeRealTemplate = hasMasterTemplate ? describe : describe.skip;
 
 function fixture(): PresentationInput {
   return {
@@ -37,7 +43,11 @@ async function slideTexts(zip: JSZip, slideNumbers: number[]) {
   }))).flat();
 }
 
-describe("real PPTX template integration", () => {
+describeRealTemplate(
+  hasMasterTemplate
+    ? "real PPTX template integration"
+    : "real PPTX template integration (skipped: master template absent; no real-template integration coverage)",
+  () => {
   it("generates the expected 11-slide presentation from Template(1).pptx", async () => {
     const template = await readFile(templatePath);
     const templateZip = await JSZip.loadAsync(template, { checkCRC32: true });
