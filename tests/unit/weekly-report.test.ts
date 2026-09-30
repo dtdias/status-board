@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { formatWeekRange, weeklyReportSchema } from "@/lib/reports/weekly-report";
+import { formatWeekRange, reportDetailsSchema, weeklyReportSchema } from "@/lib/reports/weekly-report";
 
 describe("weeklyReportSchema", () => {
   const validInput = {
@@ -18,6 +18,24 @@ describe("weeklyReportSchema", () => {
 
   it("rejects a missing presentation date", () => {
     expect(weeklyReportSchema.safeParse({ ...validInput, presentationDate: "" }).success).toBe(false);
+  });
+});
+
+describe("reportDetailsSchema", () => {
+  it("accepts the required editable report details", () => {
+    expect(reportDetailsSchema.safeParse({ startDate: "2026-09-21", endDate: "2026-09-27", presentationDate: "2026-09-29", highlight: "Integração ERP publicada" }).success).toBe(true);
+  });
+
+  it("requires a highlight, valid dates, and a valid date range", () => {
+    const result = reportDetailsSchema.safeParse({ startDate: "2026-09-28", endDate: "2026-09-27", presentationDate: "invalid", highlight: " " });
+    expect(result.success).toBe(false);
+    if (!result.success) {
+      expect(result.error.issues).toEqual(expect.arrayContaining([
+        expect.objectContaining({ path: ["highlight"] }),
+        expect.objectContaining({ path: ["presentationDate"] }),
+        expect.objectContaining({ path: ["endDate"] }),
+      ]));
+    }
   });
 });
 

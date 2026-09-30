@@ -48,7 +48,7 @@ export default async function ReportPage({ params }: { params: Promise<{ reportI
 
   return (
     <main className="shell">
-      <header className="topbar"><div><Link className="brand board-brand" href={"/app" as Route}>Status Board</Link><p className="eyebrow">Apresentação em {report.presentation_date}</p><h1>{formatWeekRange(report.start_date, report.end_date)}</h1></div><div className="actions"><Link className="outline-button" href={`/app/reports/${reportId}/preview` as Route}>Pré-visualizar</Link><Link className="outline-button" href={`/app/reports/${reportId}/support-fronts/new` as Route}>Nova frente</Link></div></header>
+      <header className="topbar"><div><Link className="brand board-brand" href={"/app" as Route}>Status Board</Link><p className="eyebrow">Apresentação em {report.presentation_date}</p><h1>{formatWeekRange(report.start_date, report.end_date)}</h1></div><div className="actions"><Link className="outline-button" href={`/app/reports/${reportId}/details` as Route}>Editar detalhes</Link><Link className="outline-button" href={`/app/reports/${reportId}/preview` as Route}>Pré-visualizar</Link><Link className="outline-button" href={`/app/reports/${reportId}/support-fronts/new` as Route}>Nova frente</Link></div></header>
       <section className="report-summary" aria-label="Resumo automático da semana">
         <p className="eyebrow">Resumo automático</p>
         <dl className="summary-metrics">
