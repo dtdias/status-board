@@ -1,5 +1,11 @@
 # status-board
 
+## Production deployment
+
+See [production setup](docs/production-setup.md) for Node/npm requirements,
+Supabase migrations and private Storage bootstrap, Vercel environment variables,
+the Node-only PPTX runtime requirement, and deployment validation.
+
 ## Tests
 
 Run unit tests with `npm test`. Run browser E2E tests with `npm run test:e2e`.
