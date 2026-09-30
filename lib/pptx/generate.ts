@@ -34,7 +34,12 @@ function setPage(slide: Parameters<Automizer["addSlide"]>[2] extends ((slide: in
 }
 
 function removeCard(slide: Parameters<Automizer["addSlide"]>[2] extends ((slide: infer T) => void) | undefined ? T : never, card: object) {
-  Object.values(card).filter((shape): shape is string => typeof shape === "string").forEach((shape) => slide.removeElement(shape));
+  const remove = (value: unknown) => {
+    if (typeof value === "string") return slide.removeElement(value);
+    if (Array.isArray(value)) return value.forEach(remove);
+    if (value && typeof value === "object") Object.values(value).forEach(remove);
+  };
+  remove(card);
 }
 
 function replaceIcon(slide: Parameters<Automizer["addSlide"]>[2] extends ((slide: infer T) => void) | undefined ? T : never, target: string, iconKey: string) {
