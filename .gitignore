@@ -142,3 +142,5 @@ PRD.md
 test-results/
 playwright-report/
 /graphify-out
+.vercel
+.env*
