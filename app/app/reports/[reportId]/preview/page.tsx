@@ -3,6 +3,7 @@ import { notFound, redirect } from "next/navigation";
 import type { Route } from "next";
 import { ReportPreview } from "@/components/preview/report-preview";
 import { composePreviewSlides, findPreviewOverflow, type PreviewInput } from "@/lib/preview/compose-slides";
+import { listGeneratedPresentations } from "@/lib/storage/generated-presentation";
 import { createClient } from "@/lib/supabase/server";
 
 export default async function PreviewPage({ params }: { params: Promise<{ reportId: string }> }) {
@@ -13,6 +14,7 @@ export default async function PreviewPage({ params }: { params: Promise<{ report
 
   const { data: report } = await supabase.from("weekly_reports").select("id, start_date, end_date, presentation_date, highlight").eq("id", reportId).eq("user_id", user.id).maybeSingle();
   if (!report) notFound();
+  const presentations = await listGeneratedPresentations(supabase, reportId);
   const [{ data: profile }, { data: deliveries }, { data: incidents }, { data: demands }, { data: supportFronts }, { data: dependencies }, { data: nextSteps }] = await Promise.all([
     supabase.from("profiles").select("name, area").eq("id", user.id).maybeSingle(),
     supabase.from("deliveries").select("id, title, description, status, icon_key, position").eq("weekly_report_id", reportId).order("position"),
@@ -33,5 +35,6 @@ export default async function PreviewPage({ params }: { params: Promise<{ report
     dependencies: (dependencies ?? []).map((item) => ({ id: item.id, title: item.title, description: item.description, owner: item.owner, waitingSince: item.waiting_since, status: item.status })),
     nextSteps: (nextSteps ?? []).map((item) => ({ id: item.id, title: item.title, description: item.description, owner: item.owner, dueDate: item.due_date })),
   };
-  return <main className="shell preview-shell"><header className="topbar"><div><Link className="brand board-brand" href={`/app/reports/${reportId}` as Route}>Status Board</Link><p className="eyebrow">Preview HTML/CSS</p><h1>Pré-visualização</h1></div><Link className="outline-button" href={`/app/reports/${reportId}` as Route}>Voltar ao board</Link></header><ReportPreview input={input} slides={composePreviewSlides(input)} overflow={findPreviewOverflow(input)} /></main>;
+  const latestPresentation = presentations[0];
+  return <main className="shell preview-shell"><header className="topbar"><div><Link className="brand board-brand" href={`/app/reports/${reportId}` as Route}>Status Board</Link><p className="eyebrow">Prévia de conteúdo HTML/CSS</p><h1>Pré-visualização</h1></div><div className="actions">{latestPresentation ? <Link className="outline-button" href={`/app/reports/${reportId}/presentations/${latestPresentation.id}/preview` as Route}>Abrir PPTX gerado · v{latestPresentation.version}</Link> : null}<Link className="outline-button" href={`/app/reports/${reportId}` as Route}>Voltar ao board</Link></div></header><ReportPreview input={input} slides={composePreviewSlides(input)} overflow={findPreviewOverflow(input)} /></main>;
 }

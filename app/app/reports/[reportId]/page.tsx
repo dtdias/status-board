@@ -2,6 +2,7 @@ import Link from "next/link";
 import { notFound, redirect } from "next/navigation";
 import type { Route } from "next";
 import { formatWeekRange } from "@/lib/reports/weekly-report";
+import { ReportIcon } from "@/components/report-icon";
 import { createClient } from "@/lib/supabase/server";
 import { incidentStatusMeta } from "@/lib/incidents/incident";
 import { demandPhaseLabels, demandPhases, phaseTone } from "@/lib/demands/demand";
@@ -33,8 +34,8 @@ export default async function ReportPage({ params }: { params: Promise<{ reportI
   }
 
   const { data: deliveries } = await supabase.from("deliveries").select("id, title, description, status, icon_key, position").eq("weekly_report_id", reportId).order("position");
-  const { data: incidents } = await supabase.from("incidents").select("id, affected_system, symptom, status, resolved_at, position").eq("weekly_report_id", reportId).order("position");
-  const { data: demands } = await supabase.from("demands").select("id, title, current_phase").eq("weekly_report_id", reportId).order("position");
+  const { data: incidents } = await supabase.from("incidents").select("id, affected_system, symptom, status, resolved_at, icon_key, position").eq("weekly_report_id", reportId).order("position");
+  const { data: demands } = await supabase.from("demands").select("id, title, current_phase, icon_key").eq("weekly_report_id", reportId).order("position");
   const { data: supportFronts } = await supabase.from("support_fronts").select("id, title, activity_type, icon_key, position").eq("weekly_report_id", reportId).order("position");
   const { data: dependencies } = await supabase.from("dependencies").select("id, title, description, owner, waiting_since, status, position").eq("weekly_report_id", reportId).order("position");
   const { data: nextSteps } = await supabase.from("next_steps").select("id, title, description, owner, due_date, position").eq("weekly_report_id", reportId).order("position");
@@ -102,6 +103,7 @@ export default async function ReportPage({ params }: { params: Promise<{ reportI
           <div className="delivery-stack">
             {incidents?.map((incident) => (
               <Link className="delivery-card" href={`/app/reports/${reportId}/incidents/${incident.id}` as Route} key={incident.id}>
+                <ReportIcon className="delivery-icon" iconKey={incident.icon_key} />
                 <strong>{incident.affected_system}</strong>
                 <p>{incident.symptom}</p>
                 <span className="delivery-status" style={{ background: incidentStatusMeta[incident.status].color }}>
@@ -124,6 +126,7 @@ export default async function ReportPage({ params }: { params: Promise<{ reportI
           <div className="delivery-stack">
             {demands?.map((demand) => (
               <Link className="delivery-card" href={`/app/reports/${reportId}/demands/${demand.id}` as Route} key={demand.id}>
+                <ReportIcon className="delivery-icon" iconKey={demand.icon_key} />
                 <strong>{demand.title}</strong>
                 <div className="phase-line" role="img" aria-label={`Fase atual: ${demandPhaseLabels[demandPhases.indexOf(demand.current_phase)]}`}>
                   {demandPhases.map((phase) => <span className={phaseTone(phase, demand.current_phase)} key={phase} />)}
@@ -147,7 +150,7 @@ export default async function ReportPage({ params }: { params: Promise<{ reportI
               const routines = supportRoutines?.filter((routine) => routine.support_front_id === front.id) ?? [];
               return (
                 <Link className="delivery-card support-card" href={`/app/reports/${reportId}/support-fronts/${front.id}` as Route} key={front.id}>
-                  <span className="delivery-icon" aria-hidden="true">{front.icon_key.slice(0, 1).toUpperCase()}</span>
+                  <ReportIcon className="delivery-icon" iconKey={front.icon_key} />
                   <strong>{front.title}</strong>
                   <p>{front.activity_type}</p>
                   <span className="routine-count">{routines.length}/3 rotinas</span>

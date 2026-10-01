@@ -162,7 +162,7 @@ npm run test:e2e
 
 ## Scope notes
 
-- The HTML preview supports review before generation; it is not a pixel-for-pixel PowerPoint renderer.
+- The HTML preview supports pre-generation review. After generation, history opens the exact stored PPTX through a browser-local renderer, without server conversion or third-party upload; rasterization can still differ from desktop PowerPoint.
 - Drag-and-drop ordering currently applies to deliveries only.
 - The project does not include a public signup flow, license, or contribution guide.
 
