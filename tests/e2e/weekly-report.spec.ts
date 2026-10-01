@@ -104,6 +104,14 @@ test.describe("weekly report PRD flow", () => {
     await expect(page.getByRole("link", { name: "PowerPoint pronto. Baixar arquivo." })).toHaveAttribute("href", generated.presentation.downloadUrl);
     await expect(page.getByRole("link", { name: "Baixar PowerPoint" })).toHaveAttribute("href", generated.presentation.downloadUrl);
 
+    await Promise.all([
+      page.waitForURL(new RegExp(`/app/reports/${reportId}/presentations/${generated.presentation.id}/preview$`)),
+      page.getByRole("link", { name: "Visualizar PowerPoint" }).click(),
+    ]);
+    await expect(page.getByRole("heading", { name: "PowerPoint — versão 1" })).toBeVisible();
+    await expect(page.getByRole("status")).toContainText("PPTX carregado.");
+    await expect(page.getByText("Arquivo não é enviado a serviço externo.")).toBeVisible();
+
     const history = await page.request.get(`/api/reports/${reportId}/presentations`);
     expect(history.status()).toBe(200);
     const historyResult = await history.json() as {

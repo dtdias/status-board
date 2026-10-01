@@ -9,10 +9,15 @@ The application has report data and an HTML preview but no serverless path to pr
 - Redraw slides with a new PPTX library. Rejected because it would not preserve the supplied master shapes, icons, fonts, and positions.
 - Use Office or LibreOffice conversion. Rejected because Vercel functions cannot depend on those runtimes.
 - Use `pptx-automizer` over the master buffer. Chosen because it clones master slides and edits named shapes in Node.js.
+- Render the stored PPTX in the browser after generation. Chosen because the viewer reads the authenticated, generated PPTX bytes locally and requires no Office service, server conversion, or document upload to a third party.
 
 ## Decision
 
 The generator accepts only a `PresentationInput` DTO and a template `Buffer`. The route authenticates, loads and validates report data, downloads the template from Supabase Storage, then produces a generated buffer. No generator module queries the database or writes persistent files. Each call creates one `Automizer` instance.
+
+### Generated PPTX Preview
+
+The presentation history links to an authenticated preview route for each stored version. The client fetches the same private PPTX bytes used by the download route and renders them in-browser with `@aiden0z/pptx-renderer`; no alternate slide model or external conversion service is involved. Browser OOXML rendering is high-fidelity but is not guaranteed to rasterize pixel-identically to desktop PowerPoint.
 
 ## Generated Presentation Storage
 

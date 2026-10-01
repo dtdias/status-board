@@ -1,4 +1,5 @@
 import { z } from "zod";
+import { reportIconKeys, type ReportIconKey } from "@/lib/icons/report-icons";
 import { CONTENT_LIMITS } from "@/lib/validation/report";
 
 export const deliveryStatuses = ["delivered", "in_progress", "waiting_third_party", "blocked"] as const;
@@ -10,13 +11,13 @@ export const deliveryStatusMeta = {
   blocked: { label: "Bloqueado", color: "#D7191C" },
 } as const;
 
-export const deliveryIcons = ["integration", "process", "routine", "code", "report", "server", "database", "cloud"] as const;
+export const deliveryIcons = ["integration", "process", "routine", "code", "report", "server", "database", "cloud"] as const satisfies readonly ReportIconKey[];
 
 export const deliverySchema = z.object({
   title: z.string().trim().min(1, "Informe o nome da entrega.").max(CONTENT_LIMITS.deliveryTitle, "Nome deve ter no máximo 60 caracteres."),
   description: z.string().trim().min(1, "Informe a descrição.").max(CONTENT_LIMITS.deliveryDescription, "Descrição deve ter no máximo 150 caracteres."),
   status: z.enum(deliveryStatuses, "Selecione o status."),
-  iconKey: z.enum(deliveryIcons, "Selecione o ícone."),
+  iconKey: z.enum(reportIconKeys, "Selecione um ícone válido."),
 });
 
 export type DeliveryInput = z.infer<typeof deliverySchema>;

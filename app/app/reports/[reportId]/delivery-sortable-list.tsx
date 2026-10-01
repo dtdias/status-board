@@ -6,6 +6,7 @@ import type { Route } from "next";
 import { DndContext, KeyboardSensor, PointerSensor, closestCenter, useSensor, useSensors, type DragEndEvent } from "@dnd-kit/core";
 import { SortableContext, sortableKeyboardCoordinates, useSortable, verticalListSortingStrategy } from "@dnd-kit/sortable";
 import { CSS } from "@dnd-kit/utilities";
+import { ReportIcon } from "@/components/report-icon";
 import { reorderById } from "@/lib/board/reorder";
 import { deliveryStatusMeta } from "@/lib/deliveries/delivery";
 import { reorderDeliveries } from "./delivery-order-actions";
@@ -27,7 +28,7 @@ function SortableDeliveryCard({ delivery, href, disabled }: { delivery: Delivery
     <div className={`delivery-card sortable-delivery-card${isDragging ? " is-dragging" : ""}`} ref={setNodeRef} style={style}>
       <button aria-label={`Reordenar ${delivery.title}`} className="drag-handle" disabled={disabled} type="button" {...attributes} {...listeners}>Reordenar</button>
       <Link className="delivery-card-content" href={href}>
-        <span className="delivery-icon">{delivery.icon_key.slice(0, 1).toUpperCase()}</span>
+        <ReportIcon className="delivery-icon" iconKey={delivery.icon_key} />
         <strong>{delivery.title}</strong>
         <p>{delivery.description}</p>
         <span className="delivery-status" style={{ background: deliveryStatusMeta[delivery.status].color }}>{deliveryStatusMeta[delivery.status].label}</span>

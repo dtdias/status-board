@@ -1,6 +1,8 @@
-import Automizer, { ModifyColorHelper, modify } from "pptx-automizer";
+import Automizer, { ModifyColorHelper, ModifyImageHelper, modify, type ShapeModificationCallback, type XmlElement } from "pptx-automizer";
+import { demandPhaseLabels } from "@/lib/demands/demand";
+import { getReportIcon } from "@/lib/icons/report-icons";
 import { assertPptxIntegrity, assertTemplateIntegrity } from "./integrity";
-import { iconSource } from "./icons";
+import { readTemplateIconMedia } from "./icons";
 import { composePresentationSections, presentationSummary } from "./compose";
 import { ATTENTION_SHAPES, COVER_SHAPES, DELIVERY_CARDS, DEMAND_SHAPES, HEADER_SHAPES, INCIDENT_CARDS, SUMMARY_SHAPES, SUPPORT_FRONTS, TEMPLATE_SLIDES } from "./template-map";
 import type { DemandPhase, DeliveryStatus, IncidentStatus, PresentationInput } from "./types";
@@ -42,15 +44,21 @@ function removeCard(slide: Parameters<Automizer["addSlide"]>[2] extends ((slide:
   remove(card);
 }
 
-function replaceIcon(slide: Parameters<Automizer["addSlide"]>[2] extends ((slide: infer T) => void) | undefined ? T : never, target: string, iconKey: string) {
-  const source = iconSource(iconKey);
-  if (!source) return;
-  slide.removeElement(target);
-  slide.addElement("template", source.slide, source.name);
+function replaceIcon(slide: Parameters<Automizer["addSlide"]>[2] extends ((slide: infer T) => void) | undefined ? T : never, target: string, iconKey: string, iconMedia: Awaited<ReturnType<typeof readTemplateIconMedia>>) {
+  const icon = getReportIcon(iconKey);
+  const media = icon ? iconMedia.get(icon.key) : undefined;
+  if (!media) throw new Error(`Unsupported or missing report icon: ${iconKey}.`);
+  const replaceMedia = ModifyImageHelper.setRelationTarget(media.fileName);
+  const replaceImageRelation: ShapeModificationCallback = (element: XmlElement, relation?: XmlElement) => {
+    if (!relation) throw new Error(`Template icon shape ${target} has no media relationship.`);
+    replaceMedia(element, relation);
+  };
+  slide.modifyElement(target, replaceImageRelation);
 }
 
 export async function generatePptx(input: PresentationInput, templateBuffer: Buffer): Promise<Buffer> {
   await assertTemplateIntegrity(templateBuffer);
+  const iconMedia = await readTemplateIconMedia(templateBuffer);
   const expectedSlides = composePresentationSections(input).length;
   const automizer = new Automizer({ removeExistingSlides: true, autoImportSlideMasters: true, cleanup: false, compression: 6, verbosity: 0 });
   const presentation = automizer.loadRoot(templateBuffer).load(templateBuffer, "template");
@@ -94,7 +102,7 @@ export async function generatePptx(input: PresentationInput, templateBuffer: Buf
         slide.modifyElement(card.description, modify.setText(item.description));
         slide.modifyElement(card.statusText, modify.setText(status.label));
         slide.modifyElement(card.statusBackground, ModifyColorHelper.solidFill({ value: status.color }));
-        replaceIcon(slide, card.icon, item.iconKey);
+        replaceIcon(slide, card.icon, item.iconKey, iconMedia);
       });
     });
   }
@@ -108,6 +116,7 @@ export async function generatePptx(input: PresentationInput, templateBuffer: Buf
         slide.modifyElement(INCIDENT_CARDS[0].statusText, modify.setText(""));
         slide.removeElement(INCIDENT_CARDS[0].icon);
         slide.removeElement(INCIDENT_CARDS[0].statusBackground);
+        slide.removeElement(INCIDENT_CARDS[0].statusIcon);
         INCIDENT_CARDS.slice(1).forEach((card) => removeCard(slide, card));
         return;
       }
@@ -120,7 +129,7 @@ export async function generatePptx(input: PresentationInput, templateBuffer: Buf
         slide.modifyElement(card.body, modify.setText(`O que aconteceu\n${item.symptom}${item.cause ? `\n${item.cause}` : ""}\n\nO que fizemos\n${item.actionTaken}${item.supportPeople ? `\n${item.supportPeople}` : ""}`));
         slide.modifyElement(card.statusText, modify.setText(`Status: ${status.label}${resolution}`));
         slide.modifyElement(card.statusBackground, ModifyColorHelper.solidFill({ value: status.color }));
-        replaceIcon(slide, card.icon, item.iconKey);
+        replaceIcon(slide, card.icon, item.iconKey, iconMedia);
       });
     });
   }
@@ -132,13 +141,19 @@ export async function generatePptx(input: PresentationInput, templateBuffer: Buf
         slide.modifyElement(DEMAND_SHAPES.demandTitle, modify.setText("Sem ocorrências na semana."));
         slide.modifyElement(DEMAND_SHAPES.demandBody, modify.setText(""));
         slide.removeElement(DEMAND_SHAPES.icon);
+        slide.removeElement(DEMAND_SHAPES.timelineLine);
+        removeCard(slide, DEMAND_SHAPES.phases);
         return;
       }
       slide.modifyElement(DEMAND_SHAPES.demandTitle, modify.setText(item.title));
       slide.modifyElement(DEMAND_SHAPES.demandBody, modify.setText(`Solicitante: ${item.requesterName} (${item.requesterArea})\nÁreas envolvidas: ${item.involvedAreas.join(", ")}\n\nObjetivo: ${item.objective}\n\nStatus: ${item.statusText ?? ""}`));
-      replaceIcon(slide, DEMAND_SHAPES.icon, item.iconKey);
+      replaceIcon(slide, DEMAND_SHAPES.icon, item.iconKey, iconMedia);
       const current = PHASES.indexOf(item.currentPhase);
-      DEMAND_SHAPES.phaseCircles.forEach((shape, index) => slide.modifyElement(shape, ModifyColorHelper.solidFill({ value: index < current ? "2E8B57" : index === current ? "FFD400" : "A6A6A6" })));
+      DEMAND_SHAPES.phases.forEach((phase, index) => {
+        slide.modifyElement(phase.circle, ModifyColorHelper.solidFill({ value: index < current ? "2E8B57" : index === current ? "FFD400" : "A6A6A6" }));
+        slide.modifyElement(phase.number, modify.setText(String(index + 1)));
+        slide.modifyElement(phase.label, modify.setText(demandPhaseLabels[index]));
+      });
     });
   }
 
@@ -156,7 +171,7 @@ export async function generatePptx(input: PresentationInput, templateBuffer: Buf
         const item = items[index];
         if (!item) return removeCard(slide, slot);
         slide.modifyElement(slot.heading, modify.setText(`${item.title}\n${item.activityType}`));
-        replaceIcon(slide, slot.icon, item.iconKey);
+        replaceIcon(slide, slot.icon, item.iconKey, iconMedia);
         slot.routines.forEach((routineSlot, routineIndex) => {
           const routine = item.routines[routineIndex];
           if (!routine) return removeCard(slide, routineSlot);
