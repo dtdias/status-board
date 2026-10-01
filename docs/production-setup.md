@@ -14,12 +14,12 @@
 Set these Vercel variables for every deployed environment:
 
 ```text
-NEXT_PUBLIC_SUPABASE_URL=https://<project-ref>.supabase.co
-NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY=<Supabase publishable key>
+SUPABASE_URL=https://<project-ref>.supabase.co
+SUPABASE_PUBLISHABLE_KEY=<Supabase publishable key>
 PPTX_TEMPLATE_VERSION=v1
 ```
 
-The first two are required at runtime. `PPTX_TEMPLATE_VERSION` is optional and
+The first two are server-only runtime variables. `PPTX_TEMPLATE_VERSION` is optional and
 defaults to `v1`; it selects `status-weekly/<version>/template.pptx`.
 
 `.env.example` also defines test-only variables. Do not set them in production
@@ -32,16 +32,17 @@ E2E_USER_EMAIL
 E2E_USER_PASSWORD
 ```
 
-No other environment variable names are referenced by application source. In
-particular, this app does not use `SUPABASE_SERVICE_ROLE_KEY`.
+No browser client imports Supabase, so no Supabase variable needs the `NEXT_PUBLIC_`
+prefix. The publishable key remains constrained by RLS; this naming change is not a
+replacement for database policies. This app does not use `SUPABASE_SERVICE_ROLE_KEY`.
 
 ## Supabase
 
 1. Create the production Supabase project and enable the intended Auth users.
 2. Apply migrations in repository order: `0001_initial_schema.sql` through
-   `0005_template_admin_authorization.sql`.
+   `0006_report_status_lifecycle.sql`.
 3. The standard Supabase CLI command for applying local migrations to a linked
-   project is `supabase db push`. Alternatively, apply the five SQL files in
+   project is `supabase db push`. Alternatively, apply the six SQL files in
    order through the Supabase SQL Editor. Do not reorder or omit a migration.
 4. Confirm the migrations created private buckets `generated-presentations` and
    `presentation-templates`. They must remain private.
