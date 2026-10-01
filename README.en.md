@@ -29,7 +29,7 @@
   <a href="#architecture">Architecture</a>
 </p>
 
-> The published app requires an authenticated user. The public root page is an interface preview; the working flow starts at `/login`.
+> The published app requires an authenticated user. The `/` route redirects to `/login`.
 
 ## Why it exists
 
