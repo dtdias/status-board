@@ -41,6 +41,7 @@
     "@types/react": "^19.0.0",
     "@types/react-dom": "^19.0.0",
     "eslint": "^9.22.0",
+    "supabase": "^2.118.0",
     "tailwindcss": "^4.3.3",
     "typescript": "^5.8.2",
     "typescript-eslint": "^8.46.0",
