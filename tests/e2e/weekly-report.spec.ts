@@ -44,6 +44,15 @@ test.describe("weekly report PRD flow", () => {
     await page.getByLabel("Status").selectOption("delivered");
     await page.getByRole("button", { name: "Salvar entrega" }).click();
     await expect(page.getByText("Entrega E2E", { exact: true })).toBeVisible();
+    await expect(page.getByRole("link", { name: "Adicionar entrega" })).toBeVisible();
+
+    await page.getByRole("link", { name: "Adicionar entrega" }).click();
+    await page.getByLabel("Nome da entrega").fill("Segunda entrega E2E");
+    await page.getByLabel("Descrição").fill("Segunda entrega criada pelo fluxo E2E.");
+    await page.getByLabel("Status").selectOption("in_progress");
+    await page.getByRole("button", { name: "Salvar entrega" }).click();
+    await expect(page.getByText("Segunda entrega E2E", { exact: true })).toBeVisible();
+    await expect(page.getByRole("link", { name: "Adicionar entrega" })).toBeVisible();
 
     await page.getByRole("link", { name: "Adicionar incidente" }).click();
     await page.getByLabel("Sistema afetado").fill("Sistema E2E");
@@ -52,6 +61,16 @@ test.describe("weekly report PRD flow", () => {
     await page.getByLabel("Data de resolução").fill(dates.end);
     await page.getByRole("button", { name: "Salvar incidente" }).click();
     await expect(page.getByText("Sistema E2E", { exact: true })).toBeVisible();
+    await expect(page.getByRole("link", { name: "Adicionar incidente" })).toBeVisible();
+
+    await page.getByRole("link", { name: "Adicionar incidente" }).click();
+    await page.getByLabel("Sistema afetado").fill("Segundo sistema E2E");
+    await page.getByLabel("O que aconteceu").fill("Segundo incidente criado pelo fluxo E2E.");
+    await page.getByLabel("Ação tomada").fill("Segundo incidente resolvido no teste.");
+    await page.getByLabel("Data de resolução").fill(dates.end);
+    await page.getByRole("button", { name: "Salvar incidente" }).click();
+    await expect(page.getByText("Segundo sistema E2E", { exact: true })).toBeVisible();
+    await expect(page.getByRole("link", { name: "Adicionar incidente" })).toBeVisible();
 
     await page.getByRole("link", { name: "Editar detalhes" }).click();
     await page.getByLabel("Destaque da semana").fill("Entrega E2E publicada com sucesso.");
