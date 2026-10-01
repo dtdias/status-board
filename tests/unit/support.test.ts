@@ -14,6 +14,10 @@ describe("support schemas", () => {
     expect(supportRoutineSchema.safeParse({ title: "a".repeat(91) }).success).toBe(false);
   });
 
+  it("rejects icons outside the template library", () => {
+    expect(supportFrontSchema.safeParse({ ...validFront, iconKey: "not-in-template" }).success).toBe(false);
+  });
+
   it("rejects more than three routines in one front", () => {
     expect(supportFrontWithRoutinesSchema.safeParse({ ...validFront, routines: Array.from({ length: MAX_ROUTINES_PER_FRONT + 1 }, () => ({ title: "Monitorar" })) }).success).toBe(false);
   });

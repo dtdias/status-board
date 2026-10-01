@@ -1,6 +1,7 @@
 "use client";
 
 import { useActionState } from "react";
+import { ReportIconPicker } from "@/components/report-icon-picker";
 import { supportIcons } from "@/lib/support/support";
 import { saveSupportFront, type SupportState } from "./actions";
 
@@ -14,7 +15,7 @@ export function SupportFrontForm({ reportId, front }: { reportId: string; front?
     {front ? <input name="frontId" type="hidden" value={front.id} /> : null}
     <label>Nome da frente<input defaultValue={front?.title} maxLength={50} name="title" required /></label>
     <label>Tipo da atividade<input defaultValue={front?.activity_type} maxLength={80} name="activityType" required /></label>
-    <label>Ícone<select defaultValue={front?.icon_key ?? "routine"} name="iconKey">{supportIcons.map((icon) => <option key={icon} value={icon}>{icon}</option>)}</select></label>
+    <ReportIconPicker defaultValue={front?.icon_key ?? "routine"} label="Ícone" name="iconKey" options={supportIcons} />
     {state.error ? <p className="form-error" role="alert">{state.error}</p> : null}
     <button className="primary-button" disabled={pending} type="submit">{pending ? "Salvando..." : "Salvar frente"}</button>
   </form>;

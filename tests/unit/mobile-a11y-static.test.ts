@@ -23,4 +23,10 @@ describe("mobile accessibility safeguards", () => {
     expect(preview).toContain('role="tabpanel"');
     expect(preview).toContain('event.key === "ArrowRight"');
   });
+
+  it("renders template icon assets instead of icon-key initials", () => {
+    expect(preview).toContain("<ReportIcon");
+    expect(preview).not.toContain("iconKey[0]");
+    expect(preview).not.toContain("iconKey[0]?.toUpperCase()");
+  });
 });

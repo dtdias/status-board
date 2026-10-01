@@ -30,13 +30,14 @@ export function PresentationHistory({
                 <strong>{presentation.fileName}</strong>
                 <time dateTime={presentation.generatedAt}>Gerado em {formatPresentationGeneratedAt(presentation.generatedAt)}</time>
               </div>
-              <a
-                className="outline-button"
-                href={`/api/reports/${reportId}/presentations/${presentation.id}/download`}
-                download={presentation.fileName}
-              >
-                Baixar PowerPoint
-              </a>
+              <div className="presentation-actions">
+                <a className="outline-button" href={`/app/reports/${reportId}/presentations/${presentation.id}/preview`}>
+                  Visualizar PPTX
+                </a>
+                <a className="outline-button" href={`/api/reports/${reportId}/presentations/${presentation.id}/download`} download={presentation.fileName}>
+                  Baixar PowerPoint
+                </a>
+              </div>
             </li>
           ))}
         </ol>

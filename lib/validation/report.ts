@@ -1,3 +1,5 @@
+import { isReportIconKey } from "@/lib/icons/report-icons";
+
 export const CONTENT_LIMITS = {
   deliveryTitle: 60,
   deliveryDescription: 150,
@@ -38,10 +40,10 @@ type ValidationItem = { id: string };
 
 export type ReportValidationInput = {
   report: { startDate: string | null; endDate: string | null; presentationDate: string | null; highlight: string | null };
-  deliveries: Array<ValidationItem & { title: string | null; description: string | null; status: string | null }>;
-  incidents: Array<ValidationItem & { affectedSystem: string | null; symptom: string | null; cause: string | null; actionTaken: string | null; status: string | null; resolvedAt: string | null }>;
-  demands: Array<ValidationItem & { title: string | null; requesterName: string | null; requesterArea: string | null; involvedAreas: string[] | null; objective: string | null; statusText: string | null; currentPhase: string | null }>;
-  supportFronts: Array<ValidationItem & { title: string | null; activityType: string | null; routines: Array<ValidationItem & { title: string | null }> }>;
+  deliveries: Array<ValidationItem & { title: string | null; description: string | null; status: string | null; iconKey: string | null }>;
+  incidents: Array<ValidationItem & { affectedSystem: string | null; symptom: string | null; cause: string | null; actionTaken: string | null; status: string | null; resolvedAt: string | null; iconKey: string | null }>;
+  demands: Array<ValidationItem & { title: string | null; requesterName: string | null; requesterArea: string | null; involvedAreas: string[] | null; objective: string | null; statusText: string | null; currentPhase: string | null; iconKey: string | null }>;
+  supportFronts: Array<ValidationItem & { title: string | null; activityType: string | null; iconKey: string | null; routines: Array<ValidationItem & { title: string | null }> }>;
   dependencies: Array<ValidationItem & { title: string | null; description: string | null; owner: string | null; waitingSince: string | null }>;
   nextSteps: Array<ValidationItem & { title: string | null; description: string | null }>;
 };
@@ -90,6 +92,14 @@ function validateText(value: string | null, field: string, label: string, limit:
   }
 }
 
+function validateIcon(value: string | null, section: ValidationSection, errors: ValidationIssue[], entityId: string) {
+  if (isBlank(value)) {
+    errors.push({ code: "required", section, entityId, field: "iconKey", message: "Selecione um ícone." });
+  } else if (!isReportIconKey(value)) {
+    errors.push({ code: "invalid_icon", section, entityId, field: "iconKey", message: "Selecione um ícone da biblioteca do template." });
+  }
+}
+
 export function validateReport(input: ReportValidationInput): ValidationResult {
   const errors: ValidationIssue[] = [];
   const warnings: ValidationIssue[] = [];
@@ -107,6 +117,7 @@ export function validateReport(input: ReportValidationInput): ValidationResult {
     validateText(delivery.title, "title", "o título da entrega", CONTENT_LIMITS.deliveryTitle, "delivery", errors, warnings, delivery.id);
     validateText(delivery.description, "description", "a descrição da entrega", CONTENT_LIMITS.deliveryDescription, "delivery", errors, warnings, delivery.id);
     validateText(delivery.status, "status", "o status da entrega", Number.MAX_SAFE_INTEGER, "delivery", errors, warnings, delivery.id);
+    validateIcon(delivery.iconKey, "delivery", errors, delivery.id);
   }
 
   for (const incident of input.incidents) {
@@ -115,6 +126,7 @@ export function validateReport(input: ReportValidationInput): ValidationResult {
     validateText(incident.cause, "cause", "a causa", CONTENT_LIMITS.incidentCause, "incident", errors, warnings, incident.id, false);
     validateText(incident.actionTaken, "actionTaken", "a ação tomada", CONTENT_LIMITS.incidentAction, "incident", errors, warnings, incident.id);
     validateText(incident.status, "status", "o status do incidente", Number.MAX_SAFE_INTEGER, "incident", errors, warnings, incident.id);
+    validateIcon(incident.iconKey, "incident", errors, incident.id);
     if (incident.status === "resolved") validateDate(incident.resolvedAt, "resolvedAt", "incident", errors, incident.id);
   }
 
@@ -126,11 +138,13 @@ export function validateReport(input: ReportValidationInput): ValidationResult {
     validateText(demand.objective, "objective", "o objetivo da demanda", CONTENT_LIMITS.demandObjective, "demand", errors, warnings, demand.id);
     validateText(demand.statusText, "statusText", "o status da demanda", CONTENT_LIMITS.demandStatus, "demand", errors, warnings, demand.id);
     validateText(demand.currentPhase, "currentPhase", "a fase atual da demanda", Number.MAX_SAFE_INTEGER, "demand", errors, warnings, demand.id);
+    validateIcon(demand.iconKey, "demand", errors, demand.id);
   }
 
   for (const front of input.supportFronts) {
     validateText(front.title, "title", "o título da frente de sustentação", CONTENT_LIMITS.supportFrontTitle, "support", errors, warnings, front.id);
     validateText(front.activityType, "activityType", "o tipo de atividade", CONTENT_LIMITS.supportActivityType, "support", errors, warnings, front.id);
+    validateIcon(front.iconKey, "support", errors, front.id);
     if (front.routines.length > 3) errors.push({ code: "support_routine_limit_exceeded", section: "support", entityId: front.id, field: "routines", message: "Cada frente pode ter no máximo 3 rotinas." });
     for (const routine of front.routines) validateText(routine.title, "title", "a rotina de sustentação", CONTENT_LIMITS.supportRoutine, "support", errors, warnings, routine.id);
   }

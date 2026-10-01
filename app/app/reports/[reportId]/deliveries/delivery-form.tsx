@@ -1,6 +1,7 @@
 "use client";
 
 import { useActionState } from "react";
+import { ReportIconPicker } from "@/components/report-icon-picker";
 import { deliveryIcons, deliveryStatusMeta, deliveryStatuses } from "@/lib/deliveries/delivery";
 import { saveDelivery, type DeliveryState } from "./actions";
 
@@ -29,12 +30,7 @@ export function DeliveryForm({ reportId, delivery }: { reportId: string; deliver
           {deliveryStatuses.map((status) => <option key={status} value={status}>{deliveryStatusMeta[status].label}</option>)}
         </select>
       </label>
-      <label>
-        Ícone
-        <select defaultValue={delivery?.icon_key ?? "integration"} name="iconKey">
-          {deliveryIcons.map((icon) => <option key={icon} value={icon}>{icon}</option>)}
-        </select>
-      </label>
+      <ReportIconPicker defaultValue={delivery?.icon_key ?? "integration"} label="Ícone" name="iconKey" options={deliveryIcons} />
       {state.error ? <p className="form-error" role="alert">{state.error}</p> : null}
       <button className="primary-button" disabled={pending} type="submit">{pending ? "Salvando..." : "Salvar entrega"}</button>
     </form>
