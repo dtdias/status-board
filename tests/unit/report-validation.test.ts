@@ -3,10 +3,10 @@ import { CONTENT_LIMITS, validateReport, type ReportValidationInput } from "@/li
 
 const validInput: ReportValidationInput = {
   report: { startDate: "2026-09-21", endDate: "2026-09-27", presentationDate: "2026-09-29", highlight: "Integração ERP publicada" },
-  deliveries: [{ id: "delivery-1", title: "Integração ERP", description: "Publicada em produção.", status: "delivered" }],
-  incidents: [{ id: "incident-1", affectedSystem: "ERP", symptom: "Login indisponível", cause: null, actionTaken: "Serviço reiniciado", status: "resolved", resolvedAt: "2026-09-22" }],
-  demands: [{ id: "demand-1", title: "Novo BI", requesterName: "Comercial", requesterArea: "Vendas", involvedAreas: ["TI"], objective: "Disponibilizar indicadores comerciais.", statusText: "Em análise", currentPhase: "feasibility_requirements" }],
-  supportFronts: [{ id: "support-1", title: "Operação ERP", activityType: "Monitoramento", routines: [{ id: "routine-1", title: "Acompanhar filas" }] }],
+  deliveries: [{ id: "delivery-1", title: "Integração ERP", description: "Publicada em produção.", status: "delivered", iconKey: "integration" }],
+  incidents: [{ id: "incident-1", affectedSystem: "ERP", symptom: "Login indisponível", cause: null, actionTaken: "Serviço reiniciado", status: "resolved", resolvedAt: "2026-09-22", iconKey: "incident" }],
+  demands: [{ id: "demand-1", title: "Novo BI", requesterName: "Comercial", requesterArea: "Vendas", involvedAreas: ["TI"], objective: "Disponibilizar indicadores comerciais.", statusText: "Em análise", currentPhase: "feasibility_requirements", iconKey: "demand" }],
+  supportFronts: [{ id: "support-1", title: "Operação ERP", activityType: "Monitoramento", iconKey: "routine", routines: [{ id: "routine-1", title: "Acompanhar filas" }] }],
   dependencies: [{ id: "dependency-1", title: "Credencial API", description: "Aguardando liberação de produção.", owner: "Infra", waitingSince: "2026-09-23" }],
   nextSteps: [{ id: "step-1", title: "Validar acesso", description: "Confirmar acesso de produção." }],
 };
@@ -34,6 +34,18 @@ describe("validateReport", () => {
       expect.objectContaining({ section: "demand", field: "involvedAreas" }),
       expect.objectContaining({ section: "support", field: "routines", code: "support_routine_limit_exceeded" }),
       expect.objectContaining({ section: "next_step", field: "title" }),
+    ]));
+  });
+
+  it("blocks missing or unknown template icon keys before generation", () => {
+    const result = validateReport({
+      ...validInput,
+      deliveries: [{ ...validInput.deliveries[0], iconKey: "" }],
+      incidents: [{ ...validInput.incidents[0], iconKey: "not-in-template" }],
+    });
+    expect(result.errors).toEqual(expect.arrayContaining([
+      expect.objectContaining({ section: "delivery", entityId: "delivery-1", field: "iconKey", code: "required" }),
+      expect.objectContaining({ section: "incident", entityId: "incident-1", field: "iconKey", code: "invalid_icon" }),
     ]));
   });
 

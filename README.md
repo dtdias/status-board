@@ -162,7 +162,7 @@ npm run test:e2e
 
 ## Notas de escopo
 
-- A prévia em HTML serve para revisão antes da geração; não é um renderizador PowerPoint pixel a pixel.
+- A prévia HTML serve para revisão prévia. Após gerar, histórico abre o mesmo PPTX salvo por renderizador local no navegador, sem conversão no servidor ou envio a terceiros; diferenças de rasterização em relação ao PowerPoint desktop ainda podem ocorrer.
 - Drag-and-drop de ordenação existe atualmente apenas para entregas.
 - O projeto não inclui fluxo público de cadastro, licença ou guia de contribuição.
 
