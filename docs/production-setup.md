@@ -40,9 +40,9 @@ replacement for database policies. This app does not use `SUPABASE_SERVICE_ROLE_
 
 1. Create the production Supabase project and enable the intended Auth users.
 2. Apply migrations in repository order: `0001_initial_schema.sql` through
-   `0006_report_status_lifecycle.sql`.
+   `0007_fix_report_content_editable_trigger.sql`.
 3. The standard Supabase CLI command for applying local migrations to a linked
-   project is `supabase db push`. Alternatively, apply the six SQL files in
+   project is `supabase db push`. Alternatively, apply the seven SQL files in
    order through the Supabase SQL Editor. Do not reorder or omit a migration.
 4. Confirm the migrations created private buckets `generated-presentations` and
    `presentation-templates`. They must remain private.
