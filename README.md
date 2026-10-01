@@ -29,7 +29,7 @@
   <a href="#arquitetura">Arquitetura</a>
 </p>
 
-> O ambiente publicado exige usuário autenticado. A raiz pública é uma prévia de interface; o fluxo funcional começa em `/login`.
+> O ambiente publicado exige usuário autenticado. A rota `/` redireciona para `/login`.
 
 ## Por que existe
 
