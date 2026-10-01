@@ -120,7 +120,7 @@ SUPABASE_PUBLISHABLE_KEY=<Supabase publishable key>
 PPTX_TEMPLATE_VERSION=v1
 ```
 
-Execute as migrations `0001` até `0006` e envie o template revisado para:
+Execute as migrations `0001` até `0007` e envie o template revisado para:
 
 ```text
 presentation-templates/status-weekly/v1/template.pptx
