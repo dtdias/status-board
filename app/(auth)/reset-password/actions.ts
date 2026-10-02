@@ -20,6 +20,12 @@ export async function updatePassword(_: UpdatePasswordState, formData: FormData)
   if (!user) return { error: "Link expirado. Solicite uma nova recuperação." };
 
   const { error } = await supabase.auth.updateUser({ password: parsed.data });
+  if (error?.code === "same_password") {
+    return { error: "A nova senha deve ser diferente da senha atual." };
+  }
+  if (error?.code === "weak_password" || error?.code === "password_too_short") {
+    return { error: "Escolha uma senha mais forte, com pelo menos 8 caracteres." };
+  }
   if (error) return { error: "Não foi possível atualizar a senha. Solicite um novo link." };
 
   await supabase.auth.signOut({ scope: "local" });
