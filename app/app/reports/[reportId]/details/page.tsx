@@ -1,6 +1,6 @@
-import Link from "next/link";
 import { notFound } from "next/navigation";
 import type { Route } from "next";
+import { BackLink } from "@/components/navigation/back-link";
 import { createClient } from "@/lib/supabase/server";
 import { ReportDetailsForm } from "./report-details-form";
 
@@ -18,7 +18,7 @@ export default async function ReportDetailsPage({ params }: { params: Promise<{ 
   return (
     <main className="auth-shell">
       <section className="auth-panel">
-        <Link className="brand" href={`/app/reports/${reportId}` as Route}>Voltar ao board</Link>
+        <BackLink href={`/app/reports/${reportId}` as Route} label="Voltar ao board" />
         <p className="eyebrow">Relatório semanal</p>
         <h1>Editar detalhes</h1>
         <ReportDetailsForm report={report} reportId={reportId} />

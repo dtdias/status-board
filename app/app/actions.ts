@@ -1,11 +1,24 @@
 "use server";
 
 import { redirect } from "next/navigation";
+import { revalidatePath } from "next/cache";
 import type { Route } from "next";
 import { createClient } from "@/lib/supabase/server";
 import { profileSchema } from "@/lib/validation/profile";
 
 export type ProfileState = { error?: string };
+export type SignOutState = { error?: string };
+
+export async function signOutAccount(previousState: SignOutState, formData: FormData): Promise<SignOutState> {
+  if (formData.get("intent") !== "sign-out") return previousState;
+
+  const supabase = await createClient();
+  const { error } = await supabase.auth.signOut({ scope: "local" });
+  if (error) return { error: "Não foi possível sair. Tente novamente." };
+
+  revalidatePath("/app", "layout");
+  redirect("/login" as Route);
+}
 
 export async function saveProfile(_: ProfileState, formData: FormData): Promise<ProfileState> {
   const parsed = profileSchema.safeParse({
