@@ -49,4 +49,19 @@ describe("account lifecycle", () => {
     expect(confirmation).toContain("#ffd400");
     expect(invite).toContain("STATUS BOARD");
   });
+
+  it("keeps confirmed accounts out of signup resend and supports passwordless access safely", () => {
+    const signup = read("app/(auth)/signup/actions.ts");
+    const login = read("app/(auth)/login/actions.ts");
+    const reset = read("app/(auth)/reset-password/actions.ts");
+    const recovery = read("docs/email-templates/supabase-recovery.html");
+    const magic = read("docs/email-templates/supabase-magic-link.html");
+    expect(signup).toContain("email_confirmed_at");
+    expect(signup).toContain("accountConfirmed");
+    expect(login).toContain("resetPasswordForEmail");
+    expect(login).toContain("shouldCreateUser: false");
+    expect(reset).toContain("supabase.auth.updateUser({ password");
+    expect(recovery).toContain("{{ .ConfirmationURL }}");
+    expect(magic).toContain("{{ .ConfirmationURL }}");
+  });
 });

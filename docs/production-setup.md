@@ -81,12 +81,20 @@ under `<user-id>/<report-id>/v<version>.pptx`; do not pre-create them.
    template and `docs/email-templates/supabase-invite.html` into `Invite user`.
 8. Keep `{{ .ConfirmationURL }}` unchanged in both templates. It carries the one-time token
    and the allowlisted redirect URL.
+9. Copy `docs/email-templates/supabase-recovery.html` into `Reset password` and
+   `docs/email-templates/supabase-magic-link.html` into `Magic Link`.
+10. Allow exact redirects for `/auth/callback?next=/app` and
+    `/auth/callback?next=/reset-password`.
 
 ## Confirmation resend
 
 The signup page exposes resend after a confirmation request. A database RPC atomically claims
 a five-minute window per normalized e-mail hash. UI countdown is feedback; database cooldown
 remains authoritative across browsers and app instances.
+
+Magic Link uses `shouldCreateUser: false`, so it never creates an account. Confirmed accounts
+can use password login or Magic Link; confirmed accounts do not receive signup confirmation
+resends.
 
 ## Deploy Validation
 
