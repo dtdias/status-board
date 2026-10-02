@@ -21,7 +21,7 @@ export async function updatePassword(_: UpdatePasswordState, formData: FormData)
 
   const { error } = await supabase.auth.updateUser({ password: parsed.data });
   if (error?.code === "same_password") {
-    return { error: "A nova senha deve ser diferente da senha atual." };
+    return { error: "Não foi possível definir esta senha. Escolha outra combinação e tente novamente." };
   }
   if (error?.code === "weak_password" || error?.code === "password_too_short") {
     return { error: "Escolha uma senha mais forte, com pelo menos 8 caracteres." };
