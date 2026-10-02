@@ -2,17 +2,22 @@
 
 ## Problem
 
-The application has report data and an HTML preview but no serverless path to produce an editable PowerPoint while retaining the corporate master.
+The application has report data but needs to produce and preview editable PowerPoint while retaining the corporate master.
 
 ## Alternatives
 
 - Redraw slides with a new PPTX library. Rejected because it would not preserve the supplied master shapes, icons, fonts, and positions.
 - Use Office or LibreOffice conversion. Rejected because Vercel functions cannot depend on those runtimes.
 - Use `pptx-automizer` over the master buffer. Chosen because it clones master slides and edits named shapes in Node.js.
+- Render the stored PPTX in the browser after generation. Chosen because the viewer reads the authenticated, generated PPTX bytes locally and requires no Office service, server conversion, or document upload to a third party.
 
 ## Decision
 
 The generator accepts only a `PresentationInput` DTO and a template `Buffer`. The route authenticates, loads and validates report data, downloads the template from Supabase Storage, then produces a generated buffer. No generator module queries the database or writes persistent files. Each call creates one `Automizer` instance.
+
+### Generated PPTX Preview
+
+The current-report preview endpoint invokes the same generator and template but does not reserve or store a version. The presentation history preview fetches the exact private PPTX bytes used by download. Both render in-browser with `@aiden0z/pptx-renderer`; no alternate slide model, server conversion, or external file service is involved.
 
 ## Generated Presentation Storage
 

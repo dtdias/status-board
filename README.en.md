@@ -60,7 +60,7 @@ flowchart LR
 - Weekly reports with draft, ready, generated, presented, and archived lifecycle states.
 - Previous-week cloning with selectable content areas.
 - Structured sections for deliveries, production incidents, new demands, support routines, dependencies, and next steps.
-- Automatic summary plus accessible HTML/CSS slide preview.
+- Automatic summary plus template-faithful PPTX preview before and after generation.
 - Pointer and keyboard drag-and-drop ordering for deliveries.
 - Pre-generation validation, content limits, pagination, and absence messages for empty sections.
 - PPTX generation with `pptx-automizer`, preserving the approved template's shapes, icons, fonts, colors, and layout.
@@ -120,7 +120,7 @@ SUPABASE_PUBLISHABLE_KEY=<Supabase publishable key>
 PPTX_TEMPLATE_VERSION=v1
 ```
 
-Apply migrations `0001` through `0006`, then upload the reviewed template to:
+Apply migrations `0001` through `0007`, then upload the reviewed template to:
 
 ```text
 presentation-templates/status-weekly/v1/template.pptx
@@ -162,7 +162,7 @@ npm run test:e2e
 
 ## Scope notes
 
-- The HTML preview supports review before generation; it is not a pixel-for-pixel PowerPoint renderer.
+- Preview runs the same generator and template against current data without saving; history renders the saved version's exact PPTX bytes. Rendering stays in-browser without server conversion or third-party upload.
 - Drag-and-drop ordering currently applies to deliveries only.
 - The project does not include a public signup flow, license, or contribution guide.
 

@@ -10,12 +10,14 @@
     "typecheck": "tsc --noEmit",
     "test": "vitest run",
     "test:watch": "vitest",
-    "test:e2e": "playwright test"
+    "test:e2e": "playwright test",
+    "icons:extract": "node --experimental-strip-types scripts/extract-report-icons.mjs"
   },
   "engines": {
     "node": ">=22"
   },
   "dependencies": {
+    "@aiden0z/pptx-renderer": "^1.3.0",
     "@dnd-kit/core": "^6.3.1",
     "@dnd-kit/sortable": "^10.0.0",
     "@dnd-kit/utilities": "^3.2.2",
