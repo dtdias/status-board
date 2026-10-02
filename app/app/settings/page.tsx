@@ -1,6 +1,6 @@
 import type { Route } from "next";
-import Link from "next/link";
 import { redirect } from "next/navigation";
+import { BackLink } from "@/components/navigation/back-link";
 import { ProfileForm } from "../profile-form";
 import { createClient } from "@/lib/supabase/server";
 
@@ -25,7 +25,7 @@ export default async function SettingsPage() {
   return (
     <main className="auth-shell">
       <section className="auth-panel">
-        <Link className="brand" href={"/app" as Route}>Status Board</Link>
+        <BackLink href={"/app" as Route} label="Voltar às semanas" />
         <p className="eyebrow">Configurações</p>
         <h1>Seu perfil.</h1>
         <p className="intro-copy">Nome e área aparecem na capa do status semanal.</p>
