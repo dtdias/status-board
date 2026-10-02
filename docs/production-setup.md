@@ -42,9 +42,9 @@ deployed `delete-account` Edge Function secrets, never in Vercel or browser vari
 
 1. Create the production Supabase project and enable the intended Auth users.
 2. Apply migrations in repository order: `0001_initial_schema.sql` through
-   `0007_fix_report_content_editable_trigger.sql`.
+   `0008_signup_confirmation_resend_cooldown.sql`.
 3. The standard Supabase CLI command for applying local migrations to a linked
-   project is `supabase db push`. Alternatively, apply the seven SQL files in
+   project is `supabase db push`. Alternatively, apply the eight SQL files in
    order through the Supabase SQL Editor. Do not reorder or omit a migration.
 4. Confirm the migrations created private buckets `generated-presentations` and
    `presentation-templates`. They must remain private.
@@ -77,6 +77,16 @@ under `<user-id>/<report-id>/v<version>.pptx`; do not pre-create them.
    `.env.local`, Vercel, client code, or request bodies.
 6. Validate signup, duplicate e-mail attempts, confirmation, reauthentication, Storage
    cleanup, database cascade, and final session invalidation in an isolated project.
+7. Copy `docs/email-templates/supabase-confirmation.html` into the Supabase `Confirm signup`
+   template and `docs/email-templates/supabase-invite.html` into `Invite user`.
+8. Keep `{{ .ConfirmationURL }}` unchanged in both templates. It carries the one-time token
+   and the allowlisted redirect URL.
+
+## Confirmation resend
+
+The signup page exposes resend after a confirmation request. A database RPC atomically claims
+a five-minute window per normalized e-mail hash. UI countdown is feedback; database cooldown
+remains authoritative across browsers and app instances.
 
 ## Deploy Validation
 

@@ -146,6 +146,10 @@ export type Database = {
         Args: { target_report_id: string; target_file_name: string };
         Returns: { id: string; version: number; storage_path: string; file_name: string; generated_at: string; }[];
       };
+      claim_signup_confirmation_resend: {
+        Args: { target_email_hash: string };
+        Returns: { allowed: boolean; retry_after_seconds: number }[];
+      };
     };
     Enums: Record<string, never>;
     CompositeTypes: Record<string, never>;
