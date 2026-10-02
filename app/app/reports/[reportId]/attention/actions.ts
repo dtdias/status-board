@@ -22,11 +22,11 @@ async function requireUser() {
 export async function saveDependency(_: AttentionState, formData: FormData): Promise<AttentionState> {
   const reportId = formData.get("reportId");
   const dependencyId = formData.get("dependencyId");
-  const parsed = dependencySchema.safeParse({ title: formData.get("title"), description: formData.get("description"), owner: formData.get("owner"), waitingSince: formData.get("waitingSince"), status: formData.get("status") });
+  const parsed = dependencySchema.safeParse({ title: formData.get("title"), description: formData.get("description"), owner: formData.get("owner"), waitingSince: formData.get("waitingSince"), status: formData.get("status"), hideOwnerInPresentation: formData.get("hideOwnerInPresentation") === "on", hideWaitingSinceInPresentation: formData.get("hideWaitingSinceInPresentation") === "on" });
   if (typeof reportId !== "string" || !parsed.success) return { error: parsed.success ? "Relatório inválido." : parsed.error.issues[0]?.message };
 
   const supabase = await requireUser();
-  const values = { title: parsed.data.title, description: parsed.data.description, owner: parsed.data.owner, waiting_since: parsed.data.waitingSince, status: parsed.data.status };
+  const values = { title: parsed.data.title, description: parsed.data.description, owner: parsed.data.owner, waiting_since: parsed.data.waitingSince, status: parsed.data.status, hide_owner_in_presentation: parsed.data.hideOwnerInPresentation, hide_waiting_since_in_presentation: parsed.data.hideWaitingSinceInPresentation };
   if (typeof dependencyId === "string" && dependencyId) {
     const { error } = await supabase.from("dependencies").update(values).eq("id", dependencyId).eq("weekly_report_id", reportId);
     if (error) return { error: "Não foi possível atualizar a dependência." };
@@ -53,11 +53,11 @@ export async function deleteDependency(formData: FormData) {
 export async function saveNextStep(_: AttentionState, formData: FormData): Promise<AttentionState> {
   const reportId = formData.get("reportId");
   const nextStepId = formData.get("nextStepId");
-  const parsed = nextStepSchema.safeParse({ title: formData.get("title"), description: formData.get("description"), owner: formData.get("owner"), dueDate: formData.get("dueDate") });
+  const parsed = nextStepSchema.safeParse({ title: formData.get("title"), description: formData.get("description"), owner: formData.get("owner"), dueDate: formData.get("dueDate"), hideOwnerInPresentation: formData.get("hideOwnerInPresentation") === "on", hideDueDateInPresentation: formData.get("hideDueDateInPresentation") === "on" });
   if (typeof reportId !== "string" || !parsed.success) return { error: parsed.success ? "Relatório inválido." : parsed.error.issues[0]?.message };
 
   const supabase = await requireUser();
-  const values = { title: parsed.data.title, description: parsed.data.description, owner: parsed.data.owner, due_date: parsed.data.dueDate };
+  const values = { title: parsed.data.title, description: parsed.data.description, owner: parsed.data.owner, due_date: parsed.data.dueDate, hide_owner_in_presentation: parsed.data.hideOwnerInPresentation, hide_due_date_in_presentation: parsed.data.hideDueDateInPresentation };
   if (typeof nextStepId === "string" && nextStepId) {
     const { error } = await supabase.from("next_steps").update(values).eq("id", nextStepId).eq("weekly_report_id", reportId);
     if (error) return { error: "Não foi possível atualizar o próximo passo." };

@@ -16,6 +16,6 @@ export type PresentationInput = {
   incidents: Array<{ id: string; affectedSystem: string; symptom: string; cause: string | null; actionTaken: string; supportPeople: string | null; status: IncidentStatus; resolvedAt: string | null; iconKey: string; position: number }>;
   demands: Array<{ id: string; title: string; requesterName: string; requesterArea: string; involvedAreas: string[]; objective: string; statusText: string | null; currentPhase: DemandPhase; iconKey: string; position: number }>;
   supportFronts: Array<{ id: string; title: string; activityType: string; iconKey: string; position: number; routines: Array<{ id: string; title: string; position: number }> }>;
-  dependencies: Array<{ id: string; title: string; description: string; owner: string; waitingSince: string; status: string | null; position: number }>;
-  nextSteps: Array<{ id: string; title: string; description: string | null; owner: string | null; dueDate: string | null; position: number }>;
+  dependencies: Array<{ id: string; title: string; description: string; owner: string; waitingSince: string; status: string | null; hideOwnerInPresentation: boolean; hideWaitingSinceInPresentation: boolean; position: number }>;
+  nextSteps: Array<{ id: string; title: string; description: string | null; owner: string | null; dueDate: string | null; hideOwnerInPresentation: boolean; hideDueDateInPresentation: boolean; position: number }>;
 };

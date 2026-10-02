@@ -21,8 +21,8 @@ export async function loadPresentationInput(supabase: Supabase, reportId: string
     supabase.from("incidents").select("id, affected_system, symptom, cause, action_taken, support_people, status, resolved_at, icon_key, position").eq("weekly_report_id", reportId).order("position"),
     supabase.from("demands").select("id, title, requester_name, requester_area, involved_areas, objective, status_text, current_phase, icon_key, position").eq("weekly_report_id", reportId).order("position"),
     supabase.from("support_fronts").select("id, title, activity_type, icon_key, position").eq("weekly_report_id", reportId).order("position"),
-    supabase.from("dependencies").select("id, title, description, owner, waiting_since, status, position").eq("weekly_report_id", reportId).order("position"),
-    supabase.from("next_steps").select("id, title, description, owner, due_date, position").eq("weekly_report_id", reportId).order("position"),
+    supabase.from("dependencies").select("id, title, description, owner, waiting_since, status, hide_owner_in_presentation, hide_waiting_since_in_presentation, position").eq("weekly_report_id", reportId).order("position"),
+    supabase.from("next_steps").select("id, title, description, owner, due_date, hide_owner_in_presentation, hide_due_date_in_presentation, position").eq("weekly_report_id", reportId).order("position"),
   ]);
   if ([deliveriesResult, incidentsResult, demandsResult, frontsResult, dependenciesResult, stepsResult].some((result) => result.error)) throw new Error("Unable to load report content.");
 
@@ -38,8 +38,8 @@ export async function loadPresentationInput(supabase: Supabase, reportId: string
     incidents: (incidentsResult.data ?? []).map((item) => ({ id: item.id, affectedSystem: item.affected_system, symptom: item.symptom, cause: item.cause, actionTaken: item.action_taken, supportPeople: item.support_people, status: item.status, resolvedAt: item.resolved_at, iconKey: item.icon_key, position: item.position })),
     demands: (demandsResult.data ?? []).map((item) => ({ id: item.id, title: item.title, requesterName: item.requester_name, requesterArea: item.requester_area, involvedAreas: item.involved_areas, objective: item.objective, statusText: item.status_text, currentPhase: item.current_phase, iconKey: item.icon_key, position: item.position })),
     supportFronts: fronts.map((front) => ({ id: front.id, title: front.title, activityType: front.activity_type, iconKey: front.icon_key, position: front.position, routines: (routines ?? []).filter((routine) => routine.support_front_id === front.id).map((routine) => ({ id: routine.id, title: routine.title, position: routine.position })) })),
-    dependencies: (dependenciesResult.data ?? []).map((item) => ({ id: item.id, title: item.title, description: item.description, owner: item.owner, waitingSince: item.waiting_since, status: item.status, position: item.position })),
-    nextSteps: (stepsResult.data ?? []).map((item) => ({ id: item.id, title: item.title, description: item.description, owner: item.owner, dueDate: item.due_date, position: item.position })),
+    dependencies: (dependenciesResult.data ?? []).map((item) => ({ id: item.id, title: item.title, description: item.description, owner: item.owner, waitingSince: item.waiting_since, status: item.status, hideOwnerInPresentation: item.hide_owner_in_presentation, hideWaitingSinceInPresentation: item.hide_waiting_since_in_presentation, position: item.position })),
+    nextSteps: (stepsResult.data ?? []).map((item) => ({ id: item.id, title: item.title, description: item.description, owner: item.owner, dueDate: item.due_date, hideOwnerInPresentation: item.hide_owner_in_presentation, hideDueDateInPresentation: item.hide_due_date_in_presentation, position: item.position })),
   };
 }
 
