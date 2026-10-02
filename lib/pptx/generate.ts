@@ -1,5 +1,4 @@
 import Automizer, { ModifyColorHelper, ModifyImageHelper, modify, type ShapeModificationCallback, type XmlElement } from "pptx-automizer";
-import { demandPhaseLabels } from "@/lib/demands/demand";
 import { getReportIcon } from "@/lib/icons/report-icons";
 import { assertPptxIntegrity, assertTemplateIntegrity } from "./integrity";
 import { readTemplateIconMedia } from "./icons";
@@ -26,13 +25,83 @@ function date(value: string) {
   return value.slice(8, 10) + "/" + value.slice(5, 7);
 }
 
-function footer(input: PresentationInput) {
-  return `${input.report.name} | ${date(input.report.presentationDate)}`;
+function fullDate(value: string) {
+  return `${date(value)}/${value.slice(0, 4)}`;
+}
+
+function coverFooter(input: PresentationInput) {
+  return `${input.report.name} |  ${fullDate(input.report.presentationDate)}`;
+}
+
+function pageFooter(input: PresentationInput) {
+  return `${input.report.name}  |  Semana ${date(input.report.startDate)} a ${date(input.report.endDate)}`;
 }
 
 function setPage(slide: Parameters<Automizer["addSlide"]>[2] extends ((slide: infer T) => void) | undefined ? T : never, input: PresentationInput, page: number) {
-  slide.modifyElement(HEADER_SHAPES.footer, modify.setText(footer(input)));
+  slide.modifyElement(HEADER_SHAPES.footer, modify.setText(pageFooter(input)));
   slide.modifyElement(HEADER_SHAPES.pageNumber, modify.setText(String(page)));
+}
+
+function replaceTextRuns(slide: Parameters<Automizer["addSlide"]>[2] extends ((slide: infer T) => void) | undefined ? T : never, shape: string, replacements: Array<{ placeholder: string; value: string }>) {
+  const replace = (element: XmlElement) => {
+    const runs = element.getElementsByTagName("a:t");
+    let cursor = 0;
+    for (const replacement of replacements) {
+      let found = false;
+      for (let index = cursor; index < runs.length; index += 1) {
+        if (runs[index].textContent !== replacement.placeholder) continue;
+        runs[index].textContent = replacement.value;
+        cursor = index + 1;
+        found = true;
+        break;
+      }
+      if (!found) throw new Error(`Template text run missing in ${shape}: ${replacement.placeholder}`);
+    }
+  };
+  slide.modifyElement(shape, replace);
+}
+
+type PptxTextParagraph = Parameters<typeof modify.setMultiText>[0][number];
+
+function attentionBody(input: PresentationInput, section: "dependencies" | "nextSteps"): PptxTextParagraph[] {
+  const headingStyle = { color: { type: "srgbClr" as const, value: "FFD400" }, size: 1400, isBold: true, fontFamily: "Calibri" };
+  const bodyStyle = { color: { type: "srgbClr" as const, value: "A6A6A6" }, size: 1400, isItalics: true, fontFamily: "Calibri" };
+  const empty = (message: string): PptxTextParagraph[] => [{ paragraph: {}, text: message, style: headingStyle }];
+
+  if (section === "dependencies") {
+    const items = input.dependencies.slice(0, 2);
+    if (!items.length) return empty("Sem dependências em aberto.");
+    const paragraphs: PptxTextParagraph[] = [];
+    items.forEach((item, index) => {
+      paragraphs.push({
+        paragraph: {},
+        textRuns: [
+          { text: item.title, style: headingStyle },
+          { text: ": ", style: headingStyle },
+          { text: `${item.description}\nResponsável: ${item.owner}\nDesde: ${date(item.waitingSince)}`, style: bodyStyle },
+        ],
+      });
+      if (index < items.length - 1) paragraphs.push({ paragraph: {}, text: " ", style: { size: 800, fontFamily: "Calibri" } });
+    });
+    return paragraphs;
+  }
+
+  const items = input.nextSteps.slice(0, 2);
+  if (!items.length) return empty("Sem ocorrências.");
+  const paragraphs: PptxTextParagraph[] = [];
+  items.forEach((item, index) => {
+    const details = `${item.description ?? ""}${item.owner ? `\nResponsável: ${item.owner}` : ""}${item.dueDate ? `\nPrazo: ${date(item.dueDate)}` : ""}`;
+    paragraphs.push({
+      paragraph: {},
+      textRuns: [
+        { text: item.title, style: headingStyle },
+        { text: ": ", style: headingStyle },
+        { text: details, style: bodyStyle },
+      ],
+    });
+    if (index < items.length - 1) paragraphs.push({ paragraph: {}, text: " ", style: { size: 800, fontFamily: "Calibri" } });
+  });
+  return paragraphs;
 }
 
 function removeCard(slide: Parameters<Automizer["addSlide"]>[2] extends ((slide: infer T) => void) | undefined ? T : never, card: object) {
@@ -66,9 +135,9 @@ export async function generatePptx(input: PresentationInput, templateBuffer: Buf
   let page = 1;
 
   presentation.addSlide("template", TEMPLATE_SLIDES.cover, (slide) => {
-    slide.modifyElement(COVER_SHAPES.area, modify.setText(input.report.area));
+    replaceTextRuns(slide, COVER_SHAPES.area, [{ placeholder: "Área", value: input.report.area }]);
     slide.modifyElement(COVER_SHAPES.week, modify.setText(`Semana de ${date(input.report.startDate)} a ${date(input.report.endDate)}/${input.report.endDate.slice(0, 4)}`));
-    slide.modifyElement(COVER_SHAPES.footer, modify.setText(footer(input)));
+    slide.modifyElement(COVER_SHAPES.footer, modify.setText(coverFooter(input)));
   });
   page += 1;
 
@@ -78,7 +147,7 @@ export async function generatePptx(input: PresentationInput, templateBuffer: Buf
     slide.modifyElement(SUMMARY_SHAPES.incidentCount, modify.setText(String(summary.resolvedIncidents)));
     slide.modifyElement(SUMMARY_SHAPES.demandCount, modify.setText(String(summary.newDemands)));
     slide.modifyElement(SUMMARY_SHAPES.supportCount, modify.setText(String(summary.supportRoutines)));
-    slide.modifyElement(SUMMARY_SHAPES.highlight, modify.setText(input.report.highlight));
+    replaceTextRuns(slide, SUMMARY_SHAPES.highlight, [{ placeholder: "[a entrega ou ocorrência mais importante da semana, em uma frase]", value: input.report.highlight }]);
   });
   page += 1;
 
@@ -126,7 +195,13 @@ export async function generatePptx(input: PresentationInput, templateBuffer: Buf
         const status = STATUS_META[item.status];
         const resolution = item.status === "resolved" && item.resolvedAt ? `\nData: ${date(item.resolvedAt)}` : "";
         slide.modifyElement(card.title, modify.setText(item.affectedSystem));
-        slide.modifyElement(card.body, modify.setText(`O que aconteceu\n${item.symptom}${item.cause ? `\n${item.cause}` : ""}\n\nO que fizemos\n${item.actionTaken}${item.supportPeople ? `\n${item.supportPeople}` : ""}`));
+        slide.modifyElement(card.body, modify.setMultiText([
+          { paragraph: {}, text: "O que aconteceu", style: { size: 1200, color: { type: "srgbClr", value: "D7191C" }, isBold: true, fontFamily: "Calibri" } },
+          { paragraph: {}, text: `${item.symptom}${item.cause ? `\n${item.cause}` : ""}`, style: { size: 1300, color: { type: "srgbClr", value: "8A8A8A" }, isItalics: true, fontFamily: "Calibri" } },
+          { paragraph: {}, text: " ", style: { size: 1000, color: { type: "srgbClr", value: "000000" }, fontFamily: "Calibri" } },
+          { paragraph: {}, text: "O que fizemos", style: { size: 1200, color: { type: "srgbClr", value: "D7191C" }, isBold: true, fontFamily: "Calibri" } },
+          { paragraph: {}, text: `${item.actionTaken}${item.supportPeople ? `\n${item.supportPeople}` : ""}`, style: { size: 1300, color: { type: "srgbClr", value: "8A8A8A" }, isItalics: true, fontFamily: "Calibri" } },
+        ]));
         slide.modifyElement(card.statusText, modify.setText(`Status: ${status.label}${resolution}`));
         slide.modifyElement(card.statusBackground, ModifyColorHelper.solidFill({ value: status.color }));
         replaceIcon(slide, card.icon, item.iconKey, iconMedia);
@@ -146,13 +221,19 @@ export async function generatePptx(input: PresentationInput, templateBuffer: Buf
         return;
       }
       slide.modifyElement(DEMAND_SHAPES.demandTitle, modify.setText(item.title));
-      slide.modifyElement(DEMAND_SHAPES.demandBody, modify.setText(`Solicitante: ${item.requesterName} (${item.requesterArea})\nÁreas envolvidas: ${item.involvedAreas.join(", ")}\n\nObjetivo: ${item.objective}\n\nStatus: ${item.statusText ?? ""}`));
+      replaceTextRuns(slide, DEMAND_SHAPES.demandBody, [
+        { placeholder: "[Nome (Área)]", value: `${item.requesterName} (${item.requesterArea})` },
+        { placeholder: "[Áreas]", value: item.involvedAreas.join(", ") },
+        { placeholder: "[O que a área precisa, em 1 ou 2 frases]", value: item.objective },
+        { placeholder: "[Onde está hoje]", value: item.statusText ?? "" },
+      ]);
       replaceIcon(slide, DEMAND_SHAPES.icon, item.iconKey, iconMedia);
       const current = PHASES.indexOf(item.currentPhase);
       DEMAND_SHAPES.phases.forEach((phase, index) => {
-        slide.modifyElement(phase.circle, ModifyColorHelper.solidFill({ value: index < current ? "2E8B57" : index === current ? "FFD400" : "A6A6A6" }));
+        slide.modifyElement(phase.circle, ModifyColorHelper.solidFill({ value: index < current ? "2E8B57" : index === current ? "FFD400" : "D9D9D9" }));
         slide.modifyElement(phase.number, modify.setText(String(index + 1)));
-        slide.modifyElement(phase.label, modify.setText(demandPhaseLabels[index]));
+        const state = index < current ? "Concluído" : index === current ? "Em andamento" : "Próxima fase";
+        replaceTextRuns(slide, phase.label, [{ placeholder: "[Concluído / Em andamento / Próxima fase]", value: state }]);
       });
     });
   }
@@ -170,7 +251,10 @@ export async function generatePptx(input: PresentationInput, templateBuffer: Buf
       SUPPORT_FRONTS.forEach((slot, index) => {
         const item = items[index];
         if (!item) return removeCard(slide, slot);
-        slide.modifyElement(slot.heading, modify.setText(`${item.title}\n${item.activityType}`));
+        replaceTextRuns(slide, slot.heading, [
+          { placeholder: index === 0 ? "[Frente 1]" : "[Frente 2]", value: item.title },
+          { placeholder: "[Tipo de atividade, ex.: monitoramento e correções]", value: item.activityType },
+        ]);
         replaceIcon(slide, slot.icon, item.iconKey, iconMedia);
         slot.routines.forEach((routineSlot, routineIndex) => {
           const routine = item.routines[routineIndex];
@@ -182,14 +266,10 @@ export async function generatePptx(input: PresentationInput, templateBuffer: Buf
   }
 
   presentation.addSlide("template", TEMPLATE_SLIDES.attention, (slide) => {
-    slide.modifyElement(ATTENTION_SHAPES.footer, modify.setText(footer(input)));
+    slide.modifyElement(ATTENTION_SHAPES.footer, modify.setText(pageFooter(input)));
     slide.modifyElement(ATTENTION_SHAPES.pageNumber, modify.setText(String(page)));
-    const dependencies = input.dependencies.slice(0, 2);
-    const nextSteps = input.nextSteps.slice(0, 2);
-    slide.modifyElement(ATTENTION_SHAPES.dependencyTitle, modify.setText(dependencies.length ? dependencies.map((item) => item.title).join("\n") : "Sem dependências."));
-    slide.modifyElement(ATTENTION_SHAPES.dependencyBody, modify.setText(dependencies.map((item) => `${item.description}\nResponsável: ${item.owner}\nDesde: ${date(item.waitingSince)}`).join("\n\n")));
-    slide.modifyElement(ATTENTION_SHAPES.nextStepsTitle, modify.setText(nextSteps.length ? nextSteps.map((item) => item.title).join("\n") : "Sem próximos passos."));
-    slide.modifyElement(ATTENTION_SHAPES.nextStepsBody, modify.setText(nextSteps.map((item) => `${item.description ?? ""}${item.owner ? `\nResponsável: ${item.owner}` : ""}${item.dueDate ? `\nPrazo: ${date(item.dueDate)}` : ""}`).join("\n\n")));
+    slide.modifyElement(ATTENTION_SHAPES.dependencyBody, modify.setMultiText(attentionBody(input, "dependencies")));
+    slide.modifyElement(ATTENTION_SHAPES.nextStepsBody, modify.setMultiText(attentionBody(input, "nextSteps")));
   });
 
   const zip = await presentation.getJSZip();

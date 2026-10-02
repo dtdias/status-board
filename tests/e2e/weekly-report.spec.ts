@@ -89,6 +89,15 @@ test.describe("weekly report PRD flow", () => {
     ]);
     await expect(page.getByText("Status: Pronto para gerar", { exact: true })).toBeVisible();
 
+    await page.getByRole("link", { name: "Pré-visualizar" }).click();
+    await expect(page).toHaveURL(new RegExp(`/app/reports/${reportId}/preview$`));
+    await expect(page.getByRole("status")).toContainText("PPTX carregado. 7 slides.");
+    const previewHistory = await page.request.get(`/api/reports/${reportId}/presentations`);
+    expect(previewHistory.status()).toBe(200);
+    expect((await previewHistory.json() as { presentations: unknown[] }).presentations).toEqual([]);
+    await page.getByRole("link", { name: "Voltar ao board" }).click();
+    await expect(page).toHaveURL(new RegExp(`/app/reports/${reportId}$`));
+
     const generatedResponsePromise = page.waitForResponse((response) =>
       response.request().method() === "POST"
       && new URL(response.url()).pathname === `/api/reports/${reportId}/generate-pptx`,
@@ -110,7 +119,7 @@ test.describe("weekly report PRD flow", () => {
     ]);
     await expect(page.getByRole("heading", { name: "PowerPoint — versão 1" })).toBeVisible();
     await expect(page.getByRole("status")).toContainText("PPTX carregado.");
-    await expect(page.getByText("Arquivo não é enviado a serviço externo.")).toBeVisible();
+    await expect(page.getByText("arquivo não é enviado a serviço externo.")).toBeVisible();
 
     const history = await page.request.get(`/api/reports/${reportId}/presentations`);
     expect(history.status()).toBe(200);

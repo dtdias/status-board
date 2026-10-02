@@ -60,7 +60,7 @@ flowchart LR
 - Relatórios semanais com ciclo de vida: rascunho, pronto, gerado, apresentado e arquivado.
 - Clonagem da semana anterior com áreas de conteúdo selecionáveis.
 - Seções estruturadas para entregas, incidentes em produção, novas demandas, rotinas de sustentação, dependências e próximos passos.
-- Resumo automático e prévia de slides acessível em HTML/CSS.
+- Resumo automático e preview PPTX fiel ao template antes e depois da geração.
 - Ordenação de entregas por drag-and-drop com ponteiro e teclado.
 - Validação antes da geração, limites de conteúdo, paginação e mensagens para seções vazias.
 - Geração PPTX com `pptx-automizer`, preservando shapes, ícones, fontes, cores e posições do template aprovado.
@@ -162,7 +162,7 @@ npm run test:e2e
 
 ## Notas de escopo
 
-- A prévia HTML serve para revisão prévia. Após gerar, histórico abre o mesmo PPTX salvo por renderizador local no navegador, sem conversão no servidor ou envio a terceiros; diferenças de rasterização em relação ao PowerPoint desktop ainda podem ocorrer.
+- Preview executa mesmo gerador/template em memória antes da geração; histórico renderiza bytes da versão salva. Tudo local no navegador, sem upload externo ou conversão no servidor.
 - Drag-and-drop de ordenação existe atualmente apenas para entregas.
 - O projeto não inclui fluxo público de cadastro, licença ou guia de contribuição.
 
