@@ -23,7 +23,8 @@ npx playwright install chromium
 Use an isolated Supabase project and a dedicated E2E user. The user must be
 able to sign in and have a completed `profiles` row because the application
 blocks report creation until profile setup is complete. Apply migrations
-`0001_initial_schema.sql` through `0006_report_status_lifecycle.sql` in order.
+`0001_initial_schema.sql` through `0007_fix_report_content_editable_trigger.sql`
+in order.
 Configure the app served at `E2E_BASE_URL` with that project's Supabase
 variables and a `PPTX_TEMPLATE_VERSION` that matches the uploaded template.
 

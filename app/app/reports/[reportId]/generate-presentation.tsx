@@ -4,8 +4,10 @@ import { useState } from "react";
 import { useRouter } from "next/navigation";
 
 type Presentation = {
+  id: string;
   downloadUrl: string;
   fileName: string;
+  version: number;
 };
 
 export function GeneratePresentation({ reportId }: { reportId: string }) {
@@ -43,7 +45,7 @@ export function GeneratePresentation({ reportId }: { reportId: string }) {
     <button className="primary-button" type="button" onClick={generate} disabled={isGenerating}>{isGenerating ? "Gerando..." : "Gerar PowerPoint"}</button>
     <div aria-live="polite">
       {error ? <p className="form-error">{error}</p> : null}
-      {presentation ? <a className="form-success" href={presentation.downloadUrl} download={presentation.fileName}>PowerPoint pronto. Baixar arquivo.</a> : null}
+      {presentation ? <div className="generated-presentation-actions"><a className="form-success" href={`/app/reports/${reportId}/presentations/${presentation.id}/preview`}>Visualizar PowerPoint</a><a className="form-success" href={presentation.downloadUrl} download={presentation.fileName}>PowerPoint pronto. Baixar arquivo.</a></div> : null}
     </div>
   </div>;
 }

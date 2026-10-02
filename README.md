@@ -60,7 +60,7 @@ flowchart LR
 - Relatórios semanais com ciclo de vida: rascunho, pronto, gerado, apresentado e arquivado.
 - Clonagem da semana anterior com áreas de conteúdo selecionáveis.
 - Seções estruturadas para entregas, incidentes em produção, novas demandas, rotinas de sustentação, dependências e próximos passos.
-- Resumo automático e prévia de slides acessível em HTML/CSS.
+- Resumo automático e preview PPTX fiel ao template antes e depois da geração.
 - Ordenação de entregas por drag-and-drop com ponteiro e teclado.
 - Validação antes da geração, limites de conteúdo, paginação e mensagens para seções vazias.
 - Geração PPTX com `pptx-automizer`, preservando shapes, ícones, fontes, cores e posições do template aprovado.
@@ -120,7 +120,7 @@ SUPABASE_PUBLISHABLE_KEY=<Supabase publishable key>
 PPTX_TEMPLATE_VERSION=v1
 ```
 
-Execute as migrations `0001` até `0006` e envie o template revisado para:
+Execute as migrations `0001` até `0007` e envie o template revisado para:
 
 ```text
 presentation-templates/status-weekly/v1/template.pptx
@@ -162,7 +162,7 @@ npm run test:e2e
 
 ## Notas de escopo
 
-- A prévia em HTML serve para revisão antes da geração; não é um renderizador PowerPoint pixel a pixel.
+- Preview executa mesmo gerador/template em memória antes da geração; histórico renderiza bytes da versão salva. Tudo local no navegador, sem upload externo ou conversão no servidor.
 - Drag-and-drop de ordenação existe atualmente apenas para entregas.
 - O projeto não inclui fluxo público de cadastro, licença ou guia de contribuição.
 

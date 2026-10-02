@@ -20,11 +20,23 @@ export const DELIVERY_CARDS = [
 ] as const;
 
 export const INCIDENT_CARDS = [
-  { container: "Shape 3", icon: "Image 0", title: "Text 4", body: "Text 5", statusBackground: "Shape 6", statusText: "Text 7" },
-  { container: "Shape 8", icon: "Image 2", title: "Text 9", body: "Text 10", statusBackground: "Shape 11", statusText: "Text 12" },
+  { container: "Shape 3", icon: "Image 0", title: "Text 4", body: "Text 5", statusBackground: "Shape 6", statusIcon: "Image 1", statusText: "Text 7" },
+  { container: "Shape 8", icon: "Image 2", title: "Text 9", body: "Text 10", statusBackground: "Shape 11", statusIcon: "Image 3", statusText: "Text 12" },
 ] as const;
 
-export const DEMAND_SHAPES = { icon: "Image 0", demandTitle: "Text 4", demandBody: "Text 5", phaseCircles: ["Shape 7", "Shape 10", "Shape 13", "Shape 16"] } as const;
+export const DEMAND_SHAPES = {
+  card: "Shape 3",
+  icon: "Image 0",
+  demandTitle: "Text 4",
+  demandBody: "Text 5",
+  timelineLine: "Shape 6",
+  phases: [
+    { circle: "Shape 7", number: "Text 8", label: "Text 9" },
+    { circle: "Shape 10", number: "Text 11", label: "Text 12" },
+    { circle: "Shape 13", number: "Text 14", label: "Text 15" },
+    { circle: "Shape 16", number: "Text 17", label: "Text 18" },
+  ],
+} as const;
 
 export const SUPPORT_FRONTS = [
   { container: "Shape 3", icon: "Image 0", heading: "Text 4", routines: [{ container: "Shape 5", icon: "Image 1", text: "Text 6" }, { container: "Shape 7", icon: "Image 2", text: "Text 8" }, { container: "Shape 9", icon: "Image 3", text: "Text 10" }] },
