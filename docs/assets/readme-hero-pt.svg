@@ -1,0 +1,23 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1400 420" role="img" aria-labelledby="title description">
+  <title id="title">Status Board transforma trabalho semanal em apresentação</title>
+  <desc id="description">Composição editorial com cartões de trabalho, linhas de conexão e uma apresentação editável.</desc>
+  <rect width="1400" height="420" fill="#1c1c1c"/>
+  <circle cx="1160" cy="-30" r="230" fill="#ffd400"/>
+  <path d="M0 354h1400" stroke="#3e3e3a" stroke-width="2"/>
+  <g fill="none" stroke="#ffd400" stroke-width="2" opacity=".7">
+    <path d="M690 108h170v74h140"/><path d="M690 182h100v108h210"/><path d="M860 108v-48h250"/>
+  </g>
+  <g fill="#f4f2ed" stroke="#ffd400" stroke-width="3">
+    <rect x="700" y="92" width="150" height="74" rx="3"/><rect x="700" y="176" width="150" height="74" rx="3"/><rect x="700" y="260" width="150" height="74" rx="3"/>
+  </g>
+  <g fill="#1c1c1c"><rect x="720" y="112" width="72" height="8"/><rect x="720" y="128" width="108" height="6" opacity=".35"/><rect x="720" y="196" width="94" height="8"/><rect x="720" y="212" width="118" height="6" opacity=".35"/><rect x="720" y="280" width="62" height="8"/><rect x="720" y="296" width="108" height="6" opacity=".35"/></g>
+  <g transform="translate(1000 74) rotate(6)">
+    <rect width="270" height="190" fill="#fbfaf7" stroke="#ffd400" stroke-width="5"/>
+    <rect x="24" y="28" width="90" height="12" fill="#1c1c1c"/><rect x="24" y="58" width="210" height="5" fill="#d9d6ce"/><rect x="24" y="76" width="170" height="5" fill="#d9d6ce"/>
+    <rect x="24" y="112" width="62" height="44" fill="#ffd400"/><rect x="98" y="112" width="62" height="44" fill="#1c1c1c"/><rect x="172" y="112" width="62" height="44" fill="#d9d6ce"/>
+  </g>
+  <text x="92" y="86" fill="#ffd400" font-family="Arial,Helvetica,sans-serif" font-size="15" font-weight="700" letter-spacing="4">STATUS BOARD / REPORTE SEMANAL</text>
+  <text x="88" y="180" fill="#f4f2ed" font-family="Arial,Helvetica,sans-serif" font-size="54" font-weight="700">Do trabalho ao slide.</text>
+  <text x="92" y="222" fill="#bcbab2" font-family="Arial,Helvetica,sans-serif" font-size="22">Organize a semana. Gere uma apresentação editável.</text>
+  <rect x="92" y="280" width="170" height="5" fill="#ffd400"/><text x="92" y="322" fill="#f4f2ed" font-family="Arial,Helvetica,sans-serif" font-size="14" letter-spacing="2">BOARD · VALIDAÇÃO · PPTX</text>
+</svg>

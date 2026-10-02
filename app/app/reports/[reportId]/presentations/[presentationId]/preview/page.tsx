@@ -1,8 +1,8 @@
-import Link from "next/link";
 import { notFound, redirect } from "next/navigation";
 import type { Route } from "next";
 import { PptxFilePreview } from "@/components/preview/pptx-file-preview";
 import { BackLink } from "@/components/navigation/back-link";
+import { BrandLogo } from "@/components/brand-logo";
 import { createClient } from "@/lib/supabase/server";
 
 export default async function GeneratedPresentationPreviewPage({ params }: { params: Promise<{ reportId: string; presentationId: string }> }) {
@@ -27,7 +27,7 @@ export default async function GeneratedPresentationPreviewPage({ params }: { par
     <main className="shell pptx-preview-page">
       <header className="topbar">
         <div>
-          <Link className="brand board-brand" href={`/app/reports/${reportId}` as Route}>Status Board</Link>
+          <BrandLogo href={`/app/reports/${reportId}`} />
           <p className="eyebrow">Prévia do arquivo gerado</p>
           <h1>PowerPoint — versão {presentation.version}</h1>
           <p className="pptx-preview-filename">{presentation.file_name}</p>
