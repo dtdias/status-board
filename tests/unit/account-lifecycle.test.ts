@@ -68,6 +68,7 @@ describe("account lifecycle", () => {
   it("explains when recovery password matches the current password", () => {
     const reset = read("app/(auth)/reset-password/actions.ts");
     expect(reset).toContain('error?.code === "same_password"');
-    expect(reset).toContain("A nova senha deve ser diferente da senha atual.");
+    expect(reset).toContain("Não foi possível definir esta senha. Escolha outra combinação e tente novamente.");
+    expect(reset).not.toContain("senha atual");
   });
 });
