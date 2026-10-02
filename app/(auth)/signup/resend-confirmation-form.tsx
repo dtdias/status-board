@@ -30,7 +30,7 @@ export function ResendConfirmationForm({ email }: { email: string }) {
       <p className="form-hint">Não recebeu o e-mail? Novo envio disponível após cinco minutos.</p>
       {state.error ? <p className="form-error" role="alert">{state.error}</p> : null}
       {state.success ? <p className="form-success" role="status">{state.success}</p> : null}
-      <button className="muted-button" disabled={pending || remaining > 0} type="submit">
+      <button className="muted-button" disabled={pending || remaining > 0 || state.accountConfirmed} type="submit">
         {pending ? "Enviando..." : remaining > 0 ? `Reenviar em ${formatCooldown(remaining)}` : "Reenviar confirmação"}
       </button>
     </form>

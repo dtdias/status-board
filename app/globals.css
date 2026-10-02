@@ -84,6 +84,10 @@ button:disabled { cursor: not-allowed; opacity: .5; }
 .auth-secondary-link { color: var(--muted); font-size: .8rem; margin-top: 22px; }
 .auth-secondary-link a { color: var(--ink); font-weight: 700; text-underline-offset: 4px; }
 .resend-form { border-top: 1px solid var(--line); display: grid; gap: 10px; margin-top: 28px; padding-top: 20px; }
+.auth-inline-link { color: var(--muted); font-size: .78rem; text-underline-offset: 4px; }
+.email-auth-details { border-top: 1px solid var(--line); margin-top: 28px; padding-top: 18px; }
+.email-auth-details summary { color: var(--ink); cursor: pointer; font-size: .8rem; font-weight: 700; }
+.email-auth-form { margin-top: 18px; }
 .clone-options { border: 0; border-top: 1px solid var(--line); display: grid; gap: 10px; margin: 10px 0 0; padding: 18px 0 0; }
 .clone-options legend { font-size: .75rem; font-weight: 700; letter-spacing: .08em; padding: 0; text-transform: uppercase; }
 .clone-options label { display: flex; font-size: .85rem; font-weight: 400; gap: 9px; letter-spacing: 0; text-transform: none; }
