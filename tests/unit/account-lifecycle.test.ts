@@ -38,7 +38,7 @@ describe("account lifecycle", () => {
 
   it("provides a five-minute resend cooldown and branded email templates", () => {
     const action = read("app/(auth)/signup/actions.ts");
-    const migration = read("supabase/migrations/0008_signup_confirmation_resend_cooldown.sql");
+    const migration = read("supabase/migrations/20261002181645_signup_confirmation_resend_cooldown.sql");
     const confirmation = read("docs/email-templates/supabase-confirmation.html");
     const invite = read("docs/email-templates/supabase-invite.html");
     expect(action).toContain('supabase.auth.resend({');
