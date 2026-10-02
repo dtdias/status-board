@@ -3,10 +3,8 @@
 </p>
 
 <p align="center">
-  <img src="docs/assets/readme-hero.svg" alt="Status Board turns a weekly board into an editable presentation" width="100%" />
+  <img src="docs/assets/readme-hero-en.svg" alt="Status Board turns a weekly board into an editable presentation" width="100%" />
 </p>
-
-<h1 align="center">Status Board</h1>
 
 <p align="center">
   <strong>Structure the week. Generate an editable presentation.</strong><br />
@@ -117,6 +115,7 @@ Set server-only values in `.env.local`:
 ```dotenv
 SUPABASE_URL=https://<project-ref>.supabase.co
 SUPABASE_PUBLISHABLE_KEY=<Supabase publishable key>
+APP_URL=http://localhost:3000
 PPTX_TEMPLATE_VERSION=v1
 ```
 
@@ -126,7 +125,7 @@ Apply migrations `0001` through `0007`, then upload the reviewed template to:
 presentation-templates/status-weekly/v1/template.pptx
 ```
 
-No browser client imports Supabase. The publishable key is server-only in this project, while RLS remains the data-access boundary. `SUPABASE_SERVICE_ROLE_KEY` is not used.
+No browser client imports Supabase. The publishable key is server-only in this project, while RLS remains the data-access boundary. Account deletion uses a protected Edge Function; `service_role` stays only in the Function secrets.
 
 ## Quality gates
 
@@ -151,6 +150,10 @@ npm run test:e2e
 - Template uploads require an explicit database allowlist.
 - Generation runs in the Node runtime and returns Buffers only; serverless disk is never used for persistence.
 - Generated PPTX output is validated for expected ZIP/XML structure before storage.
+- Signup requires email confirmation; Auth prevents more than one account per email.
+- Confirmation resend is protected by a five-minute cooldown.
+- Password recovery and Magic Link access never create accounts automatically.
+- Account deletion irreversibly removes personal data, reports, and generated PPTX files.
 
 ## Documentation
 

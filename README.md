@@ -3,10 +3,8 @@
 </p>
 
 <p align="center">
-  <img src="docs/assets/readme-hero.svg" alt="Status Board transforma um board semanal em uma apresentação editável" width="100%" />
+  <img src="docs/assets/readme-hero-pt.svg" alt="Status Board transforma um board semanal em uma apresentação editável" width="100%" />
 </p>
-
-<h1 align="center">Status Board</h1>
 
 <p align="center">
   <strong>Organize a semana. Gere uma apresentação editável.</strong><br />
@@ -117,6 +115,7 @@ Configure valores server-only em `.env.local`:
 ```dotenv
 SUPABASE_URL=https://<project-ref>.supabase.co
 SUPABASE_PUBLISHABLE_KEY=<Supabase publishable key>
+APP_URL=http://localhost:3000
 PPTX_TEMPLATE_VERSION=v1
 ```
 
@@ -126,7 +125,7 @@ Execute as migrations `0001` até `0007` e envie o template revisado para:
 presentation-templates/status-weekly/v1/template.pptx
 ```
 
-Não há client Supabase no browser. Neste projeto, a publishable key é server-only, enquanto RLS continua sendo a fronteira de acesso aos dados. `SUPABASE_SERVICE_ROLE_KEY` não é usado.
+Não há client Supabase no browser. Neste projeto, a publishable key é server-only, enquanto RLS continua sendo a fronteira de acesso aos dados. A exclusão de conta usa uma Edge Function protegida; a `service_role` fica somente nos secrets da Function.
 
 ## Quality gates
 
@@ -151,6 +150,10 @@ npm run test:e2e
 - Upload de template requer allowlist explícita no banco.
 - Geração roda no runtime Node e retorna somente buffers; disco serverless não é usado para persistência.
 - PPTX gerado passa por validação de estrutura ZIP/XML esperada antes do armazenamento.
+- Cadastro exige confirmação de e-mail; Auth impede mais de uma conta por e-mail.
+- Reenvio de confirmação protegido por cooldown de cinco minutos.
+- Recuperação de senha e acesso por Magic Link sem criação automática de conta.
+- Exclusão de conta remove dados pessoais, relatórios e arquivos PPTX gerados de forma irreversível.
 
 ## Documentação
 
