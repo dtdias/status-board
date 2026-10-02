@@ -4,6 +4,7 @@ import Link from "next/link";
 import type { Route } from "next";
 import { useActionState } from "react";
 import { signUp, type SignUpState } from "./actions";
+import { ResendConfirmationForm } from "./resend-confirmation-form";
 
 const initialState: SignUpState = {};
 
@@ -31,6 +32,7 @@ export function SignUpForm() {
           {pending ? "Criando..." : "Criar conta"}
         </button>
       </form>
+      {state.email ? <ResendConfirmationForm email={state.email} /> : null}
       <p className="auth-secondary-link"><Link href={"/login" as Route}>Já tenho uma conta</Link></p>
     </>
   );
