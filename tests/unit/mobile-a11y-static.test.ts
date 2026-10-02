@@ -4,7 +4,8 @@ import { describe, expect, it } from "vitest";
 
 const root = resolve(import.meta.dirname, "../..");
 const styles = readFileSync(resolve(root, "app/globals.css"), "utf8");
-const preview = readFileSync(resolve(root, "components/preview/report-preview.tsx"), "utf8");
+const preview = readFileSync(resolve(root, "components/preview/pptx-file-preview.tsx"), "utf8");
+const reportIcon = readFileSync(resolve(root, "components/report-icon.tsx"), "utf8");
 
 describe("mobile accessibility safeguards", () => {
   it("keeps a visible focus treatment and honors reduced motion", () => {
@@ -12,21 +13,20 @@ describe("mobile accessibility safeguards", () => {
     expect(styles).toContain("@media (prefers-reduced-motion: reduce)");
   });
 
-  it("keeps preview slides at 16:9 by allowing narrow screens to scroll", () => {
-    expect(styles).toContain(".preview-canvas { overflow-x: auto;");
-    expect(styles).toContain(".slide { min-width: 600px; }");
-    expect(styles).not.toContain(".slide { aspect-ratio: auto;");
+  it("keeps rendered PPTX slides scrollable in the preview viewport", () => {
+    expect(styles).toContain(".pptx-render-viewport");
+    expect(styles).toContain("overflow: auto");
   });
 
-  it("uses the tab pattern for slide navigation with arrow-key support", () => {
-    expect(preview).toContain('role="tablist"');
-    expect(preview).toContain('role="tabpanel"');
-    expect(preview).toContain('event.key === "ArrowRight"');
+  it("renders the actual PPTX in-browser with accessible slide controls", () => {
+    expect(preview).toContain('aria-label="Navegação dos slides"');
+    expect(preview).toContain("goToSlide");
+    expect(preview).toContain("@aiden0z/pptx-renderer");
+    expect(preview).toContain("RECOMMENDED_ZIP_LIMITS");
   });
 
   it("renders template icon assets instead of icon-key initials", () => {
-    expect(preview).toContain("<ReportIcon");
-    expect(preview).not.toContain("iconKey[0]");
-    expect(preview).not.toContain("iconKey[0]?.toUpperCase()");
+    expect(reportIcon).toContain("reportIconPath(iconKey)");
+    expect(reportIcon).toContain('alt=""');
   });
 });

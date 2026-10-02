@@ -2,7 +2,7 @@
 
 ## Problem
 
-The application has report data and an HTML preview but no serverless path to produce an editable PowerPoint while retaining the corporate master.
+The application has report data but needs to produce and preview editable PowerPoint while retaining the corporate master.
 
 ## Alternatives
 
@@ -17,7 +17,7 @@ The generator accepts only a `PresentationInput` DTO and a template `Buffer`. Th
 
 ### Generated PPTX Preview
 
-The presentation history links to an authenticated preview route for each stored version. The client fetches the same private PPTX bytes used by the download route and renders them in-browser with `@aiden0z/pptx-renderer`; no alternate slide model or external conversion service is involved. Browser OOXML rendering is high-fidelity but is not guaranteed to rasterize pixel-identically to desktop PowerPoint.
+The current-report preview endpoint invokes the same generator and template but does not reserve or store a version. The presentation history preview fetches the exact private PPTX bytes used by download. Both render in-browser with `@aiden0z/pptx-renderer`; no alternate slide model, server conversion, or external file service is involved.
 
 ## Generated Presentation Storage
 
