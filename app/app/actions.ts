@@ -8,6 +8,7 @@ import { profileSchema } from "@/lib/validation/profile";
 
 export type ProfileState = { error?: string };
 export type SignOutState = { error?: string };
+export type DeleteAccountState = { error?: string };
 
 export async function signOutAccount(previousState: SignOutState, formData: FormData): Promise<SignOutState> {
   if (formData.get("intent") !== "sign-out") return previousState;
@@ -44,4 +45,31 @@ export async function saveProfile(_: ProfileState, formData: FormData): Promise<
   }
 
   redirect("/app" as Route);
+}
+
+export async function deleteAccount(_: DeleteAccountState, formData: FormData): Promise<DeleteAccountState> {
+  const password = formData.get("password");
+  const confirmation = formData.get("confirmation");
+  if (typeof password !== "string" || typeof confirmation !== "string" || confirmation !== "EXCLUIR CONTA") {
+    return { error: "Confirme a senha e digite EXCLUIR CONTA." };
+  }
+
+  const supabase = await createClient();
+  const { data: { user } } = await supabase.auth.getUser();
+  if (!user?.email) redirect("/login" as Route);
+
+  const { error: reauthenticationError } = await supabase.auth.signInWithPassword({ email: user.email, password });
+  if (reauthenticationError) return { error: "Senha atual inválida." };
+
+  const { data: { session } } = await supabase.auth.getSession();
+  if (!session) return { error: "Sessão expirada. Entre novamente." };
+
+  const { error } = await supabase.functions.invoke("delete-account", {
+    body: { confirmation },
+    headers: { Authorization: `Bearer ${session.access_token}` },
+  });
+  if (error) return { error: "Não foi possível excluir a conta. Tente novamente." };
+
+  await supabase.auth.signOut({ scope: "local" });
+  redirect("/login" as Route);
 }
