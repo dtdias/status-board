@@ -25,7 +25,7 @@ export default async function AppPage({ searchParams }: { searchParams: Promise<
       <main className="auth-shell">
         <section className="auth-panel">
           <p className="eyebrow">Configuração inicial</p>
-          <h1>Antes, conte quem apresenta.</h1>
+          <h1>Antes, nos conte quem você é.</h1>
           <p className="intro-copy">Seu nome e área aparecem na capa do status semanal.</p>
           <ProfileForm />
         </section>
