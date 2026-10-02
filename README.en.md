@@ -60,7 +60,7 @@ flowchart LR
 - Weekly reports with draft, ready, generated, presented, and archived lifecycle states.
 - Previous-week cloning with selectable content areas.
 - Structured sections for deliveries, production incidents, new demands, support routines, dependencies, and next steps.
-- Automatic summary plus accessible HTML/CSS slide preview.
+- Automatic summary plus template-faithful PPTX preview before and after generation.
 - Pointer and keyboard drag-and-drop ordering for deliveries.
 - Pre-generation validation, content limits, pagination, and absence messages for empty sections.
 - PPTX generation with `pptx-automizer`, preserving the approved template's shapes, icons, fonts, colors, and layout.
@@ -162,7 +162,7 @@ npm run test:e2e
 
 ## Scope notes
 
-- The HTML preview supports pre-generation review. After generation, history opens the exact stored PPTX through a browser-local renderer, without server conversion or third-party upload; rasterization can still differ from desktop PowerPoint.
+- Preview runs the same generator and template against current data without saving; history renders the saved version's exact PPTX bytes. Rendering stays in-browser without server conversion or third-party upload.
 - Drag-and-drop ordering currently applies to deliveries only.
 - The project does not include a public signup flow, license, or contribution guide.
 

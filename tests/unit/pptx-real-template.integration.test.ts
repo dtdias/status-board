@@ -30,8 +30,14 @@ function fixture(): PresentationInput {
     incidents: Array.from({ length: 3 }, (_, index) => ({ id: `incident-${index}`, affectedSystem: `Incident system ${index + 1}`, symptom: `Incident symptom ${index + 1}`, cause: null, actionTaken: `Incident action ${index + 1}`, supportPeople: null, status: "resolved" as const, resolvedAt: "2026-09-22", iconKey: incidentIcons[index], position: index })),
     demands: Array.from({ length: 2 }, (_, index) => ({ id: `demand-${index}`, title: `Demand fixture ${index + 1}`, requesterName: "Fixture requester", requesterArea: "Commercial", involvedAreas: ["Technology"], objective: `Demand objective ${index + 1}`, statusText: "In analysis", currentPhase: "development" as const, iconKey: "demand", position: index })),
     supportFronts: Array.from({ length: 3 }, (_, index) => ({ id: `support-${index}`, title: `Support fixture ${index + 1}`, activityType: "Monitoring", iconKey: supportIcons[index], position: index, routines: [{ id: `routine-${index}`, title: `Support routine ${index + 1}`, position: 0 }] })),
-    dependencies: [],
-    nextSteps: [],
+    dependencies: [
+      { id: "dependency-0", title: "Acesso ERP", description: "Aguardando credencial.", owner: "Infra", waitingSince: "2026-09-21", status: null, position: 0 },
+      { id: "dependency-1", title: "Homologação", description: "Aguardando área usuária.", owner: "Comercial", waitingSince: "2026-09-22", status: null, position: 1 },
+    ],
+    nextSteps: [
+      { id: "step-0", title: "Publicar ajuste", description: "Após liberar acesso.", owner: "Tecnologia", dueDate: "2026-09-30", position: 0 },
+      { id: "step-1", title: "Validar carga", description: "Conferir primeira execução.", owner: "Comercial", dueDate: "2026-10-01", position: 1 },
+    ],
   };
 }
 
@@ -80,6 +86,26 @@ function allShapeIds(xml: string) {
   return [...xml.matchAll(/<p:cNvPr\b[^>]*\bid="([^"]+)"/g)].map((match) => match[1]);
 }
 
+function textShapeRuns(xml: string, name: string) {
+  const shape = [...xml.matchAll(/<p:sp\b[\s\S]*?<\/p:sp>/g)]
+    .map((match) => match[0])
+    .find((element) => attribute(element.match(/<p:cNvPr\b[^>]*>/)?.[0], "name") === name);
+  if (!shape) throw new Error(`Missing text shape ${name}.`);
+  return [...shape.matchAll(/<a:r\b[\s\S]*?<\/a:r>/g)].map((match) => {
+    const run = match[0];
+    const properties = run.match(/<a:rPr\b[^>]*>/)?.[0];
+    const solidFill = run.match(/<a:solidFill\b[\s\S]*?<\/a:solidFill>/)?.[0];
+    return {
+      text: run.match(/<a:t>([\s\S]*?)<\/a:t>/)?.[1],
+      size: attribute(properties, "sz"),
+      bold: attribute(properties, "b"),
+      italic: attribute(properties, "i"),
+      color: attribute(solidFill?.match(/<a:srgbClr\b[^>]*>/)?.[0], "val"),
+      font: attribute(run.match(/<a:latin\b[^>]*>/)?.[0], "typeface"),
+    };
+  });
+}
+
 function textFromXml(xml: string) {
   return [...xml.matchAll(/<a:t>([\s\S]*?)<\/a:t>/g)].map((match) => match[1]
     .replaceAll("&amp;", "&")
@@ -125,7 +151,62 @@ describeRealTemplate(
     expect(text).toContain("Viabilidade e requisitos");
     expect(text).toContain("Desenvolvimento");
     expect(text).toContain("Homologação");
-    expect(text).not.toMatch(/\{\{[^}]+\}\}|<%=?[^%]+%>|\$\{[^}]+\}|\[[^\]]+\]/);
+    expect(text).not.toMatch(/\{\{[^}]+\}\}|<%=?[^%]+%>|\$\{[^}]+\}/);
+    for (const placeholder of [
+      "[a entrega ou ocorrência mais importante da semana, em uma frase]",
+      "[Nome da entrega]",
+      "[O que você entregou e para quem, em 1 ou 2 linhas]",
+      "[Status]",
+      "[Sistema / processo afetado]",
+      "[Sintoma e causa, se conhecida]",
+      "[O que você fez e com quem, se teve apoio]",
+      "[Status e data da resolução]",
+      "[Nome da demanda]",
+      "[Nome (Área)]",
+      "[Áreas]",
+      "[O que a área precisa, em 1 ou 2 frases]",
+      "[Onde está hoje]",
+      "[Concluído / Em andamento / Próxima fase]",
+      "[Frente 1]",
+      "[Frente 2]",
+      "[Tipo de atividade, ex.: monitoramento e correções]",
+      "[Rotina / sistema acompanhado]",
+      "[aguardando o quê, de quem e desde quando]",
+      "[o que será feito na próxima semana]",
+    ]) expect(text).not.toContain(placeholder);
+
+    const coverXml = await zip.file(integrity.slideFiles[0])!.async("string");
+    expect(textShapeRuns(coverXml, "Text 0").map((run) => run.text)).toEqual(["[", "Technology", "]"]);
+    expect(textShapeRuns(coverXml, "Text 3")[0].text).toBe("Real Template |  29/09/2026");
+
+    const summaryXml = await zip.file(integrity.slideFiles[1])!.async("string");
+    const highlightRuns = textShapeRuns(summaryXml, "Text 16");
+    expect(highlightRuns.map((run) => run.text)).toEqual(["Destaque: ", "Fixture highlight"]);
+    expect(highlightRuns[0]).toMatchObject({ bold: "1", color: "FFD400" });
+    expect(highlightRuns[1]).toMatchObject({ italic: "1", color: "BFBFBF" });
+
+    const incidentXml = await zip.file(integrity.slideFiles[4])!.async("string");
+    const incidentBodyRuns = textShapeRuns(incidentXml, "Text 5");
+    expect(incidentBodyRuns.map((run) => run.text)).toEqual(["O que aconteceu", "Incident symptom 1", " ", "O que fizemos", "Incident action 1"]);
+    expect(incidentBodyRuns.map((run) => run.color)).toEqual(["D7191C", "8A8A8A", "000000", "D7191C", "8A8A8A"]);
+    expect(incidentBodyRuns[1]).toMatchObject({ italic: "1", size: "1300" });
+    expect(incidentBodyRuns[3]).toMatchObject({ bold: "1", size: "1200" });
+
+    const firstDemandXml = await zip.file(integrity.slideFiles[6])!.async("string");
+    expect(textShapeRuns(firstDemandXml, "Text 9").map((run) => run.text)).toEqual(["Solicitação recebida", "Concluído"]);
+    const supportXml = await zip.file(integrity.slideFiles[8])!.async("string");
+    const supportHeadingRuns = textShapeRuns(supportXml, "Text 4");
+    expect(supportHeadingRuns.map((run) => run.text)).toEqual(["Support fixture 1", "Monitoring"]);
+    expect(supportHeadingRuns[1]).toMatchObject({ italic: "1", size: "1100", color: "8A8A8A" });
+    const attentionXml = await zip.file(integrity.slideFiles[10])!.async("string");
+    expect(textShapeRuns(attentionXml, "Text 2").map((run) => run.text)).toEqual(["Dependências"]);
+    expect(textShapeRuns(attentionXml, "Text 5").map((run) => run.text)).toEqual(["Próximos passos"]);
+    const dependencyBodyRuns = textShapeRuns(attentionXml, "Text 3");
+    expect(dependencyBodyRuns.map((run) => run.text)).toContain("Acesso ERP");
+    expect(dependencyBodyRuns.map((run) => run.text)).toContain("Aguardando credencial.");
+    expect(dependencyBodyRuns[0]).toMatchObject({ bold: "1", color: "FFD400" });
+    expect(dependencyBodyRuns[2]).toMatchObject({ italic: "1", color: "A6A6A6" });
+
     for (const slidePath of integrity.slideFiles) {
       const slideXml = await zip.file(slidePath)!.async("string");
       const ids = allShapeIds(slideXml);
