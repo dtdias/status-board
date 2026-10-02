@@ -2,6 +2,7 @@ import Link from "next/link";
 import { notFound, redirect } from "next/navigation";
 import type { Route } from "next";
 import { PptxFilePreview } from "@/components/preview/pptx-file-preview";
+import { BackLink } from "@/components/navigation/back-link";
 import { createClient } from "@/lib/supabase/server";
 
 export default async function PreviewPage({ params }: { params: Promise<{ reportId: string }> }) {
@@ -21,7 +22,7 @@ export default async function PreviewPage({ params }: { params: Promise<{ report
           <p className="eyebrow">Preview PPTX atual</p>
           <h1>Pré-visualização</h1>
         </div>
-        <Link className="outline-button" href={`/app/reports/${reportId}` as Route}>Voltar ao board</Link>
+        <BackLink href={`/app/reports/${reportId}` as Route} label="Voltar ao board" />
       </header>
       <PptxFilePreview
         caption="Gerado em memória com o template e o mesmo gerador do arquivo final. Preview renderizado localmente no navegador; nenhum PPTX é salvo ou enviado a serviço externo."

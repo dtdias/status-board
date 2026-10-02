@@ -30,6 +30,10 @@ test.describe("weekly report PRD flow", () => {
     await expect(page).toHaveURL(/\/app$/);
 
     await page.getByRole("link", { name: "Nova semana" }).click();
+    await expect(page.getByRole("link", { name: "Voltar às semanas" })).toBeVisible();
+    await page.getByRole("link", { name: "Voltar às semanas" }).click();
+    await expect(page).toHaveURL(/\/app$/);
+    await page.getByRole("link", { name: "Nova semana" }).click();
     const dates = reportDates();
     await page.getByLabel("Data inicial").fill(dates.start);
     await page.getByLabel("Data final").fill(dates.end);
@@ -134,5 +138,10 @@ test.describe("weekly report PRD flow", () => {
     expect(download.headers()["content-disposition"]).toContain("attachment;");
     const pptx = await download.body();
     expect([...pptx.subarray(0, 4)]).toEqual([0x50, 0x4b, 0x03, 0x04]);
+
+    await page.getByRole("button", { name: "Sair" }).click();
+    await expect(page).toHaveURL(/\/login$/);
+    await page.goto("/app");
+    await expect(page).toHaveURL(/\/login$/);
   });
 });
