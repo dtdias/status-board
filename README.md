@@ -151,6 +151,7 @@ npm run test:e2e
 - Geração roda no runtime Node e retorna somente buffers; disco serverless não é usado para persistência.
 - PPTX gerado passa por validação de estrutura ZIP/XML esperada antes do armazenamento.
 - Cadastro exige confirmação de e-mail; Auth impede mais de uma conta por e-mail.
+- Reenvio de confirmação protegido por cooldown de cinco minutos.
 - Exclusão de conta remove dados pessoais, relatórios e arquivos PPTX gerados de forma irreversível.
 
 ## Documentação

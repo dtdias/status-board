@@ -35,4 +35,18 @@ describe("account lifecycle", () => {
     expect(home).toContain("/auth/callback?");
     expect(home).toContain("params.code");
   });
+
+  it("provides a five-minute resend cooldown and branded email templates", () => {
+    const action = read("app/(auth)/signup/actions.ts");
+    const migration = read("supabase/migrations/0008_signup_confirmation_resend_cooldown.sql");
+    const confirmation = read("docs/email-templates/supabase-confirmation.html");
+    const invite = read("docs/email-templates/supabase-invite.html");
+    expect(action).toContain('supabase.auth.resend({');
+    expect(action).toContain('type: "signup"');
+    expect(migration).toContain("cooldown_seconds constant integer := 300");
+    expect(confirmation).toContain("{{ .ConfirmationURL }}");
+    expect(invite).toContain("{{ .ConfirmationURL }}");
+    expect(confirmation).toContain("#ffd400");
+    expect(invite).toContain("STATUS BOARD");
+  });
 });

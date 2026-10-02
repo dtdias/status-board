@@ -151,6 +151,7 @@ npm run test:e2e
 - Generation runs in the Node runtime and returns Buffers only; serverless disk is never used for persistence.
 - Generated PPTX output is validated for expected ZIP/XML structure before storage.
 - Signup requires email confirmation; Auth prevents more than one account per email.
+- Confirmation resend is protected by a five-minute cooldown.
 - Account deletion irreversibly removes personal data, reports, and generated PPTX files.
 
 ## Documentation
