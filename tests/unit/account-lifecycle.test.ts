@@ -29,4 +29,10 @@ describe("account lifecycle", () => {
     expect(functionSource).toContain("storage.remove");
     expect(functionSource).toContain("admin.auth.admin.deleteUser(user.id)");
   });
+
+  it("forwards confirmation codes accidentally sent to the site root", () => {
+    const home = read("app/page.tsx");
+    expect(home).toContain("/auth/callback?");
+    expect(home).toContain("params.code");
+  });
 });
