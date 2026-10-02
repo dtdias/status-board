@@ -2,6 +2,7 @@ import Link from "next/link";
 import { notFound, redirect } from "next/navigation";
 import type { Route } from "next";
 import { PptxFilePreview } from "@/components/preview/pptx-file-preview";
+import { BackLink } from "@/components/navigation/back-link";
 import { createClient } from "@/lib/supabase/server";
 
 export default async function GeneratedPresentationPreviewPage({ params }: { params: Promise<{ reportId: string; presentationId: string }> }) {
@@ -32,7 +33,7 @@ export default async function GeneratedPresentationPreviewPage({ params }: { par
           <p className="pptx-preview-filename">{presentation.file_name}</p>
         </div>
         <div className="actions">
-          <Link className="outline-button" href={`/app/reports/${reportId}` as Route}>Voltar ao board</Link>
+          <BackLink href={`/app/reports/${reportId}` as Route} label="Voltar ao board" />
           <a className="primary-button" download={presentation.file_name} href={downloadUrl}>Baixar PPTX</a>
         </div>
       </header>
