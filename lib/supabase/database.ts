@@ -118,15 +118,15 @@ export type Database = {
         Relationships: [];
       };
       dependencies: {
-        Row: { id: string; weekly_report_id: string; title: string; description: string; owner: string; waiting_since: string; status: string | null; position: number; };
-        Insert: { id?: string; weekly_report_id: string; title: string; description: string; owner: string; waiting_since: string; status?: string | null; position?: number; };
-        Update: { title?: string; description?: string; owner?: string; waiting_since?: string; status?: string | null; position?: number; };
+        Row: { id: string; weekly_report_id: string; title: string; description: string; owner: string; waiting_since: string; status: string | null; hide_owner_in_presentation: boolean; hide_waiting_since_in_presentation: boolean; position: number; };
+        Insert: { id?: string; weekly_report_id: string; title: string; description: string; owner: string; waiting_since: string; status?: string | null; hide_owner_in_presentation?: boolean; hide_waiting_since_in_presentation?: boolean; position?: number; };
+        Update: { title?: string; description?: string; owner?: string; waiting_since?: string; status?: string | null; hide_owner_in_presentation?: boolean; hide_waiting_since_in_presentation?: boolean; position?: number; };
         Relationships: [];
       };
       next_steps: {
-        Row: { id: string; weekly_report_id: string; title: string; description: string | null; owner: string | null; due_date: string | null; position: number; };
-        Insert: { id?: string; weekly_report_id: string; title: string; description?: string | null; owner?: string | null; due_date?: string | null; position?: number; };
-        Update: { title?: string; description?: string | null; owner?: string | null; due_date?: string | null; position?: number; };
+        Row: { id: string; weekly_report_id: string; title: string; description: string | null; owner: string | null; due_date: string | null; hide_owner_in_presentation: boolean; hide_due_date_in_presentation: boolean; position: number; };
+        Insert: { id?: string; weekly_report_id: string; title: string; description?: string | null; owner?: string | null; due_date?: string | null; hide_owner_in_presentation?: boolean; hide_due_date_in_presentation?: boolean; position?: number; };
+        Update: { title?: string; description?: string | null; owner?: string | null; due_date?: string | null; hide_owner_in_presentation?: boolean; hide_due_date_in_presentation?: boolean; position?: number; };
         Relationships: [];
       };
       generated_presentations: {

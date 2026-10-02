@@ -3,6 +3,7 @@ import { describe, expect, it } from "vitest";
 import { composePresentationSections, demandPhaseColors, presentationFileName, presentationSummary, statusColors } from "@/lib/pptx/compose";
 import { assertPptxIntegrity, assertTemplateIntegrity } from "@/lib/pptx/integrity";
 import { generatedPresentationPath, nextPresentationVersion } from "@/lib/storage/generated-presentation";
+import { statusMeta } from "@/lib/pptx/generate";
 import type { PresentationInput } from "@/lib/pptx/types";
 
 function input(): PresentationInput {
@@ -30,6 +31,16 @@ describe("PPTX composition", () => {
   it("uses PRD status and demand phase colors", () => {
     expect(statusColors.blocked).toBe("#D7191C");
     expect(demandPhaseColors("development")).toEqual(["#2E8B57", "#2E8B57", "#FFD400", "#A6A6A6"]);
+  });
+
+  it("keeps delivery and incident badge labels aligned with their status colors", () => {
+    expect(statusMeta).toEqual({
+      delivered: { label: "Entregue / Publicado", color: "2E8B57" },
+      resolved: { label: "Resolvido", color: "2E8B57" },
+      in_progress: { label: "Em andamento", color: "2F5D8A" },
+      waiting_third_party: { label: "Aguardando terceiro", color: "C77700" },
+      blocked: { label: "Bloqueado", color: "D7191C" },
+    });
   });
 });
 
