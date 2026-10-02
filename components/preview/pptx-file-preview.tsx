@@ -3,7 +3,7 @@
 import { useEffect, useRef, useState } from "react";
 import type { PptxViewer as PptxViewerInstance } from "@aiden0z/pptx-renderer";
 
-export function PptxFilePreview({ src }: { src: string }) {
+export function PptxFilePreview({ src, method = "GET", caption }: { src: string; method?: "GET" | "POST"; caption?: string }) {
   const containerRef = useRef<HTMLDivElement>(null);
   const viewerRef = useRef<PptxViewerInstance | null>(null);
   const [status, setStatus] = useState("Carregando arquivo PowerPoint…");
@@ -21,8 +21,16 @@ export function PptxFilePreview({ src }: { src: string }) {
       setStatus("Carregando arquivo PowerPoint…");
 
       try {
-        const response = await fetch(src, { cache: "no-store", credentials: "same-origin", signal: controller.signal });
-        if (!response.ok) throw new Error(response.status === 404 ? "Apresentação não encontrada." : "Não foi possível carregar a apresentação.");
+        const response = await fetch(src, { cache: "no-store", credentials: "same-origin", method, signal: controller.signal });
+        if (!response.ok) {
+          const contentType = response.headers.get("content-type") ?? "";
+          if (contentType.includes("application/json")) {
+            const result = await response.json() as { message?: string; error?: string; errors?: Array<{ message: string }> };
+            const details = result.errors?.map((issue) => issue.message).join(" ");
+            throw new Error(details || result.message || result.error || "Não foi possível carregar a apresentação.");
+          }
+          throw new Error(response.status === 404 ? "Apresentação não encontrada." : "Não foi possível carregar a apresentação.");
+        }
         const file = await response.arrayBuffer();
         const { PptxViewer, RECOMMENDED_ZIP_LIMITS } = await import("@aiden0z/pptx-renderer");
         const container = containerRef.current;
@@ -61,7 +69,7 @@ export function PptxFilePreview({ src }: { src: string }) {
       viewer?.destroy();
       viewerRef.current = null;
     };
-  }, [src]);
+  }, [method, src]);
 
   function goToSlide(index: number) {
     void viewerRef.current?.goToSlide(index, { behavior: "smooth", block: "center" });
@@ -81,7 +89,7 @@ export function PptxFilePreview({ src }: { src: string }) {
       <div className="pptx-render-viewport">
         <div className="pptx-render-container" ref={containerRef} />
       </div>
-      <p className="form-hint">Prévia feita do arquivo PPTX salvo. Renderização local no navegador; arquivo não é enviado a serviço externo.</p>
+      <p className="form-hint">{caption ?? "Prévia feita do arquivo PPTX salvo. Renderização local no navegador; arquivo não é enviado a serviço externo."}</p>
     </section>
   );
 }
