@@ -16,10 +16,11 @@ Set these Vercel variables for every deployed environment:
 ```text
 SUPABASE_URL=https://<project-ref>.supabase.co
 SUPABASE_PUBLISHABLE_KEY=<Supabase publishable key>
+APP_URL=https://<production-domain>
 PPTX_TEMPLATE_VERSION=v1
 ```
 
-The first two are server-only runtime variables. `PPTX_TEMPLATE_VERSION` is optional and
+The first three are server-only runtime variables. `PPTX_TEMPLATE_VERSION` is optional and
 defaults to `v1`; it selects `status-weekly/<version>/template.pptx`.
 
 `.env.example` also defines test-only variables. Do not set them in production
@@ -34,15 +35,16 @@ E2E_USER_PASSWORD
 
 No browser client imports Supabase, so no Supabase variable needs the `NEXT_PUBLIC_`
 prefix. The publishable key remains constrained by RLS; this naming change is not a
-replacement for database policies. This app does not use `SUPABASE_SERVICE_ROLE_KEY`.
+replacement for database policies. `SUPABASE_SERVICE_ROLE_KEY` must exist only in the
+deployed `delete-account` Edge Function secrets, never in Vercel or browser variables.
 
 ## Supabase
 
 1. Create the production Supabase project and enable the intended Auth users.
 2. Apply migrations in repository order: `0001_initial_schema.sql` through
-   `0007_fix_report_content_editable_trigger.sql`.
+   `0008_signup_confirmation_resend_cooldown.sql`.
 3. The standard Supabase CLI command for applying local migrations to a linked
-   project is `supabase db push`. Alternatively, apply the seven SQL files in
+   project is `supabase db push`. Alternatively, apply the eight SQL files in
    order through the Supabase SQL Editor. Do not reorder or omit a migration.
 4. Confirm the migrations created private buckets `generated-presentations` and
    `presentation-templates`. They must remain private.
@@ -63,6 +65,36 @@ The allowlist is required for `/app/admin/templates`; ordinary authenticated
 users cannot upload templates. See [template administration](template-administration.md)
 for removal and versioning rules. Generated PPTX objects are created by the app
 under `<user-id>/<report-id>/v<version>.pptx`; do not pre-create them.
+
+## Auth and account deletion
+
+1. Enable email confirmation in Supabase Auth.
+2. Set the Site URL to `APP_URL` and allow `${APP_URL}/auth/callback` as a redirect URL.
+3. Configure the confirmation email template link to use `{{ .ConfirmationURL }}`.
+   Do not build a link manually with `{{ .SiteURL }}` or a root `?code=...` URL.
+4. Deploy `supabase/functions/delete-account/index.ts` with JWT verification enabled.
+5. Add `SUPABASE_SERVICE_ROLE_KEY` only to the Edge Function secret store. Never add it to
+   `.env.local`, Vercel, client code, or request bodies.
+6. Validate signup, duplicate e-mail attempts, confirmation, reauthentication, Storage
+   cleanup, database cascade, and final session invalidation in an isolated project.
+7. Copy `docs/email-templates/supabase-confirmation.html` into the Supabase `Confirm signup`
+   template and `docs/email-templates/supabase-invite.html` into `Invite user`.
+8. Keep `{{ .ConfirmationURL }}` unchanged in both templates. It carries the one-time token
+   and the allowlisted redirect URL.
+9. Copy `docs/email-templates/supabase-recovery.html` into `Reset password` and
+   `docs/email-templates/supabase-magic-link.html` into `Magic Link`.
+10. Allow exact redirects for `/auth/callback?next=/app` and
+    `/auth/callback?next=/reset-password`.
+
+## Confirmation resend
+
+The signup page exposes resend after a confirmation request. A database RPC atomically claims
+a five-minute window per normalized e-mail hash. UI countdown is feedback; database cooldown
+remains authoritative across browsers and app instances.
+
+Magic Link uses `shouldCreateUser: false`, so it never creates an account. Confirmed accounts
+can use password login or Magic Link; confirmed accounts do not receive signup confirmation
+resends.
 
 ## Deploy Validation
 
