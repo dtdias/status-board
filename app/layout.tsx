@@ -3,7 +3,7 @@ import "./globals.css";
 
 export const metadata: Metadata = {
   title: "Status Board",
-  description: "Weekly status board for presentation-ready reporting.",
+  description: "Organize weekly work and generate editable presentations.",
 };
 
 export default function RootLayout({ children }: Readonly<{ children: React.ReactNode }>) {

@@ -5,7 +5,8 @@ import { getSupabaseEnv } from "@/lib/supabase/env";
 export async function GET(request: Request) {
   const { searchParams, origin } = new URL(request.url);
   const code = searchParams.get("code");
-  const next = searchParams.get("next") ?? "/app";
+  const requestedNext = searchParams.get("next");
+  const next = requestedNext?.startsWith("/") && !requestedNext.startsWith("//") ? requestedNext : "/app";
   const response = NextResponse.redirect(new URL(next, origin));
 
   if (!code) {
