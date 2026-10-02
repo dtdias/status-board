@@ -16,6 +16,8 @@ export const dependencySchema = z.object({
   owner: z.string().trim().min(1, "Informe o responsável da dependência.").max(80),
   waitingSince: z.string().trim().min(1, "Informe desde quando está aguardando.").date("Informe uma data válida."),
   status: optionalText(100),
+  hideOwnerInPresentation: z.boolean().default(false),
+  hideWaitingSinceInPresentation: z.boolean().default(false),
 });
 
 export const nextStepSchema = z.object({
@@ -23,6 +25,8 @@ export const nextStepSchema = z.object({
   description: optionalText(attentionLimits.nextStepDescription),
   owner: optionalText(80),
   dueDate: z.string().trim().transform((value) => value || null).pipe(z.string().date("Informe uma data válida.").nullable()),
+  hideOwnerInPresentation: z.boolean().default(false),
+  hideDueDateInPresentation: z.boolean().default(false),
 });
 
 export type DependencyInput = z.infer<typeof dependencySchema>;

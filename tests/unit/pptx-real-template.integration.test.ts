@@ -31,12 +31,12 @@ function fixture(): PresentationInput {
     demands: Array.from({ length: 2 }, (_, index) => ({ id: `demand-${index}`, title: `Demand fixture ${index + 1}`, requesterName: "Fixture requester", requesterArea: "Commercial", involvedAreas: ["Technology"], objective: `Demand objective ${index + 1}`, statusText: "In analysis", currentPhase: "development" as const, iconKey: "demand", position: index })),
     supportFronts: Array.from({ length: 3 }, (_, index) => ({ id: `support-${index}`, title: `Support fixture ${index + 1}`, activityType: "Monitoring", iconKey: supportIcons[index], position: index, routines: [{ id: `routine-${index}`, title: `Support routine ${index + 1}`, position: 0 }] })),
     dependencies: [
-      { id: "dependency-0", title: "Acesso ERP", description: "Aguardando credencial.", owner: "Infra", waitingSince: "2026-09-21", status: null, position: 0 },
-      { id: "dependency-1", title: "Homologação", description: "Aguardando área usuária.", owner: "Comercial", waitingSince: "2026-09-22", status: null, position: 1 },
+      { id: "dependency-0", title: "Acesso ERP", description: "Aguardando credencial.", owner: "Infra", waitingSince: "2026-09-21", status: null, hideOwnerInPresentation: false, hideWaitingSinceInPresentation: false, position: 0 },
+      { id: "dependency-1", title: "Homologação", description: "Aguardando área usuária.", owner: "Comercial", waitingSince: "2026-09-22", status: null, hideOwnerInPresentation: false, hideWaitingSinceInPresentation: false, position: 1 },
     ],
     nextSteps: [
-      { id: "step-0", title: "Publicar ajuste", description: "Após liberar acesso.", owner: "Tecnologia", dueDate: "2026-09-30", position: 0 },
-      { id: "step-1", title: "Validar carga", description: "Conferir primeira execução.", owner: "Comercial", dueDate: "2026-10-01", position: 1 },
+      { id: "step-0", title: "Publicar ajuste", description: "Após liberar acesso.", owner: "Tecnologia", dueDate: "2026-09-30", hideOwnerInPresentation: false, hideDueDateInPresentation: false, position: 0 },
+      { id: "step-1", title: "Validar carga", description: "Conferir primeira execução.", owner: "Comercial", dueDate: "2026-10-01", hideOwnerInPresentation: false, hideDueDateInPresentation: false, position: 1 },
     ],
   };
 }

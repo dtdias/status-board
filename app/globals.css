@@ -80,6 +80,10 @@ button:disabled { cursor: not-allowed; opacity: .5; }
 .auth-form { display: grid; gap: 18px; margin-top: 34px; }
 .auth-form label { display: grid; font-size: .75rem; font-weight: 700; gap: 8px; letter-spacing: .08em; text-transform: uppercase; }
 .auth-form input { background: transparent; border: 0; border-bottom: 1px solid var(--ink); border-radius: 0; font-size: 1rem; outline-offset: 4px; padding: 10px 0; }
+.auth-form .form-options { border: 1px solid color-mix(in srgb, var(--ink) 24%, transparent); display: grid; gap: 12px; margin: 0; padding: 14px 16px 16px; }
+.auth-form .form-options legend { font-size: .68rem; font-weight: 700; letter-spacing: .08em; padding: 0 6px; text-transform: uppercase; }
+.auth-form .form-options label { align-items: center; display: flex; font-size: .72rem; gap: 10px; letter-spacing: .04em; text-transform: none; }
+.auth-form .form-options input[type="checkbox"] { accent-color: var(--ink); border: 0; padding: 0; }
 .auth-form .primary-button { justify-self: start; margin-top: 8px; }
 .auth-secondary-link { color: var(--muted); font-size: .8rem; margin-top: 22px; }
 .auth-secondary-link a { color: var(--ink); font-weight: 700; text-underline-offset: 4px; }
