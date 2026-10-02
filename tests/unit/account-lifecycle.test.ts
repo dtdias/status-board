@@ -64,4 +64,10 @@ describe("account lifecycle", () => {
     expect(recovery).toContain("{{ .ConfirmationURL }}");
     expect(magic).toContain("{{ .ConfirmationURL }}");
   });
+
+  it("explains when recovery password matches the current password", () => {
+    const reset = read("app/(auth)/reset-password/actions.ts");
+    expect(reset).toContain('error?.code === "same_password"');
+    expect(reset).toContain("A nova senha deve ser diferente da senha atual.");
+  });
 });
