@@ -152,6 +152,7 @@ npm run test:e2e
 - Generated PPTX output is validated for expected ZIP/XML structure before storage.
 - Signup requires email confirmation; Auth prevents more than one account per email.
 - Confirmation resend is protected by a five-minute cooldown.
+- Password recovery and Magic Link access never create accounts automatically.
 - Account deletion irreversibly removes personal data, reports, and generated PPTX files.
 
 ## Documentation

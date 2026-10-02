@@ -6,21 +6,10 @@ import { redirect } from "next/navigation";
 import type { Route } from "next";
 import { createClient } from "@/lib/supabase/server";
 import { emailSchema, signUpSchema } from "@/lib/validation/auth";
+import { getRedirectOrigin } from "@/lib/auth/redirect-url";
 
 export type SignUpState = { error?: string; success?: string; email?: string };
-export type ResendState = { error?: string; success?: string; email?: string; cooldownUntil?: number };
-
-function getRedirectOrigin(requestHeaders: Headers) {
-  const configuredUrl = process.env.APP_URL?.trim().replace(/\/$/, "");
-  if (configuredUrl) return configuredUrl;
-
-  const origin = requestHeaders.get("origin");
-  if (origin) return origin;
-
-  const host = requestHeaders.get("x-forwarded-host") ?? requestHeaders.get("host");
-  const protocol = requestHeaders.get("x-forwarded-proto") ?? "http";
-  return host ? `${protocol}://${host}` : "http://localhost:3000";
-}
+export type ResendState = { error?: string; success?: string; email?: string; cooldownUntil?: number; accountConfirmed?: boolean };
 
 export async function signUp(_: SignUpState, formData: FormData): Promise<SignUpState> {
   const parsed = signUpSchema.safeParse({
@@ -42,6 +31,9 @@ export async function signUp(_: SignUpState, formData: FormData): Promise<SignUp
 
   if (error) return { error: "Não foi possível criar a conta. Verifique os dados e tente novamente." };
   if (data.session) redirect("/app" as Route);
+  if (data.user?.email_confirmed_at || data.user?.confirmed_at) {
+    return { success: "Esta conta já está confirmada. Entre usando sua senha ou um Magic Link." };
+  }
 
   return { success: "Se o e-mail estiver disponível, enviaremos um link de confirmação.", email: parsed.data.email.toLowerCase() };
 }
@@ -72,11 +64,15 @@ export async function resendConfirmation(_: ResendState, formData: FormData): Pr
     options: { emailRedirectTo: `${getRedirectOrigin(await headers())}/auth/callback?next=/app` },
   });
 
+  const accountConfirmed = Boolean(error?.message.match(/already confirmed|email confirmed/i));
   return {
     success: error
-      ? "Se houver uma conta pendente, enviaremos a confirmação quando o reenvio estiver disponível."
+      ? accountConfirmed
+        ? "Esta conta já está confirmada. Use o login ou um Magic Link."
+        : "Se houver uma conta pendente, enviaremos a confirmação quando o reenvio estiver disponível."
       : "Se houver uma conta pendente, um novo e-mail de confirmação foi enviado.",
-    email,
+    email: accountConfirmed ? undefined : email,
     cooldownUntil,
+    accountConfirmed,
   };
 }

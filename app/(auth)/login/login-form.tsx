@@ -1,6 +1,8 @@
 "use client";
 
 import { useActionState } from "react";
+import Link from "next/link";
+import type { Route } from "next";
 import { signIn, type LoginState } from "./actions";
 
 const initialState: LoginState = {};
@@ -14,6 +16,7 @@ export function LoginForm() {
         E-mail
         <input autoComplete="email" name="email" required type="email" />
       </label>
+      <Link className="auth-inline-link" href={"/forgot-password" as Route}>Esqueci minha senha</Link>
       <label>
         Senha
         <input autoComplete="current-password" minLength={6} name="password" required type="password" />
