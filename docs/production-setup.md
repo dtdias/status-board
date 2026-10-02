@@ -70,7 +70,8 @@ under `<user-id>/<report-id>/v<version>.pptx`; do not pre-create them.
 
 1. Enable email confirmation in Supabase Auth.
 2. Set the Site URL to `APP_URL` and allow `${APP_URL}/auth/callback` as a redirect URL.
-3. Configure the confirmation email template to use `{{ .RedirectTo }}`.
+3. Configure the confirmation email template link to use `{{ .ConfirmationURL }}`.
+   Do not build a link manually with `{{ .SiteURL }}` or a root `?code=...` URL.
 4. Deploy `supabase/functions/delete-account/index.ts` with JWT verification enabled.
 5. Add `SUPABASE_SERVICE_ROLE_KEY` only to the Edge Function secret store. Never add it to
    `.env.local`, Vercel, client code, or request bodies.
