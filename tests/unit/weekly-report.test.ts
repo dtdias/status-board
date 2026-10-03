@@ -6,6 +6,7 @@ describe("weeklyReportSchema", () => {
     startDate: "2026-09-21",
     endDate: "2026-09-27",
     presentationDate: "2026-09-29",
+    highlight: "Entrega principal da semana",
   };
 
   it("accepts the required report dates", () => {
@@ -18,6 +19,12 @@ describe("weeklyReportSchema", () => {
 
   it("rejects a missing presentation date", () => {
     expect(weeklyReportSchema.safeParse({ ...validInput, presentationDate: "" }).success).toBe(false);
+  });
+
+  it("requires and limits the weekly highlight", () => {
+    expect(weeklyReportSchema.safeParse({ ...validInput, highlight: " " }).success).toBe(false);
+    expect(weeklyReportSchema.safeParse({ ...validInput, highlight: "a".repeat(180) }).success).toBe(true);
+    expect(weeklyReportSchema.safeParse({ ...validInput, highlight: "a".repeat(181) }).success).toBe(false);
   });
 });
 

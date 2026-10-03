@@ -15,6 +15,13 @@ export const statusMeta: Record<DeliveryStatus | IncidentStatus, { label: string
 };
 const PHASES: DemandPhase[] = ["request_received", "feasibility_requirements", "development", "validation"];
 
+function setShapeColor(color: string) {
+  return [
+    ModifyColorHelper.solidFill({ type: "srgbClr", value: color }),
+    modify.setOutline({ color: { type: "srgbClr", value: color } }),
+  ];
+}
+
 function chunks<T>(items: T[], size: number): T[][] {
   const result: T[][] = [];
   for (let index = 0; index < items.length; index += size) result.push(items.slice(index, index + size));
@@ -188,7 +195,7 @@ export async function generatePptx(input: PresentationInput, templateBuffer: Buf
         slide.modifyElement(card.title, modify.setText(item.title));
         slide.modifyElement(card.description, modify.setText(item.description));
         slide.modifyElement(card.statusText, modify.setText(status.label));
-        slide.modifyElement(card.statusBackground, ModifyColorHelper.solidFill({ value: status.color }));
+         slide.modifyElement(card.statusBackground, setShapeColor(status.color));
         replaceIcon(slide, card.icon, item.iconKey, iconMedia);
       });
     });
@@ -221,7 +228,7 @@ export async function generatePptx(input: PresentationInput, templateBuffer: Buf
           { paragraph: {}, text: `${item.actionTaken}${item.supportPeople ? `\n${item.supportPeople}` : ""}`, style: { size: 1300, color: { type: "srgbClr", value: "8A8A8A" }, isItalics: true, fontFamily: "Calibri" } },
         ]));
         slide.modifyElement(card.statusText, modify.setText(`Status: ${status.label}${resolution}`));
-        slide.modifyElement(card.statusBackground, ModifyColorHelper.solidFill({ value: status.color }));
+         slide.modifyElement(card.statusBackground, setShapeColor(status.color));
         replaceIcon(slide, card.icon, item.iconKey, iconMedia);
       });
     });
@@ -248,7 +255,7 @@ export async function generatePptx(input: PresentationInput, templateBuffer: Buf
       replaceIcon(slide, DEMAND_SHAPES.icon, item.iconKey, iconMedia);
       const current = PHASES.indexOf(item.currentPhase);
       DEMAND_SHAPES.phases.forEach((phase, index) => {
-        slide.modifyElement(phase.circle, ModifyColorHelper.solidFill({ value: index < current ? "2E8B57" : index === current ? "FFD400" : "D9D9D9" }));
+         slide.modifyElement(phase.circle, setShapeColor(index < current ? "2E8B57" : index === current ? "FFD400" : "D9D9D9"));
         slide.modifyElement(phase.number, modify.setText(String(index + 1)));
         const state = index < current ? "Concluído" : index === current ? "Em andamento" : "Próxima fase";
         replaceTextRuns(slide, phase.label, [{ placeholder: "[Concluído / Em andamento / Próxima fase]", value: state }]);
