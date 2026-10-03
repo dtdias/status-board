@@ -1,4 +1,5 @@
 import type { GeneratedPresentation } from "@/lib/storage/generated-presentation";
+import { PresentationActionLink } from "./presentation-action-link";
 
 export function formatPresentationGeneratedAt(generatedAt: string) {
   return new Intl.DateTimeFormat("pt-BR", {
@@ -27,17 +28,14 @@ export function PresentationHistory({
             <li key={presentation.id}>
               <div>
                 <span className="presentation-version">Versão {presentation.version}</span>
-                <strong>{presentation.fileName}</strong>
-                <time dateTime={presentation.generatedAt}>Gerado em {formatPresentationGeneratedAt(presentation.generatedAt)}</time>
-              </div>
-              <div className="presentation-actions">
-                <a className="outline-button" href={`/app/reports/${reportId}/presentations/${presentation.id}/preview`}>
-                  Visualizar PPTX
-                </a>
-                <a className="outline-button" href={`/api/reports/${reportId}/presentations/${presentation.id}/download`} download={presentation.fileName}>
-                  Baixar PowerPoint
-                </a>
-              </div>
+                 <strong>{presentation.fileName}</strong>
+                 <time dateTime={presentation.generatedAt}>Gerado em {formatPresentationGeneratedAt(presentation.generatedAt)}</time>
+                 {presentation.storageDeletedAt ? <span className="form-hint">Arquivo será reconstruído ao abrir.</span> : null}
+               </div>
+               <div className="presentation-actions">
+                 <PresentationActionLink href={`/app/reports/${reportId}/presentations/${presentation.id}/preview`} label="Visualizar PPTX" loadingLabel="Preparando PPTX..." />
+                 <PresentationActionLink download fileName={presentation.fileName} href={`/api/reports/${reportId}/presentations/${presentation.id}/download`} label="Baixar PowerPoint" loadingLabel="Preparando download..." />
+               </div>
             </li>
           ))}
         </ol>

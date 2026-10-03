@@ -7,6 +7,7 @@ import { canTransitionReportStatus, reportStatuses, type ReportStatus } from "@/
 import { loadPresentationInput, presentationValidationInput } from "@/lib/reports/load-presentation-input";
 import { createClient } from "@/lib/supabase/server";
 import { validateReport } from "@/lib/validation/report";
+import { markLatestPresentationFinal } from "@/lib/storage/generated-presentation";
 
 export async function transitionReportStatus(formData: FormData) {
   const reportId = formData.get("reportId");
@@ -37,6 +38,8 @@ export async function transitionReportStatus(formData: FormData) {
     .eq("user_id", user.id)
     .eq("status", report.status);
   if (error) return;
+
+  if (target === "presented") await markLatestPresentationFinal(supabase, reportId);
 
   revalidatePath(`/app/reports/${reportId}`);
   redirect(`/app/reports/${reportId}` as Route);
