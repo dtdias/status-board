@@ -2,7 +2,6 @@ import Link from "next/link";
 import { notFound, redirect } from "next/navigation";
 import type { Route } from "next";
 import { BackLink } from "@/components/navigation/back-link";
-import { BrandLogo } from "@/components/brand-logo";
 import { formatWeekRange } from "@/lib/reports/weekly-report";
 import { ReportIcon } from "@/components/report-icon";
 import { createClient } from "@/lib/supabase/server";
@@ -15,6 +14,7 @@ import { DeliverySortableList } from "./delivery-sortable-list";
 import { GeneratePresentation } from "./generate-presentation";
 import { PresentationHistory } from "./presentation-history";
 import { ReportStatusActions } from "./report-status-actions";
+import { ReportHighlight } from "./report-highlight";
 
 export default async function ReportPage({ params }: { params: Promise<{ reportId: string }> }) {
   const { reportId } = await params;
@@ -27,7 +27,7 @@ export default async function ReportPage({ params }: { params: Promise<{ reportI
 
   const { data: report } = await supabase
     .from("weekly_reports")
-    .select("id, start_date, end_date, presentation_date, status")
+    .select("id, start_date, end_date, presentation_date, highlight, status")
     .eq("id", reportId)
     .maybeSingle();
 
@@ -62,10 +62,25 @@ export default async function ReportPage({ params }: { params: Promise<{ reportI
   });
 
   const isArchived = report.status === "archived";
+  const isEditable = report.status === "draft" || report.status === "ready";
 
   return (
     <main className="shell">
-      <header className="topbar"><div><BrandLogo href="/app" /><p className="eyebrow">Apresentação em {report.presentation_date}</p><h1>{formatWeekRange(report.start_date, report.end_date)}</h1></div><div className="actions"><BackLink href={"/app" as Route} label="Voltar às semanas" />{isArchived ? null : <Link className="outline-button" href={`/app/reports/${reportId}/details` as Route}>Editar detalhes</Link>}<Link className="outline-button" href={`/app/reports/${reportId}/preview` as Route}>Pré-visualizar</Link>{isArchived ? null : <Link className="outline-button" href={`/app/reports/${reportId}/support-fronts/new` as Route}>Nova frente</Link>}{report.status === "ready" ? <GeneratePresentation reportId={reportId} /> : null}<ReportStatusActions reportId={reportId} status={report.status} /></div></header>
+      <header className="topbar">
+        <div className="topbar-copy">
+          <p className="eyebrow">Apresentação em {report.presentation_date}</p>
+          <h1>{formatWeekRange(report.start_date, report.end_date)}</h1>
+        </div>
+        <div className="report-actions">
+          <div className="action-group action-group-navigation">
+            <BackLink href={"/app" as Route} label="Voltar às semanas" />
+            {isEditable ? <Link className="outline-button" href={`/app/reports/${reportId}/details` as Route}>Editar detalhes</Link> : null}
+            <Link className="outline-button" href={`/app/reports/${reportId}/preview` as Route}>Pré-visualizar</Link>
+          </div>
+          {report.status === "ready" ? <GeneratePresentation reportId={reportId} /> : null}
+          <ReportStatusActions reportId={reportId} status={report.status} />
+        </div>
+      </header>
       {isArchived ? <p className="form-success" role="status">Este relatório está arquivado e disponível somente para consulta e download.</p> : null}
       <section className="report-summary" aria-label="Resumo automático da semana">
         <p className="eyebrow">Resumo automático</p>
@@ -76,6 +91,7 @@ export default async function ReportPage({ params }: { params: Promise<{ reportI
           <div><dt>Rotinas de sustentação</dt><dd>{summary.supportRoutines}</dd></div>
         </dl>
       </section>
+      <ReportHighlight editable={isEditable} highlight={report.highlight} reportId={reportId} />
       {presentationHistoryError ? <p className="form-error" role="alert">{presentationHistoryError}</p> : <PresentationHistory presentations={presentations} reportId={reportId} />}
       <section className="board report-board" aria-label="Board semanal" inert={isArchived ? true : undefined}>
         <BoardColumn

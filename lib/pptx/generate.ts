@@ -2,18 +2,25 @@ import Automizer, { ModifyColorHelper, ModifyImageHelper, modify, type ShapeModi
 import { getReportIcon } from "@/lib/icons/report-icons";
 import { assertPptxIntegrity, assertTemplateIntegrity } from "./integrity";
 import { readTemplateIconMedia } from "./icons";
-import { composePresentationSections, presentationSummary } from "./compose";
+import { composePresentationSections, presentationSummary, statusColors } from "./compose";
 import { ATTENTION_SHAPES, COVER_SHAPES, DELIVERY_CARDS, DEMAND_SHAPES, HEADER_SHAPES, INCIDENT_CARDS, SUMMARY_SHAPES, SUPPORT_FRONTS, TEMPLATE_SLIDES } from "./template-map";
 import type { DemandPhase, DeliveryStatus, IncidentStatus, PresentationInput } from "./types";
 
-const STATUS_META: Record<DeliveryStatus | IncidentStatus, { label: string; color: string }> = {
-  delivered: { label: "Entregue / Publicado", color: "2E8B57" },
-  resolved: { label: "Resolvido", color: "2E8B57" },
-  in_progress: { label: "Em andamento", color: "2F5D8A" },
-  waiting_third_party: { label: "Aguardando terceiro", color: "C77700" },
-  blocked: { label: "Bloqueado", color: "D7191C" },
+export const statusMeta: Record<DeliveryStatus | IncidentStatus, { label: string; color: string }> = {
+  delivered: { label: "Entregue / Publicado", color: statusColors.delivered.slice(1) },
+  resolved: { label: "Resolvido", color: statusColors.resolved.slice(1) },
+  in_progress: { label: "Em andamento", color: statusColors.in_progress.slice(1) },
+  waiting_third_party: { label: "Aguardando terceiro", color: statusColors.waiting_third_party.slice(1) },
+  blocked: { label: "Bloqueado", color: statusColors.blocked.slice(1) },
 };
 const PHASES: DemandPhase[] = ["request_received", "feasibility_requirements", "development", "validation"];
+
+function setShapeColor(color: string) {
+  return [
+    ModifyColorHelper.solidFill({ type: "srgbClr", value: color }),
+    modify.setOutline({ color: { type: "srgbClr", value: color } }),
+  ];
+}
 
 function chunks<T>(items: T[], size: number): T[][] {
   const result: T[][] = [];
@@ -63,6 +70,24 @@ function replaceTextRuns(slide: Parameters<Automizer["addSlide"]>[2] extends ((s
 
 type PptxTextParagraph = Parameters<typeof modify.setMultiText>[0][number];
 
+export function attentionDetails(item: PresentationInput["dependencies"][number] | PresentationInput["nextSteps"][number], section: "dependencies" | "nextSteps") {
+  if (section === "dependencies") {
+    const dependency = item as PresentationInput["dependencies"][number];
+    return [
+      dependency.description,
+      dependency.hideOwnerInPresentation ? null : `Responsável: ${dependency.owner}`,
+      dependency.hideWaitingSinceInPresentation ? null : `Desde: ${date(dependency.waitingSince)}`,
+    ].filter((value): value is string => Boolean(value)).join("\n");
+  }
+
+  const nextStep = item as PresentationInput["nextSteps"][number];
+  return [
+    nextStep.description,
+    nextStep.hideOwnerInPresentation || !nextStep.owner ? null : `Responsável: ${nextStep.owner}`,
+    nextStep.hideDueDateInPresentation || !nextStep.dueDate ? null : `Prazo: ${date(nextStep.dueDate)}`,
+  ].filter((value): value is string => Boolean(value)).join("\n");
+}
+
 function attentionBody(input: PresentationInput, section: "dependencies" | "nextSteps"): PptxTextParagraph[] {
   const headingStyle = { color: { type: "srgbClr" as const, value: "FFD400" }, size: 1400, isBold: true, fontFamily: "Calibri" };
   const bodyStyle = { color: { type: "srgbClr" as const, value: "A6A6A6" }, size: 1400, isItalics: true, fontFamily: "Calibri" };
@@ -78,7 +103,7 @@ function attentionBody(input: PresentationInput, section: "dependencies" | "next
         textRuns: [
           { text: item.title, style: headingStyle },
           { text: ": ", style: headingStyle },
-          { text: `${item.description}\nResponsável: ${item.owner}\nDesde: ${date(item.waitingSince)}`, style: bodyStyle },
+          { text: attentionDetails(item, "dependencies"), style: bodyStyle },
         ],
       });
       if (index < items.length - 1) paragraphs.push({ paragraph: {}, text: " ", style: { size: 800, fontFamily: "Calibri" } });
@@ -90,7 +115,7 @@ function attentionBody(input: PresentationInput, section: "dependencies" | "next
   if (!items.length) return empty("Sem ocorrências.");
   const paragraphs: PptxTextParagraph[] = [];
   items.forEach((item, index) => {
-    const details = `${item.description ?? ""}${item.owner ? `\nResponsável: ${item.owner}` : ""}${item.dueDate ? `\nPrazo: ${date(item.dueDate)}` : ""}`;
+    const details = attentionDetails(item, "nextSteps");
     paragraphs.push({
       paragraph: {},
       textRuns: [
@@ -166,11 +191,11 @@ export async function generatePptx(input: PresentationInput, templateBuffer: Buf
       DELIVERY_CARDS.forEach((card, index) => {
         const item = items[index];
         if (!item) return removeCard(slide, card);
-        const status = STATUS_META[item.status];
+         const status = statusMeta[item.status];
         slide.modifyElement(card.title, modify.setText(item.title));
         slide.modifyElement(card.description, modify.setText(item.description));
         slide.modifyElement(card.statusText, modify.setText(status.label));
-        slide.modifyElement(card.statusBackground, ModifyColorHelper.solidFill({ value: status.color }));
+         slide.modifyElement(card.statusBackground, setShapeColor(status.color));
         replaceIcon(slide, card.icon, item.iconKey, iconMedia);
       });
     });
@@ -192,7 +217,7 @@ export async function generatePptx(input: PresentationInput, templateBuffer: Buf
       INCIDENT_CARDS.forEach((card, index) => {
         const item = items[index];
         if (!item) return removeCard(slide, card);
-        const status = STATUS_META[item.status];
+         const status = statusMeta[item.status];
         const resolution = item.status === "resolved" && item.resolvedAt ? `\nData: ${date(item.resolvedAt)}` : "";
         slide.modifyElement(card.title, modify.setText(item.affectedSystem));
         slide.modifyElement(card.body, modify.setMultiText([
@@ -203,7 +228,7 @@ export async function generatePptx(input: PresentationInput, templateBuffer: Buf
           { paragraph: {}, text: `${item.actionTaken}${item.supportPeople ? `\n${item.supportPeople}` : ""}`, style: { size: 1300, color: { type: "srgbClr", value: "8A8A8A" }, isItalics: true, fontFamily: "Calibri" } },
         ]));
         slide.modifyElement(card.statusText, modify.setText(`Status: ${status.label}${resolution}`));
-        slide.modifyElement(card.statusBackground, ModifyColorHelper.solidFill({ value: status.color }));
+         slide.modifyElement(card.statusBackground, setShapeColor(status.color));
         replaceIcon(slide, card.icon, item.iconKey, iconMedia);
       });
     });
@@ -230,7 +255,7 @@ export async function generatePptx(input: PresentationInput, templateBuffer: Buf
       replaceIcon(slide, DEMAND_SHAPES.icon, item.iconKey, iconMedia);
       const current = PHASES.indexOf(item.currentPhase);
       DEMAND_SHAPES.phases.forEach((phase, index) => {
-        slide.modifyElement(phase.circle, ModifyColorHelper.solidFill({ value: index < current ? "2E8B57" : index === current ? "FFD400" : "D9D9D9" }));
+         slide.modifyElement(phase.circle, setShapeColor(index < current ? "2E8B57" : index === current ? "FFD400" : "D9D9D9"));
         slide.modifyElement(phase.number, modify.setText(String(index + 1)));
         const state = index < current ? "Concluído" : index === current ? "Em andamento" : "Próxima fase";
         replaceTextRuns(slide, phase.label, [{ placeholder: "[Concluído / Em andamento / Próxima fase]", value: state }]);

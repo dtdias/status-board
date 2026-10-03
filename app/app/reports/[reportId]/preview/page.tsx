@@ -2,7 +2,6 @@ import { notFound, redirect } from "next/navigation";
 import type { Route } from "next";
 import { PptxFilePreview } from "@/components/preview/pptx-file-preview";
 import { BackLink } from "@/components/navigation/back-link";
-import { BrandLogo } from "@/components/brand-logo";
 import { createClient } from "@/lib/supabase/server";
 
 export default async function PreviewPage({ params }: { params: Promise<{ reportId: string }> }) {
@@ -18,7 +17,6 @@ export default async function PreviewPage({ params }: { params: Promise<{ report
     <main className="shell preview-shell">
       <header className="topbar">
         <div>
-          <BrandLogo href={`/app/reports/${reportId}`} />
           <p className="eyebrow">Preview PPTX atual</p>
           <h1>Pré-visualização</h1>
         </div>

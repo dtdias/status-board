@@ -26,17 +26,17 @@ function fixture(): PresentationInput {
   const supportIcons = ["routine", "network", "security"];
   return {
     report: { id: "report-real-template", name: "Real Template", area: "Technology", startDate: "2026-09-21", endDate: "2026-09-27", presentationDate: "2026-09-29", highlight: "Fixture highlight" },
-    deliveries: Array.from({ length: 5 }, (_, index) => ({ id: `delivery-${index}`, title: `Delivery fixture ${index + 1}`, description: `Delivery description ${index + 1}`, status: "delivered" as const, iconKey: deliveryIcons[index], position: index })),
-    incidents: Array.from({ length: 3 }, (_, index) => ({ id: `incident-${index}`, affectedSystem: `Incident system ${index + 1}`, symptom: `Incident symptom ${index + 1}`, cause: null, actionTaken: `Incident action ${index + 1}`, supportPeople: null, status: "resolved" as const, resolvedAt: "2026-09-22", iconKey: incidentIcons[index], position: index })),
+    deliveries: Array.from(["delivered", "in_progress", "waiting_third_party", "blocked", "delivered"] as const, (status, index) => ({ id: `delivery-${index}`, title: `Delivery fixture ${index + 1}`, description: `Delivery description ${index + 1}`, status, iconKey: deliveryIcons[index], position: index })),
+    incidents: Array.from(["resolved", "in_progress", "blocked"] as const, (status, index) => ({ id: `incident-${index}`, affectedSystem: `Incident system ${index + 1}`, symptom: `Incident symptom ${index + 1}`, cause: null, actionTaken: `Incident action ${index + 1}`, supportPeople: null, status, resolvedAt: status === "resolved" ? "2026-09-22" : null, iconKey: incidentIcons[index], position: index })),
     demands: Array.from({ length: 2 }, (_, index) => ({ id: `demand-${index}`, title: `Demand fixture ${index + 1}`, requesterName: "Fixture requester", requesterArea: "Commercial", involvedAreas: ["Technology"], objective: `Demand objective ${index + 1}`, statusText: "In analysis", currentPhase: "development" as const, iconKey: "demand", position: index })),
     supportFronts: Array.from({ length: 3 }, (_, index) => ({ id: `support-${index}`, title: `Support fixture ${index + 1}`, activityType: "Monitoring", iconKey: supportIcons[index], position: index, routines: [{ id: `routine-${index}`, title: `Support routine ${index + 1}`, position: 0 }] })),
     dependencies: [
-      { id: "dependency-0", title: "Acesso ERP", description: "Aguardando credencial.", owner: "Infra", waitingSince: "2026-09-21", status: null, position: 0 },
-      { id: "dependency-1", title: "Homologação", description: "Aguardando área usuária.", owner: "Comercial", waitingSince: "2026-09-22", status: null, position: 1 },
+      { id: "dependency-0", title: "Acesso ERP", description: "Aguardando credencial.", owner: "Infra", waitingSince: "2026-09-21", status: null, hideOwnerInPresentation: false, hideWaitingSinceInPresentation: false, position: 0 },
+      { id: "dependency-1", title: "Homologação", description: "Aguardando área usuária.", owner: "Comercial", waitingSince: "2026-09-22", status: null, hideOwnerInPresentation: false, hideWaitingSinceInPresentation: false, position: 1 },
     ],
     nextSteps: [
-      { id: "step-0", title: "Publicar ajuste", description: "Após liberar acesso.", owner: "Tecnologia", dueDate: "2026-09-30", position: 0 },
-      { id: "step-1", title: "Validar carga", description: "Conferir primeira execução.", owner: "Comercial", dueDate: "2026-10-01", position: 1 },
+      { id: "step-0", title: "Publicar ajuste", description: "Após liberar acesso.", owner: "Tecnologia", dueDate: "2026-09-30", hideOwnerInPresentation: false, hideDueDateInPresentation: false, position: 0 },
+      { id: "step-1", title: "Validar carga", description: "Conferir primeira execução.", owner: "Comercial", dueDate: "2026-10-01", hideOwnerInPresentation: false, hideDueDateInPresentation: false, position: 1 },
     ],
   };
 }
@@ -115,6 +115,13 @@ function textFromXml(xml: string) {
     .replaceAll("&apos;", "'"));
 }
 
+function shapeSolidFill(xml: string, name: string) {
+  const shape = [...xml.matchAll(/<p:sp\b[\s\S]*?<\/p:sp>/g)]
+    .map((match) => match[0])
+    .find((element) => attribute(element.match(/<p:cNvPr\b[^>]*>/)?.[0], "name") === name);
+  return shape?.match(/<p:spPr\b[\s\S]*?<a:solidFill>[\s\S]*?<a:srgbClr\b[^>]*val="([^"]+)"/)?.[1];
+}
+
 async function slideTexts(zip: JSZip, slideNumbers: number[]) {
   return (await Promise.all(slideNumbers.map(async (number) => {
     const slide = zip.file(`ppt/slides/slide${number}.xml`);
@@ -191,6 +198,13 @@ describeRealTemplate(
     expect(incidentBodyRuns.map((run) => run.color)).toEqual(["D7191C", "8A8A8A", "000000", "D7191C", "8A8A8A"]);
     expect(incidentBodyRuns[1]).toMatchObject({ italic: "1", size: "1300" });
     expect(incidentBodyRuns[3]).toMatchObject({ bold: "1", size: "1200" });
+    const deliveriesXml = await zip.file(integrity.slideFiles[2])!.async("string");
+    expect(shapeSolidFill(deliveriesXml, "Shape 6")).toBe("2E8B57");
+    expect(shapeSolidFill(deliveriesXml, "Shape 11")).toBe("2F5D8A");
+    expect(shapeSolidFill(deliveriesXml, "Shape 16")).toBe("C77700");
+    expect(shapeSolidFill(deliveriesXml, "Shape 21")).toBe("D7191C");
+    expect(shapeSolidFill(incidentXml, "Shape 6")).toBe("2E8B57");
+    expect(shapeSolidFill(incidentXml, "Shape 11")).toBe("2F5D8A");
 
     const firstDemandXml = await zip.file(integrity.slideFiles[6])!.async("string");
     expect(textShapeRuns(firstDemandXml, "Text 9").map((run) => run.text)).toEqual(["Solicitação recebida", "Concluído"]);
