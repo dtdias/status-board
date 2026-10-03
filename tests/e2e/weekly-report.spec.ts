@@ -141,6 +141,22 @@ test.describe("weekly report PRD flow", () => {
     const pptx = await download.body();
     expect([...pptx.subarray(0, 4)]).toEqual([0x50, 0x4b, 0x03, 0x04]);
 
+    await page.getByRole("link", { name: "Voltar ao board" }).click();
+    await expect(page).toHaveURL(new RegExp(`/app/reports/${reportId}$`));
+    await Promise.all([
+      page.waitForURL(new RegExp(`/app/reports/${reportId}$`)),
+      page.getByRole("button", { name: "Editar e regerar" }).click(),
+    ]);
+    const regeneratedResponsePromise = page.waitForResponse((response) =>
+      response.request().method() === "POST"
+      && new URL(response.url()).pathname === `/api/reports/${reportId}/generate-pptx`,
+    );
+    await page.getByRole("button", { name: "Gerar PowerPoint" }).click();
+    const regeneratedResponse = await regeneratedResponsePromise;
+    expect(regeneratedResponse.status()).toBe(200);
+    const regenerated = await regeneratedResponse.json() as { presentation: { version: number } };
+    expect(regenerated.presentation.version).toBe(2);
+
     await page.getByRole("button", { name: "Sair" }).click();
     await expect(page).toHaveURL(/\/login$/);
     await page.goto("/app");
