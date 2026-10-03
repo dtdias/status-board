@@ -38,6 +38,7 @@ test.describe("weekly report PRD flow", () => {
     await page.getByLabel("Data inicial").fill(dates.start);
     await page.getByLabel("Data final").fill(dates.end);
     await page.getByLabel("Data da apresentação").fill(dates.presentation);
+    await page.getByLabel("Destaque da semana").fill("Entrega E2E publicada com sucesso.");
     await page.getByRole("button", { name: "Criar semana" }).click();
     await page.waitForURL(/\/app\/reports\/[^/]+$/);
 
@@ -76,9 +77,10 @@ test.describe("weekly report PRD flow", () => {
     await expect(page.getByText("Segundo sistema E2E", { exact: true })).toBeVisible();
     await expect(page.getByRole("link", { name: "Adicionar incidente" })).toBeVisible();
 
-    await page.getByRole("link", { name: "Editar detalhes" }).click();
-    await page.getByLabel("Destaque da semana").fill("Entrega E2E publicada com sucesso.");
-    await page.getByRole("button", { name: "Salvar detalhes" }).click();
+    await page.getByRole("button", { name: "Editar destaque" }).click();
+    await page.getByLabel("Destaque da semana").fill("Entrega E2E atualizada com sucesso.");
+    await page.getByRole("button", { name: "Salvar destaque" }).click();
+    await expect(page.getByText("Entrega E2E atualizada com sucesso.", { exact: true })).toBeVisible();
     await expect(page.getByText("Entrega E2E", { exact: true })).toBeVisible();
 
     const validation = await page.request.post(`/api/reports/${reportId}/validate`);
@@ -138,6 +140,22 @@ test.describe("weekly report PRD flow", () => {
     expect(download.headers()["content-disposition"]).toContain("attachment;");
     const pptx = await download.body();
     expect([...pptx.subarray(0, 4)]).toEqual([0x50, 0x4b, 0x03, 0x04]);
+
+    await page.getByRole("link", { name: "Voltar ao board" }).click();
+    await expect(page).toHaveURL(new RegExp(`/app/reports/${reportId}$`));
+    await Promise.all([
+      page.waitForURL(new RegExp(`/app/reports/${reportId}$`)),
+      page.getByRole("button", { name: "Editar e regerar" }).click(),
+    ]);
+    const regeneratedResponsePromise = page.waitForResponse((response) =>
+      response.request().method() === "POST"
+      && new URL(response.url()).pathname === `/api/reports/${reportId}/generate-pptx`,
+    );
+    await page.getByRole("button", { name: "Gerar PowerPoint" }).click();
+    const regeneratedResponse = await regeneratedResponsePromise;
+    expect(regeneratedResponse.status()).toBe(200);
+    const regenerated = await regeneratedResponse.json() as { presentation: { version: number } };
+    expect(regenerated.presentation.version).toBe(2);
 
     await page.getByRole("button", { name: "Sair" }).click();
     await expect(page).toHaveURL(/\/login$/);

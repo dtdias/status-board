@@ -118,21 +118,21 @@ export type Database = {
         Relationships: [];
       };
       dependencies: {
-        Row: { id: string; weekly_report_id: string; title: string; description: string; owner: string; waiting_since: string; status: string | null; position: number; };
-        Insert: { id?: string; weekly_report_id: string; title: string; description: string; owner: string; waiting_since: string; status?: string | null; position?: number; };
-        Update: { title?: string; description?: string; owner?: string; waiting_since?: string; status?: string | null; position?: number; };
+        Row: { id: string; weekly_report_id: string; title: string; description: string; owner: string; waiting_since: string; status: string | null; hide_owner_in_presentation: boolean; hide_waiting_since_in_presentation: boolean; position: number; };
+        Insert: { id?: string; weekly_report_id: string; title: string; description: string; owner: string; waiting_since: string; status?: string | null; hide_owner_in_presentation?: boolean; hide_waiting_since_in_presentation?: boolean; position?: number; };
+        Update: { title?: string; description?: string; owner?: string; waiting_since?: string; status?: string | null; hide_owner_in_presentation?: boolean; hide_waiting_since_in_presentation?: boolean; position?: number; };
         Relationships: [];
       };
       next_steps: {
-        Row: { id: string; weekly_report_id: string; title: string; description: string | null; owner: string | null; due_date: string | null; position: number; };
-        Insert: { id?: string; weekly_report_id: string; title: string; description?: string | null; owner?: string | null; due_date?: string | null; position?: number; };
-        Update: { title?: string; description?: string | null; owner?: string | null; due_date?: string | null; position?: number; };
+        Row: { id: string; weekly_report_id: string; title: string; description: string | null; owner: string | null; due_date: string | null; hide_owner_in_presentation: boolean; hide_due_date_in_presentation: boolean; position: number; };
+        Insert: { id?: string; weekly_report_id: string; title: string; description?: string | null; owner?: string | null; due_date?: string | null; hide_owner_in_presentation?: boolean; hide_due_date_in_presentation?: boolean; position?: number; };
+        Update: { title?: string; description?: string | null; owner?: string | null; due_date?: string | null; hide_owner_in_presentation?: boolean; hide_due_date_in_presentation?: boolean; position?: number; };
         Relationships: [];
       };
-      generated_presentations: {
-        Row: { id: string; weekly_report_id: string; version: number; storage_path: string; file_name: string; generated_at: string; generated_by: string; };
-        Insert: { id?: string; weekly_report_id: string; version: number; storage_path: string; file_name: string; generated_at?: string; generated_by: string; };
-        Update: never;
+       generated_presentations: {
+         Row: { id: string; weekly_report_id: string; version: number; storage_path: string; file_name: string; generated_at: string; generated_by: string; input_snapshot: unknown | null; template_version: string; cached_until: string | null; storage_deleted_at: string | null; is_final: boolean; };
+         Insert: { id?: string; weekly_report_id: string; version: number; storage_path: string; file_name: string; generated_at?: string; generated_by: string; input_snapshot?: unknown | null; template_version?: string; cached_until?: string | null; storage_deleted_at?: string | null; is_final?: boolean; };
+         Update: { input_snapshot?: unknown | null; template_version?: string; cached_until?: string | null; storage_deleted_at?: string | null; is_final?: boolean; };
         Relationships: [];
       };
     };
@@ -145,6 +145,14 @@ export type Database = {
       reserve_generated_presentation: {
         Args: { target_report_id: string; target_file_name: string };
         Returns: { id: string; version: number; storage_path: string; file_name: string; generated_at: string; }[];
+      };
+      finalize_generated_presentation: {
+        Args: { target_presentation_id: string; target_snapshot: unknown; target_template_version: string };
+        Returns: { id: string; version: number; storage_path: string; file_name: string; generated_at: string }[];
+      };
+      mark_latest_presentation_final: {
+        Args: { target_report_id: string };
+        Returns: undefined;
       };
       claim_signup_confirmation_resend: {
         Args: { target_email_hash: string };

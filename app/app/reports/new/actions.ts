@@ -13,6 +13,7 @@ export async function createReport(_: CreateReportState, formData: FormData): Pr
     startDate: formData.get("startDate"),
     endDate: formData.get("endDate"),
     presentationDate: formData.get("presentationDate"),
+    highlight: formData.get("highlight"),
   });
 
   if (!parsed.success) {
@@ -55,8 +56,8 @@ export async function createReport(_: CreateReportState, formData: FormData): Pr
       supabase.from("incidents").select("affected_system, symptom, cause, action_taken, support_people, status, resolved_at, icon_key, position").eq("weekly_report_id", sourceId).order("position"),
       supabase.from("demands").select("title, requester_name, requester_area, involved_areas, objective, status_text, current_phase, icon_key, position").eq("weekly_report_id", sourceId).order("position"),
       supabase.from("support_fronts").select("id, title, activity_type, icon_key, position").eq("weekly_report_id", sourceId).order("position"),
-      supabase.from("dependencies").select("title, description, owner, waiting_since, status, position").eq("weekly_report_id", sourceId).order("position"),
-      supabase.from("next_steps").select("title, description, owner, due_date, position").eq("weekly_report_id", sourceId).order("position"),
+      supabase.from("dependencies").select("title, description, owner, waiting_since, status, hide_owner_in_presentation, hide_waiting_since_in_presentation, position").eq("weekly_report_id", sourceId).order("position"),
+      supabase.from("next_steps").select("title, description, owner, due_date, hide_owner_in_presentation, hide_due_date_in_presentation, position").eq("weekly_report_id", sourceId).order("position"),
     ])
     : [{ data: [], error: null }, { data: [], error: null }, { data: [], error: null }, { data: [], error: null }, { data: [], error: null }, { data: [], error: null }];
   if ([deliveries, incidents, demands, supportFronts, dependencies, nextSteps].some((result) => result.error)) {
@@ -78,6 +79,7 @@ export async function createReport(_: CreateReportState, formData: FormData): Pr
       start_date: parsed.data.startDate,
       end_date: parsed.data.endDate,
       presentation_date: parsed.data.presentationDate,
+      highlight: parsed.data.highlight,
     })
     .select("id")
     .single();

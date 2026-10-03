@@ -1,4 +1,5 @@
 import { z } from "zod";
+import { CONTENT_LIMITS } from "@/lib/validation/report";
 
 export const reportStatuses = ["draft", "ready", "generated", "presented", "archived"] as const;
 export type ReportStatus = (typeof reportStatuses)[number];
@@ -48,6 +49,7 @@ export const weeklyReportSchema = z
     startDate: z.iso.date("Informe a data inicial."),
     endDate: z.iso.date("Informe a data final."),
     presentationDate: z.iso.date("Informe a data da apresentação."),
+    highlight: z.string().trim().min(1, "Informe o destaque da semana.").max(CONTENT_LIMITS.highlight, `O destaque deve ter no máximo ${CONTENT_LIMITS.highlight} caracteres.`),
   })
   .refine(({ startDate, endDate }) => endDate >= startDate, {
     error: "A data final deve ser igual ou posterior à data inicial.",
@@ -61,7 +63,7 @@ export const reportDetailsSchema = z
     startDate: z.iso.date("Informe a data inicial."),
     endDate: z.iso.date("Informe a data final."),
     presentationDate: z.iso.date("Informe a data da apresentação."),
-    highlight: z.string().trim().min(1, "Informe o destaque da semana.").max(180, "O destaque deve ter no máximo 180 caracteres."),
+    highlight: z.string().trim().min(1, "Informe o destaque da semana.").max(CONTENT_LIMITS.highlight, `O destaque deve ter no máximo ${CONTENT_LIMITS.highlight} caracteres.`),
   })
   .refine(({ startDate, endDate }) => endDate >= startDate, {
     error: "A data final deve ser igual ou posterior à data inicial.",
