@@ -33,7 +33,7 @@ export default async function GeneratedPresentationPreviewPage({ params }: { par
           <h1>PowerPoint — versão {presentation.version}</h1>
           <p className="pptx-preview-filename">{presentation.file_name}</p>
         </div>
-        <div className="actions">
+        <div className="action-group preview-actions">
           <BackLink href={`/app/reports/${reportId}` as Route} label="Voltar ao board" />
           <PresentationActionLink download fileName={presentation.file_name} href={downloadUrl} label="Baixar PPTX" loadingLabel="Preparando PPTX..." />
         </div>

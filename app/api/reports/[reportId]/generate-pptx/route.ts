@@ -43,10 +43,11 @@ export async function POST(_: Request, { params }: { params: Promise<{ reportId:
     try {
       stage = "upload";
       await uploadGeneratedPresentation(supabase, presentation.storage_path, output);
+      stage = "finalize";
       await finalizeGeneratedPresentation(supabase, presentation.id, input, templateVersion);
+      stage = "status";
       const { data: updatedReport, error: statusError } = await supabase.from("weekly_reports").update({ status: "generated" }).eq("id", reportId).eq("status", "ready").select("id").maybeSingle();
       if (statusError || !updatedReport) throw statusError ?? new Error("Report status changed before generation completed.");
-      await cleanupExpiredGeneratedPresentations(supabase, reportId);
     } catch (error) {
       try {
         await discardGeneratedPresentation(supabase, presentation.id, presentation.storage_path);
@@ -54,6 +55,12 @@ export async function POST(_: Request, { params }: { params: Promise<{ reportId:
         console.error("pptx_generation_cleanup_failed", { requestId, reportId, userId: user.id, presentationId: presentation.id });
       }
       throw error;
+    }
+
+    try {
+      await cleanupExpiredGeneratedPresentations(supabase, reportId);
+    } catch (error) {
+      console.error("pptx_generation_expired_cleanup_failed", { requestId, reportId, userId: user.id, errorName: error instanceof Error ? error.name : "UnknownError" });
     }
 
     console.info("pptx_generation_succeeded", { requestId, reportId, userId: user.id, presentationId: presentation.id, version: presentation.version, durationMs: Date.now() - startedAt });

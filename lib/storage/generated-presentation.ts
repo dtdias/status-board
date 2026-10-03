@@ -83,6 +83,7 @@ export async function cleanupExpiredGeneratedPresentations(supabase: Supabase, r
     .eq("weekly_report_id", reportId)
     .eq("is_final", false)
     .is("storage_deleted_at", null)
+    .not("input_snapshot", "is", null)
     .lt("cached_until", new Date().toISOString());
   if (error) throw new Error("Unable to load expired presentations.");
   for (const presentation of data ?? []) {
