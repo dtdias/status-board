@@ -13,6 +13,7 @@ export async function createReport(_: CreateReportState, formData: FormData): Pr
     startDate: formData.get("startDate"),
     endDate: formData.get("endDate"),
     presentationDate: formData.get("presentationDate"),
+    highlight: formData.get("highlight"),
   });
 
   if (!parsed.success) {
@@ -78,6 +79,7 @@ export async function createReport(_: CreateReportState, formData: FormData): Pr
       start_date: parsed.data.startDate,
       end_date: parsed.data.endDate,
       presentation_date: parsed.data.presentationDate,
+      highlight: parsed.data.highlight,
     })
     .select("id")
     .single();

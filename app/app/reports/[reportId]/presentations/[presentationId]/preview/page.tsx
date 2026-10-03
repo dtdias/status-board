@@ -4,6 +4,7 @@ import { PptxFilePreview } from "@/components/preview/pptx-file-preview";
 import { BackLink } from "@/components/navigation/back-link";
 import { BrandLogo } from "@/components/brand-logo";
 import { createClient } from "@/lib/supabase/server";
+import { PresentationActionLink } from "../../../presentation-action-link";
 
 export default async function GeneratedPresentationPreviewPage({ params }: { params: Promise<{ reportId: string; presentationId: string }> }) {
   const { reportId, presentationId } = await params;
@@ -34,7 +35,7 @@ export default async function GeneratedPresentationPreviewPage({ params }: { par
         </div>
         <div className="actions">
           <BackLink href={`/app/reports/${reportId}` as Route} label="Voltar ao board" />
-          <a className="primary-button" download={presentation.file_name} href={downloadUrl}>Baixar PPTX</a>
+          <PresentationActionLink download fileName={presentation.file_name} href={downloadUrl} label="Baixar PPTX" loadingLabel="Preparando PPTX..." />
         </div>
       </header>
       <PptxFilePreview src={downloadUrl} />
