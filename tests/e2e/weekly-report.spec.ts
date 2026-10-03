@@ -38,6 +38,7 @@ test.describe("weekly report PRD flow", () => {
     await page.getByLabel("Data inicial").fill(dates.start);
     await page.getByLabel("Data final").fill(dates.end);
     await page.getByLabel("Data da apresentação").fill(dates.presentation);
+    await page.getByLabel("Destaque da semana").fill("Entrega E2E publicada com sucesso.");
     await page.getByRole("button", { name: "Criar semana" }).click();
     await page.waitForURL(/\/app\/reports\/[^/]+$/);
 
@@ -76,9 +77,10 @@ test.describe("weekly report PRD flow", () => {
     await expect(page.getByText("Segundo sistema E2E", { exact: true })).toBeVisible();
     await expect(page.getByRole("link", { name: "Adicionar incidente" })).toBeVisible();
 
-    await page.getByRole("link", { name: "Editar detalhes" }).click();
-    await page.getByLabel("Destaque da semana").fill("Entrega E2E publicada com sucesso.");
-    await page.getByRole("button", { name: "Salvar detalhes" }).click();
+    await page.getByRole("button", { name: "Editar destaque" }).click();
+    await page.getByLabel("Destaque da semana").fill("Entrega E2E atualizada com sucesso.");
+    await page.getByRole("button", { name: "Salvar destaque" }).click();
+    await expect(page.getByText("Entrega E2E atualizada com sucesso.", { exact: true })).toBeVisible();
     await expect(page.getByText("Entrega E2E", { exact: true })).toBeVisible();
 
     const validation = await page.request.post(`/api/reports/${reportId}/validate`);

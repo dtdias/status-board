@@ -22,6 +22,10 @@ export function ReportForm() {
         Data da apresentação
         <input name="presentationDate" required type="date" />
       </label>
+      <label>
+        Destaque da semana
+        <textarea maxLength={180} name="highlight" required rows={4} />
+      </label>
       <fieldset className="clone-options">
         <legend>Começar com</legend>
         <label><input defaultChecked name="cloneMode" type="radio" value="empty" /> Vazia</label>

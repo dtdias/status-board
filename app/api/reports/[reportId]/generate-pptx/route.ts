@@ -3,8 +3,8 @@ import { generatePptx } from "@/lib/pptx/generate";
 import { classifyPptxGenerationError, type PptxGenerationStage } from "@/lib/pptx/generation-error";
 import { presentationFileName } from "@/lib/pptx/compose";
 import { loadPresentationInput, presentationValidationInput } from "@/lib/reports/load-presentation-input";
-import { discardGeneratedPresentation, reserveGeneratedPresentation, uploadGeneratedPresentation } from "@/lib/storage/generated-presentation";
-import { getPresentationTemplateBuffer } from "@/lib/storage/presentation-template";
+import { cleanupExpiredGeneratedPresentations, discardGeneratedPresentation, finalizeGeneratedPresentation, reserveGeneratedPresentation, uploadGeneratedPresentation } from "@/lib/storage/generated-presentation";
+import { configuredTemplateVersion, getPresentationTemplateBuffer } from "@/lib/storage/presentation-template";
 import { createClient } from "@/lib/supabase/server";
 import { validateReport } from "@/lib/validation/report";
 
@@ -34,7 +34,8 @@ export async function POST(_: Request, { params }: { params: Promise<{ reportId:
     }
 
     stage = "template";
-    const templateBuffer = await getPresentationTemplateBuffer(supabase);
+    const templateVersion = configuredTemplateVersion();
+    const templateBuffer = await getPresentationTemplateBuffer(supabase, templateVersion);
     stage = "generate";
     const output = await generatePptx(input, templateBuffer);
     stage = "reserve";
@@ -42,8 +43,10 @@ export async function POST(_: Request, { params }: { params: Promise<{ reportId:
     try {
       stage = "upload";
       await uploadGeneratedPresentation(supabase, presentation.storage_path, output);
-      const { error: statusError } = await supabase.from("weekly_reports").update({ status: "generated" }).eq("id", reportId).eq("status", "ready");
-      if (statusError) throw statusError;
+      await finalizeGeneratedPresentation(supabase, presentation.id, input, templateVersion);
+      const { data: updatedReport, error: statusError } = await supabase.from("weekly_reports").update({ status: "generated" }).eq("id", reportId).eq("status", "ready").select("id").maybeSingle();
+      if (statusError || !updatedReport) throw statusError ?? new Error("Report status changed before generation completed.");
+      await cleanupExpiredGeneratedPresentations(supabase, reportId);
     } catch (error) {
       try {
         await discardGeneratedPresentation(supabase, presentation.id, presentation.storage_path);
