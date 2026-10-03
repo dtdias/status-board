@@ -1,4 +1,4 @@
-export type PptxGenerationStage = "load" | "template" | "generate" | "reserve" | "upload";
+export type PptxGenerationStage = "load" | "template" | "generate" | "reserve" | "upload" | "finalize" | "status";
 
 export type PptxGenerationFailure = {
   code: "report_unavailable" | "template_unavailable" | "generation_failed" | "storage_unavailable";
@@ -23,7 +23,7 @@ export function classifyPptxGenerationError(stage: PptxGenerationStage, error: u
     };
   }
 
-  if (stage === "reserve" || stage === "upload") {
+  if (stage === "reserve" || stage === "upload" || stage === "finalize" || stage === "status") {
     return {
       code: "storage_unavailable",
       message: "The presentation could not be saved. Try again shortly.",

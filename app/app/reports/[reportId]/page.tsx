@@ -2,7 +2,6 @@ import Link from "next/link";
 import { notFound, redirect } from "next/navigation";
 import type { Route } from "next";
 import { BackLink } from "@/components/navigation/back-link";
-import { BrandLogo } from "@/components/brand-logo";
 import { formatWeekRange } from "@/lib/reports/weekly-report";
 import { ReportIcon } from "@/components/report-icon";
 import { createClient } from "@/lib/supabase/server";
@@ -67,7 +66,21 @@ export default async function ReportPage({ params }: { params: Promise<{ reportI
 
   return (
     <main className="shell">
-      <header className="topbar"><div><BrandLogo href="/app" /><p className="eyebrow">Apresentação em {report.presentation_date}</p><h1>{formatWeekRange(report.start_date, report.end_date)}</h1></div><div className="actions"><BackLink href={"/app" as Route} label="Voltar às semanas" />{isEditable ? <Link className="outline-button" href={`/app/reports/${reportId}/details` as Route}>Editar detalhes</Link> : null}<Link className="outline-button" href={`/app/reports/${reportId}/preview` as Route}>Pré-visualizar</Link>{report.status === "ready" ? <GeneratePresentation reportId={reportId} /> : null}<ReportStatusActions reportId={reportId} status={report.status} /></div></header>
+      <header className="topbar">
+        <div className="topbar-copy">
+          <p className="eyebrow">Apresentação em {report.presentation_date}</p>
+          <h1>{formatWeekRange(report.start_date, report.end_date)}</h1>
+        </div>
+        <div className="report-actions">
+          <div className="action-group action-group-navigation">
+            <BackLink href={"/app" as Route} label="Voltar às semanas" />
+            {isEditable ? <Link className="outline-button" href={`/app/reports/${reportId}/details` as Route}>Editar detalhes</Link> : null}
+            <Link className="outline-button" href={`/app/reports/${reportId}/preview` as Route}>Pré-visualizar</Link>
+          </div>
+          {report.status === "ready" ? <GeneratePresentation reportId={reportId} /> : null}
+          <ReportStatusActions reportId={reportId} status={report.status} />
+        </div>
+      </header>
       {isArchived ? <p className="form-success" role="status">Este relatório está arquivado e disponível somente para consulta e download.</p> : null}
       <section className="report-summary" aria-label="Resumo automático da semana">
         <p className="eyebrow">Resumo automático</p>
