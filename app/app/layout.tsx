@@ -9,9 +9,9 @@ export default async function AuthenticatedAppLayout({ children }: Readonly<{ ch
   if (!user) redirect("/login" as Route);
 
   return (
-    <>
+    <div className="app-layout">
       <AccountToolbar />
       {children}
-    </>
+    </div>
   );
 }

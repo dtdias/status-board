@@ -16,23 +16,25 @@ body {
   background: var(--paper);
   color: var(--ink);
   font-family: Arial, Helvetica, sans-serif;
+  min-height: 100dvh;
 }
 
 button { font: inherit; }
 button:focus-visible, a:focus-visible, input:focus-visible, select:focus-visible, textarea:focus-visible { outline: 3px solid var(--ink); outline-offset: 3px; }
 
-.shell { min-height: 100vh; padding: 34px clamp(20px, 5vw, 72px) 42px; }
-.account-toolbar { align-items: center; display: flex; justify-content: space-between; min-height: 56px; padding: 8px clamp(20px, 5vw, 72px); }
+.shell { min-height: 100dvh; padding: 34px clamp(20px, 5vw, 72px) max(42px, calc(42px + env(safe-area-inset-bottom))); }
+.account-toolbar { align-items: center; display: flex; justify-content: space-between; min-height: 56px; padding: max(8px, env(safe-area-inset-top)) clamp(20px, 5vw, 72px) 8px; }
 .brand-logo { align-items: center; color: var(--ink); display: inline-flex; gap: 10px; text-decoration: none; }
 .brand-logo-mark { height: 34px; width: 34px; }
 .brand-logo-name { font-size: .75rem; font-weight: 700; letter-spacing: .08em; text-transform: uppercase; }
 .brand-logo-compact .brand-logo-mark { height: 28px; width: 28px; }
 .brand-logo-compact .brand-logo-name { font-size: .68rem; }
+.network-status { background: #ad1019; color: #fff; font-size: .78rem; font-weight: 700; line-height: 1.35; padding: max(10px, env(safe-area-inset-top)) max(16px, env(safe-area-inset-right)) 10px max(16px, env(safe-area-inset-left)); position: sticky; text-align: center; top: 0; z-index: 10; }
 .account-sign-out { align-items: end; display: grid; gap: 4px; justify-items: end; }
 .account-sign-out .outline-button { background: transparent; padding: 7px 14px; }
 .account-sign-out .form-error { font-size: .72rem; }
-.app-layout > .shell { min-height: calc(100vh - 56px); }
-.app-layout > .auth-shell { min-height: calc(100vh - 56px); }
+.app-layout > .shell { min-height: calc(100dvh - 56px); }
+.app-layout > .auth-shell { min-height: calc(100dvh - 56px); }
 .topbar, .intro, .actionbar, .column-heading { display: flex; align-items: center; justify-content: space-between; }
 .topbar { border-bottom: 1px solid var(--ink); padding-bottom: 24px; }
 .topbar-actions { align-items: center; display: flex; gap: 18px; }
@@ -79,7 +81,7 @@ h2 { max-width: 620px; font-size: clamp(2.25rem, 6vw, 5.8rem); letter-spacing: -
 .primary-button { background: var(--yellow); border-color: var(--yellow); color: var(--ink); font-weight: 700; }
 button:disabled { cursor: not-allowed; opacity: .5; }
 
-.auth-shell { align-items: center; background: var(--ink); display: flex; justify-content: center; min-height: 100vh; padding: 20px; }
+.auth-shell { align-items: center; background: var(--ink); display: flex; justify-content: center; min-height: 100dvh; padding: max(20px, env(safe-area-inset-top)) max(20px, env(safe-area-inset-right)) max(20px, env(safe-area-inset-bottom)) max(20px, env(safe-area-inset-left)); }
 .auth-panel { background: var(--surface); border-top: 6px solid var(--yellow); max-width: 560px; padding: clamp(30px, 7vw, 68px); width: 100%; }
 .auth-panel h1 { font-size: clamp(2.6rem, 7vw, 5rem); margin-top: 14px; }
 .auth-panel > .back-link { margin-bottom: 28px; }
@@ -207,7 +209,7 @@ button:disabled { cursor: not-allowed; opacity: .5; }
 .pptx-preview-toolbar button { background: transparent; border: 1px solid var(--ink); cursor: pointer; padding: 8px 12px; }
 .pptx-preview-toolbar button:disabled { cursor: not-allowed; opacity: .45; }
 .pptx-preview-toolbar nav span { font-size: .8rem; font-variant-numeric: tabular-nums; font-weight: 700; min-width: 48px; text-align: center; }
-.pptx-render-viewport { background: #e4e2dd; border: 1px solid var(--line); max-height: calc(100vh - 270px); min-height: 360px; overflow: auto; padding: 16px; }
+.pptx-render-viewport { background: #e4e2dd; border: 1px solid var(--line); max-height: calc(100dvh - 270px); min-height: 360px; overflow: auto; padding: 16px; }
 .pptx-render-container { margin: 0 auto; max-width: 100%; }
 .pptx-render-container > [data-slide-index] { margin: 0 auto 18px; }
 .pptx-file-preview > .form-hint { line-height: 1.4; }
@@ -220,7 +222,7 @@ button:disabled { cursor: not-allowed; opacity: .5; }
 }
 
 @media (max-width: 560px) {
-  .shell { padding: 22px 16px 30px; }
+  .shell { padding: 22px 16px max(30px, calc(30px + env(safe-area-inset-bottom))); }
   .topbar { align-items: start; flex-direction: column; gap: 18px; }
   .report-actions { align-items: stretch; justify-content: stretch; max-width: none; width: 100%; }
   .action-group { width: 100%; }
