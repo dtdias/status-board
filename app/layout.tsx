@@ -1,4 +1,5 @@
 import type { Metadata, Viewport } from "next";
+import { PwaInstallPrompt } from "@/components/pwa/install-prompt";
 import { NetworkStatus } from "@/components/pwa/network-status";
 import { ServiceWorkerRegistration } from "@/components/pwa/service-worker-registration";
 import "./globals.css";
@@ -39,6 +40,7 @@ export default function RootLayout({ children }: Readonly<{ children: React.Reac
     <html lang="pt-BR">
       <body>
         <ServiceWorkerRegistration />
+        <PwaInstallPrompt />
         <NetworkStatus />
         {children}
       </body>

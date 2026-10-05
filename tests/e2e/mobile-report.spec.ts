@@ -26,7 +26,7 @@ function reportDates() {
 test.describe("mobile report board", () => {
   test.skip(!enabled, "Set E2E_RUN=true, E2E_BASE_URL, E2E_USER_EMAIL, and E2E_USER_PASSWORD to run mobile checks.");
 
-  test("switches board categories and exposes touch-safe reorder controls", async ({ page }) => {
+  test("shows all board sections and exposes touch-safe reorder controls", async ({ page }) => {
     await page.goto("/login");
     await page.getByLabel("E-mail").fill(process.env.E2E_USER_EMAIL!);
     await page.getByLabel("Senha").fill(process.env.E2E_USER_PASSWORD!);
@@ -42,13 +42,21 @@ test.describe("mobile report board", () => {
     await page.getByRole("button", { name: "Criar semana" }).click();
     await expect(page).toHaveURL(/\/app\/reports\/[^/]+$/);
 
-    await expect(page.getByRole("tablist", { name: "Categorias do board" })).toBeVisible();
-    await page.getByRole("tab", { name: "Incidentes" }).click();
-    await expect(page.getByRole("tab", { name: "Incidentes" })).toHaveAttribute("aria-selected", "true");
-    await expect(page.locator("#report-board-panel-incidents")).toBeVisible();
-    await expect(page.locator("#report-board-panel-deliveries")).toBeHidden();
+    const boardSections = page.locator("details.board-column");
+    await expect(boardSections).toHaveCount(5);
+    for (const label of ["Entregas", "Incidentes", "Demandas", "Sustentação", "Atenção"]) {
+      const section = boardSections.filter({ has: page.getByRole("heading", { name: label, exact: true }) });
+      await expect(section).toHaveCount(1);
+      await expect(section).toHaveAttribute("open", "");
+      await expect(section.getByRole("heading", { name: label, exact: true })).toBeVisible();
+    }
 
-    await page.getByRole("tab", { name: "Entregas" }).click();
+    const incidents = boardSections.filter({ has: page.getByRole("heading", { name: "Incidentes", exact: true }) });
+    await incidents.locator("summary").click();
+    await expect(incidents).not.toHaveAttribute("open", "");
+    await incidents.locator("summary").click();
+    await expect(incidents).toHaveAttribute("open", "");
+
     await page.getByRole("link", { name: "Adicionar entrega" }).click();
     await page.getByLabel("Nome da entrega").fill("Entrega mobile um");
     await page.getByLabel("Descrição").fill("Primeira entrega mobile.");
