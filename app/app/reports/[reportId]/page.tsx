@@ -154,7 +154,7 @@ export default async function ReportPage({ params }: { params: Promise<{ reportI
           </div>
         </BoardColumn>
         <BoardColumn
-          title="Rotinas de Sustentação"
+          title="Sustentação"
           headingId="support-heading"
           statusClassName="blue"
           count={supportFronts?.length ?? 0}
