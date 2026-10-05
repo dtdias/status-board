@@ -15,6 +15,7 @@ import { GeneratePresentation } from "./generate-presentation";
 import { PresentationHistory } from "./presentation-history";
 import { ReportStatusActions } from "./report-status-actions";
 import { ReportHighlight } from "./report-highlight";
+import { BoardTabs } from "./board-tabs";
 
 export default async function ReportPage({ params }: { params: Promise<{ reportId: string }> }) {
   const { reportId } = await params;
@@ -93,7 +94,13 @@ export default async function ReportPage({ params }: { params: Promise<{ reportI
       </section>
       <ReportHighlight editable={isEditable} highlight={report.highlight} reportId={reportId} />
       {presentationHistoryError ? <p className="form-error" role="alert">{presentationHistoryError}</p> : <PresentationHistory presentations={presentations} reportId={reportId} />}
-      <section className="board report-board" aria-label="Board semanal" inert={isArchived ? true : undefined}>
+      <BoardTabs disabled={isArchived} tabs={[
+        { id: "deliveries", label: "Entregas" },
+        { id: "incidents", label: "Incidentes" },
+        { id: "demands", label: "Demandas" },
+        { id: "support", label: "Sustentação" },
+        { id: "attention", label: "Atenção" },
+      ]}>
         <BoardColumn
           title="Entregas"
           headingId="deliveries-heading"
@@ -179,7 +186,7 @@ export default async function ReportPage({ params }: { params: Promise<{ reportI
           </div>
         </BoardColumn>
         <article className="board-column attention-column" aria-labelledby="attention-heading"><div className="column-heading"><span className="status-dot orange" aria-hidden="true" /><h3 id="attention-heading">Atenção</h3><span className="count" aria-label={`${(dependencies?.length ?? 0) + (nextSteps?.length ?? 0)} itens de atenção`}>{(dependencies?.length ?? 0) + (nextSteps?.length ?? 0)}</span></div><div className="attention-stack"><h4 className="attention-label">Dependências</h4>{dependencies?.map((dependency) => <Link className="delivery-card attention-card" href={`/app/reports/${reportId}/attention/dependencies/${dependency.id}` as Route} key={dependency.id}><strong>{dependency.title}</strong><p>{dependency.description}</p><span>Responsável: {dependency.owner}</span><span>Desde: {dependency.waiting_since}</span>{dependency.status ? <span className="attention-status">{dependency.status}</span> : null}</Link>)}{dependencies?.length ? null : <p className="attention-empty">Nenhuma dependência.</p>}<Link className="attention-add" href={`/app/reports/${reportId}/attention/dependencies/new` as Route}>Adicionar dependência</Link><h4 className="attention-label">Próximos passos</h4>{nextSteps?.map((nextStep) => <Link className="delivery-card attention-card" href={`/app/reports/${reportId}/attention/next-steps/${nextStep.id}` as Route} key={nextStep.id}><strong>{nextStep.title}</strong>{nextStep.description ? <p>{nextStep.description}</p> : null}{nextStep.owner ? <span>Responsável: {nextStep.owner}</span> : null}{nextStep.due_date ? <span>Prazo: {nextStep.due_date}</span> : null}</Link>)}{nextSteps?.length ? null : <p className="attention-empty">Nenhum próximo passo.</p>}<Link className="attention-add" href={`/app/reports/${reportId}/attention/next-steps/new` as Route}>Adicionar próximo passo</Link></div></article>
-      </section>
+      </BoardTabs>
     </main>
   );
 }

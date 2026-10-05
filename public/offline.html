@@ -1,0 +1,43 @@
+<!doctype html>
+<html lang="pt-BR">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+    <meta name="theme-color" content="#1c1c1c" />
+    <title>Sem conexao | Status Board</title>
+    <style>
+      :root { color-scheme: light; font-family: Arial, Helvetica, sans-serif; }
+      * { box-sizing: border-box; }
+      body {
+        align-items: center;
+        background: #1c1c1c;
+        color: #f4f2ed;
+        display: flex;
+        justify-content: center;
+        margin: 0;
+        min-height: 100svh;
+        padding: max(24px, env(safe-area-inset-top)) max(20px, env(safe-area-inset-right)) max(24px, env(safe-area-inset-bottom)) max(20px, env(safe-area-inset-left));
+      }
+      main { border-top: 6px solid #ffd400; max-width: 520px; padding: 44px 0; width: 100%; }
+      svg { height: 48px; width: 48px; }
+      p { color: #d9d6ce; line-height: 1.5; margin: 18px 0 0; }
+      button { background: #ffd400; border: 1px solid #ffd400; border-radius: 999px; color: #1c1c1c; cursor: pointer; font: inherit; font-weight: 700; margin-top: 28px; min-height: 48px; padding: 12px 20px; }
+      button:focus-visible { outline: 3px solid #f4f2ed; outline-offset: 3px; }
+      @media (prefers-reduced-motion: reduce) { html { scroll-behavior: auto; } }
+    </style>
+  </head>
+  <body>
+    <main>
+      <svg aria-hidden="true" viewBox="0 0 48 48">
+        <rect width="48" height="48" rx="10" fill="#f4f2ed" />
+        <path d="M7 10.5 24 4l17 6.5v27L24 44 7 37.5v-27Z" fill="#1c1c1c" />
+        <path d="m15 17 9-3.5 9 3.5v14l-9 3.5-9-3.5V17Z" fill="#ffd400" />
+        <path d="m24 13.5 9 3.5-9 3.5-9-3.5 9-3.5Zm0 7v14" fill="none" stroke="#1c1c1c" stroke-width="2" />
+        <path d="M9 24h8M31 24h8" stroke="#ffd400" stroke-width="2" />
+      </svg>
+      <h1>Sem conexao</h1>
+      <p>Status Board precisa de internet para carregar dados privados. Reconecte e tente novamente.</p>
+      <button type="button" onclick="location.reload()">Tentar novamente</button>
+    </main>
+  </body>
+</html>
