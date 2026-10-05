@@ -64,6 +64,7 @@ flowchart LR
 - Geração PPTX com `pptx-automizer`, preservando shapes, ícones, fontes, cores e posições do template aprovado.
 - Storage privado e imutável para templates e versões das apresentações.
 - Allowlist no banco para administração de templates.
+- Instalação como PWA online-first com fallback público quando não houver conexão.
 
 ## Arquitetura
 
