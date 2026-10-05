@@ -48,4 +48,13 @@ describe("BoardColumn add action", () => {
     expect(markup).toContain("Card 2");
     expect(markup.indexOf("Card 2")).toBeLessThan(markup.indexOf(`>${column.addLabel}</a>`));
   });
+
+  it("renders each column as an initially open native disclosure", () => {
+    const markup = renderColumn(columns[0], 0);
+
+    expect(markup).toContain("<details");
+    expect(markup).toContain(" open");
+    expect(markup).toContain('<summary class="column-heading">');
+    expect(markup).toContain('id="deliveries-heading"');
+  });
 });

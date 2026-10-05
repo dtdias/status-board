@@ -32,12 +32,12 @@ export function BoardColumn({
   const addAction = <Link className="column-add" href={addHref}>{addLabel}</Link>;
 
   return (
-    <article className={`board-column${className ? ` ${className}` : ""}`} aria-labelledby={headingId}>
-      <div className="column-heading">
+    <details className={`board-column${className ? ` ${className}` : ""}`} aria-labelledby={headingId} open>
+      <summary className="column-heading">
         <span className={`status-dot ${statusClassName}`} aria-hidden="true" />
-        <h3 id={headingId}>{title}</h3>
+        <span className="column-title" id={headingId} role="heading" aria-level={3}>{title}</span>
         <span className="count" aria-label={countLabel}>{count}</span>
-      </div>
+      </summary>
       {count > 0 ? <>
         {children}
         {addAction}
@@ -48,6 +48,6 @@ export function BoardColumn({
           {addAction}
         </div>
       )}
-    </article>
+    </details>
   );
 }

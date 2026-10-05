@@ -44,6 +44,7 @@ describe("PWA contract", () => {
 
   it("registers worker only as progressive enhancement", () => {
     const registration = read("components/pwa/service-worker-registration.tsx");
+    const installPrompt = read("components/pwa/install-prompt.tsx");
     const networkStatus = read("components/pwa/network-status.tsx");
 
     expect(registration).toContain('process.env.NODE_ENV !== "production"');
@@ -51,6 +52,10 @@ describe("PWA contract", () => {
     expect(registration).toContain('updateViaCache: "none"');
     expect(networkStatus).toContain("navigator.onLine");
     expect(networkStatus).toContain('role="status"');
+    expect(installPrompt).toContain('"beforeinstallprompt"');
+    expect(installPrompt).toContain('"appinstalled"');
+    expect(installPrompt).toContain('"(display-mode: standalone)"');
+    expect(installPrompt).toContain("Adicionar à Tela de Início");
   });
 
   it("keeps private responses out of worker cache", () => {
@@ -72,6 +77,7 @@ describe("PWA contract", () => {
     const nextConfig = read("next.config.ts");
 
     expect(layout).toContain('manifest: "/manifest.webmanifest"');
+    expect(layout).toContain("<PwaInstallPrompt />");
     expect(layout).toContain('viewportFit: "cover"');
     expect(layout).toContain('index: false');
     expect(styles).toContain("env(safe-area-inset-bottom)");
