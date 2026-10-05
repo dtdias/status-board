@@ -70,3 +70,14 @@ GitHub Actions secrets. The workflow never prints them, only configuration
 names. It caches Playwright's Chromium download by `package-lock.json` and
 still runs `npx playwright install --with-deps chromium` to ensure browser
 dependencies are present.
+
+## PWA checks
+
+`tests/e2e/pwa.spec.ts` checks the public manifest, service worker, install
+icons, offline fallback, and the absence of private URLs in Cache Storage.
+`tests/e2e/mobile-report.spec.ts` uses a 390px touch viewport to verify all board
+sections, native disclosure collapse, horizontal overflow, and reorder controls.
+The PWA suite also verifies the custom Chromium install action and iOS guidance.
+These checks require `E2E_RUN=true`
+and a production-like origin in `E2E_BASE_URL`; PWA checks need a production
+build because the service worker registers only there.

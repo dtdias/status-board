@@ -9,6 +9,29 @@
 - Do not move PPTX generation to Edge. `POST /api/reports/:reportId/generate-pptx`
   is explicitly `runtime = "nodejs"` with `maxDuration = 60` and uses Buffers.
 
+## PWA
+
+The application is an installable, online-first PWA. The manifest starts at
+`/app` and uses branded assets under `public/pwa/`. HTTPS is required in
+production; `localhost` is valid for local browser testing.
+
+The root layout exposes an install banner when Chromium provides
+`beforeinstallprompt`. iOS shows Safari's “Adicionar à Tela de Início” guidance.
+The banner is hidden in standalone mode and after dismissal for the current
+session.
+
+The service worker is intentionally conservative:
+
+- Navigations use network-first behavior and show `offline.html` on failure.
+- Only the public offline document and PWA icons are cached.
+- `/app`, `/api`, `/auth`, authentication routes, RSC requests, Server Actions,
+  report HTML, and PPTX bytes are never cached.
+- Mutations, uploads, generation, deletes, and retries are never queued.
+- Cache version changes in `public/sw.js` remove old `status-board-*` caches.
+
+PWA installation does not change authentication or data ownership. Users must
+still sign in, and report data remains server-backed through Supabase.
+
 ## Environment
 
 Set these Vercel variables for every deployed environment:
@@ -111,8 +134,14 @@ resends.
    from presentation history. Confirm a new row exists in `generated_presentations`
    and a private object exists in `generated-presentations` at its stored path.
 6. Confirm the generated deck opens and retains the supplied template visual
-   master. A missing configured template returns HTTP 503 from generation; fix
-   the private Storage object rather than changing the route runtime.
+    master. A missing configured template returns HTTP 503 from generation; fix
+    the private Storage object rather than changing the route runtime.
+7. Open `/manifest.webmanifest`, `/sw.js`, `/offline.html`, and each `/pwa/*.png`
+   URL in the deployed origin. Confirm status 200, correct content types, and
+   `Cache-Control: no-cache` on `/sw.js`.
+8. Install from a Chromium browser, disable the network, and open a new
+   navigation. Confirm the public offline screen appears and Cache Storage has
+   no `/app`, `/api`, or PPTX responses.
 
 Optional browser coverage requires a separate Supabase project, dedicated E2E
 user, configured `v1` template, and the `E2E_*` values above. See [E2E setup](e2e.md).

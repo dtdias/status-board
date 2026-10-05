@@ -20,7 +20,21 @@ type Delivery = {
   status: keyof typeof deliveryStatusMeta;
 };
 
-function SortableDeliveryCard({ delivery, href, disabled }: { delivery: Delivery; href: Route; disabled: boolean }) {
+function SortableDeliveryCard({
+  delivery,
+  href,
+  disabled,
+  index,
+  total,
+  onMove,
+}: {
+  delivery: Delivery;
+  href: Route;
+  disabled: boolean;
+  index: number;
+  total: number;
+  onMove: (deliveryId: string, direction: "up" | "down") => void;
+}) {
   const { attributes, listeners, setNodeRef, transform, transition, isDragging } = useSortable({ id: delivery.id });
   const style = { transform: CSS.Transform.toString(transform), transition };
 
@@ -33,6 +47,26 @@ function SortableDeliveryCard({ delivery, href, disabled }: { delivery: Delivery
         <p>{delivery.description}</p>
         <span className="delivery-status" style={{ background: deliveryStatusMeta[delivery.status].color }}>{deliveryStatusMeta[delivery.status].label}</span>
       </Link>
+      <div className="reorder-controls" aria-label={`Controles de ordem de ${delivery.title}`} role="group">
+        <button
+          aria-label={`Mover ${delivery.title} para cima`}
+          className="reorder-button"
+          disabled={disabled || index === 0}
+          onClick={() => onMove(delivery.id, "up")}
+          type="button"
+        >
+          Cima
+        </button>
+        <button
+          aria-label={`Mover ${delivery.title} para baixo`}
+          className="reorder-button"
+          disabled={disabled || index === total - 1}
+          onClick={() => onMove(delivery.id, "down")}
+          type="button"
+        >
+          Baixo
+        </button>
+      </div>
     </div>
   );
 }
@@ -46,21 +80,42 @@ export function DeliverySortableList({ deliveries: initialDeliveries, reportId }
     useSensor(KeyboardSensor, { coordinateGetter: sortableKeyboardCoordinates }),
   );
 
-  async function handleDragEnd({ active, over }: DragEndEvent) {
-    if (saving || !over || active.id === over.id) return;
-
-    const previous = deliveries;
-    const next = reorderById(deliveries, String(active.id), String(over.id));
+  async function persistOrder(previous: Delivery[], next: Delivery[]) {
     setDeliveries(next);
     setError(undefined);
     setSaving(true);
 
-    const result = await reorderDeliveries({ reportId, orderedIds: next.map((delivery) => delivery.id) });
-    if (result.error) {
+    try {
+      const result = await reorderDeliveries({ reportId, orderedIds: next.map((delivery) => delivery.id) });
+      if (!result.error) return;
       setDeliveries(previous);
       setError(result.error);
+    } catch {
+      setDeliveries(previous);
+      setError("Não foi possível salvar a nova ordem.");
+    } finally {
+      setSaving(false);
     }
-    setSaving(false);
+  }
+
+  function handleDragEnd({ active, over }: DragEndEvent) {
+    if (saving || !over || active.id === over.id) return;
+
+    const previous = deliveries;
+    const next = reorderById(deliveries, String(active.id), String(over.id));
+    void persistOrder(previous, next);
+  }
+
+  function handleMove(deliveryId: string, direction: "up" | "down") {
+    if (saving) return;
+
+    const index = deliveries.findIndex((delivery) => delivery.id === deliveryId);
+    const targetIndex = direction === "up" ? index - 1 : index + 1;
+    if (index < 0 || targetIndex < 0 || targetIndex >= deliveries.length) return;
+
+    const previous = deliveries;
+    const next = reorderById(deliveries, deliveryId, deliveries[targetIndex].id);
+    void persistOrder(previous, next);
   }
 
   return (
@@ -68,7 +123,17 @@ export function DeliverySortableList({ deliveries: initialDeliveries, reportId }
       <DndContext collisionDetection={closestCenter} onDragEnd={handleDragEnd} sensors={sensors}>
         <SortableContext items={deliveries.map((delivery) => delivery.id)} strategy={verticalListSortingStrategy}>
           <div className="delivery-stack">
-            {deliveries.map((delivery) => <SortableDeliveryCard delivery={delivery} disabled={saving} href={`/app/reports/${reportId}/deliveries/${delivery.id}` as Route} key={delivery.id} />)}
+            {deliveries.map((delivery, index) => (
+              <SortableDeliveryCard
+                delivery={delivery}
+                disabled={saving}
+                href={`/app/reports/${reportId}/deliveries/${delivery.id}` as Route}
+                index={index}
+                key={delivery.id}
+                onMove={handleMove}
+                total={deliveries.length}
+              />
+            ))}
           </div>
         </SortableContext>
       </DndContext>
