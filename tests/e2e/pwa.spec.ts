@@ -23,6 +23,42 @@ test.describe("PWA contract", () => {
     }
   });
 
+  test("offers a custom Chromium installation action", async ({ page }) => {
+    await page.addInitScript(() => {
+      window.setTimeout(() => {
+        const event = new Event("beforeinstallprompt", { cancelable: true }) as Event & {
+          prompt: () => Promise<void>;
+          userChoice: Promise<{ outcome: "accepted"; platform: string }>;
+        };
+        event.prompt = async () => {
+          (window as Window & { statusBoardInstallPromptCalled?: boolean }).statusBoardInstallPromptCalled = true;
+        };
+        event.userChoice = Promise.resolve({ outcome: "accepted", platform: "test" });
+        window.dispatchEvent(event);
+      }, 500);
+    });
+
+    await page.goto("/login");
+    const installButton = page.getByRole("button", { name: "Instalar app" });
+    await expect(installButton).toBeVisible();
+    await installButton.click();
+    await expect(installButton).toBeHidden();
+    await expect.poll(() => page.evaluate(() => Boolean((window as Window & { statusBoardInstallPromptCalled?: boolean }).statusBoardInstallPromptCalled))).toBe(true);
+  });
+
+  test("shows iOS installation instructions", async ({ browser }) => {
+    const context = await browser.newContext({
+      userAgent: "Mozilla/5.0 (iPhone; CPU iPhone OS 18_0 like Mac OS X) AppleWebKit/605.1.15 Version/18.0 Mobile/15E148 Safari/604.1",
+      viewport: { width: 390, height: 844 },
+    });
+    const page = await context.newPage();
+
+    await page.goto("/login");
+    await expect(page.getByText("Adicionar à Tela de Início")).toBeVisible();
+
+    await context.close();
+  });
+
   test("shows public offline fallback without caching private routes", async ({ page }) => {
     await page.goto("/login");
     await page.evaluate(async () => {

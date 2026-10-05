@@ -20,7 +20,7 @@ body {
 }
 
 button { font: inherit; }
-button:focus-visible, a:focus-visible, input:focus-visible, select:focus-visible, textarea:focus-visible { outline: 3px solid var(--ink); outline-offset: 3px; }
+button:focus-visible, a:focus-visible, input:focus-visible, select:focus-visible, textarea:focus-visible, summary:focus-visible { outline: 3px solid var(--ink); outline-offset: 3px; }
 
 .shell { min-height: 100dvh; padding: 34px clamp(20px, 5vw, 72px) max(42px, calc(42px + env(safe-area-inset-bottom))); }
 .account-toolbar { align-items: center; display: flex; justify-content: space-between; min-height: 56px; padding: max(8px, env(safe-area-inset-top)) clamp(20px, 5vw, 72px) 8px; }
@@ -33,6 +33,11 @@ button:focus-visible, a:focus-visible, input:focus-visible, select:focus-visible
 .account-sign-out { align-items: end; display: grid; gap: 4px; justify-items: end; }
 .account-sign-out .outline-button { background: transparent; padding: 7px 14px; }
 .account-sign-out .form-error { font-size: .72rem; }
+.pwa-install-banner { align-items: center; background: var(--yellow); border-bottom: 1px solid var(--ink); display: flex; gap: 20px; justify-content: space-between; padding: max(10px, env(safe-area-inset-top)) clamp(20px, 5vw, 72px) 10px; }
+.pwa-install-banner strong { display: block; font-size: .8rem; letter-spacing: .04em; text-transform: uppercase; }
+.pwa-install-banner p { font-size: .8rem; margin-top: 4px; }
+.pwa-install-actions { align-items: center; display: flex; flex-wrap: wrap; gap: 8px; }
+.pwa-install-actions .muted-button, .pwa-install-actions .primary-button { padding: 8px 14px; }
 .app-layout > .shell { min-height: calc(100dvh - 56px); }
 .app-layout > .auth-shell { min-height: calc(100dvh - 56px); }
 .topbar, .intro, .actionbar, .column-heading { display: flex; align-items: center; justify-content: space-between; }
@@ -59,11 +64,12 @@ h2 { max-width: 620px; font-size: clamp(2.25rem, 6vw, 5.8rem); letter-spacing: -
 .date-card span { color: var(--muted); font-size: .7rem; letter-spacing: .12em; text-transform: uppercase; }
 .date-card strong { font-size: .95rem; }
 .board { display: grid; gap: 10px; grid-template-columns: repeat(5, minmax(150px, 1fr)); }
-.board-tabs { display: none; }
-.board-tab-panel { display: contents; }
 .board-column { background: var(--surface); border: 1px solid var(--line); min-height: 260px; padding: 14px; }
+.board-column > summary { cursor: pointer; list-style: none; user-select: none; }
+.board-column > summary::-webkit-details-marker { display: none; }
+.board-column:not([open]) { min-height: 0; }
 .column-heading { justify-content: start; gap: 8px; }
-.column-heading h3 { font-size: .72rem; letter-spacing: .08em; text-transform: uppercase; }
+.column-heading h3, .column-heading .column-title { font-size: .72rem; letter-spacing: .08em; text-transform: uppercase; }
 .count { color: var(--muted); font-size: .75rem; margin-left: auto; }
 .status-dot { border-radius: 50%; height: 8px; width: 8px; }
 .green { background: #2e8b57; } .red { background: #d7191c; } .yellow { background: var(--yellow); } .blue { background: #2f5d8a; } .orange { background: #c77700; }
@@ -243,17 +249,15 @@ button:disabled { cursor: not-allowed; opacity: .5; }
   .outline-button { padding: 9px 13px; }
   .intro { padding: 48px 0 28px; }
   .board { grid-template-columns: 1fr; }
-  .board-tabs { align-items: stretch; display: flex; gap: 8px; margin-top: 38px; overflow-x: auto; padding: 2px 2px 8px; scrollbar-width: thin; }
-  .board-tab { background: transparent; border: 1px solid var(--line); border-radius: 999px; color: var(--muted); cursor: pointer; flex: 0 0 auto; min-height: 44px; padding: 10px 16px; white-space: nowrap; }
-  .board-tab[aria-selected="true"] { background: var(--ink); border-color: var(--ink); color: var(--surface); }
-  .board-tab-panel { display: none; }
-  .board-tab-panel.is-active { display: block; }
   .report-board { margin-top: 0; }
   .summary-metrics { grid-template-columns: 1fr; }
   .presentation-list li { align-items: start; flex-direction: column; }
   .report-highlight-heading { display: grid; }
   .board-column { min-height: 190px; }
   .empty-state { min-height: 130px; }
+  .pwa-install-banner { align-items: stretch; flex-direction: column; gap: 12px; padding-left: 16px; padding-right: 16px; }
+  .pwa-install-actions { width: 100%; }
+  .pwa-install-actions .muted-button, .pwa-install-actions .primary-button { flex: 1 1 auto; }
   .actionbar { align-items: start; flex-direction: column; }
   .actions { flex-wrap: wrap; }.generate-presentation { width: 100%; }.generate-presentation .form-error, .generate-presentation .form-success { max-width: none; }
 }
