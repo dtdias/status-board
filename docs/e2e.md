@@ -75,5 +75,7 @@ dependencies are present.
 
 `tests/e2e/pwa.spec.ts` checks the public manifest, service worker, install
 icons, offline fallback, and the absence of private URLs in Cache Storage.
-These checks require `E2E_RUN=true` and a production-like origin in
-`E2E_BASE_URL`, because the service worker registers only in production builds.
+`tests/e2e/mobile-report.spec.ts` uses a 390px touch viewport to verify tabs,
+horizontal overflow, and reorder controls. These checks require `E2E_RUN=true`
+and a production-like origin in `E2E_BASE_URL`; PWA checks need a production
+build because the service worker registers only there.
