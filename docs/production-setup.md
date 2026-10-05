@@ -15,6 +15,11 @@ The application is an installable, online-first PWA. The manifest starts at
 `/app` and uses branded assets under `public/pwa/`. HTTPS is required in
 production; `localhost` is valid for local browser testing.
 
+The root layout exposes an install banner when Chromium provides
+`beforeinstallprompt`. iOS shows Safari's “Adicionar à Tela de Início” guidance.
+The banner is hidden in standalone mode and after dismissal for the current
+session.
+
 The service worker is intentionally conservative:
 
 - Navigations use network-first behavior and show `offline.html` on failure.
