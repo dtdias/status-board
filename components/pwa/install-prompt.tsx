@@ -87,7 +87,7 @@ export function PwaInstallPrompt() {
       <div>
         <strong>Instale o Status Board</strong>
         {installPrompt ? (
-          <p>Acesso rápido e experiência online-first.</p>
+          <p>Acesso rápido e experiência com maior praticidade.</p>
         ) : (
           <p>No Safari, toque em Compartilhar e escolha “Adicionar à Tela de Início”.</p>
         )}
