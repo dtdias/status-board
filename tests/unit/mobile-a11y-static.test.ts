@@ -8,6 +8,7 @@ const preview = readFileSync(resolve(root, "components/preview/pptx-file-preview
 const reportIcon = readFileSync(resolve(root, "components/report-icon.tsx"), "utf8");
 const reportPage = readFileSync(resolve(root, "app/app/reports/[reportId]/page.tsx"), "utf8");
 const reportActions = readFileSync(resolve(root, "app/app/reports/[reportId]/report-status-actions.tsx"), "utf8");
+const deliverySort = readFileSync(resolve(root, "app/app/reports/[reportId]/delivery-sortable-list.tsx"), "utf8");
 
 describe("mobile accessibility safeguards", () => {
   it("keeps a visible focus treatment and honors reduced motion", () => {
@@ -42,5 +43,13 @@ describe("mobile accessibility safeguards", () => {
     expect(readFileSync(resolve(root, "app/icon.svg"), "utf8")).toContain("#FFD400");
     expect(styles).toContain(".outline-button:hover");
     expect(styles).toContain(".primary-button:hover");
+  });
+
+  it("provides non-drag controls for delivery ordering", () => {
+    expect(deliverySort).toContain("Mover ${delivery.title} para cima");
+    expect(deliverySort).toContain("Mover ${delivery.title} para baixo");
+    expect(deliverySort).toContain("handleMove");
+    expect(styles).toContain(".reorder-button");
+    expect(styles).toContain("min-height: 44px");
   });
 });
