@@ -59,6 +59,8 @@ h2 { max-width: 620px; font-size: clamp(2.25rem, 6vw, 5.8rem); letter-spacing: -
 .date-card span { color: var(--muted); font-size: .7rem; letter-spacing: .12em; text-transform: uppercase; }
 .date-card strong { font-size: .95rem; }
 .board { display: grid; gap: 10px; grid-template-columns: repeat(5, minmax(150px, 1fr)); }
+.board-tabs { display: none; }
+.board-tab-panel { display: contents; }
 .board-column { background: var(--surface); border: 1px solid var(--line); min-height: 260px; padding: 14px; }
 .column-heading { justify-content: start; gap: 8px; }
 .column-heading h3 { font-size: .72rem; letter-spacing: .08em; text-transform: uppercase; }
@@ -234,6 +236,12 @@ button:disabled { cursor: not-allowed; opacity: .5; }
   .outline-button { padding: 9px 13px; }
   .intro { padding: 48px 0 28px; }
   .board { grid-template-columns: 1fr; }
+  .board-tabs { align-items: stretch; display: flex; gap: 8px; margin-top: 38px; overflow-x: auto; padding: 2px 2px 8px; scrollbar-width: thin; }
+  .board-tab { background: transparent; border: 1px solid var(--line); border-radius: 999px; color: var(--muted); cursor: pointer; flex: 0 0 auto; min-height: 44px; padding: 10px 16px; white-space: nowrap; }
+  .board-tab[aria-selected="true"] { background: var(--ink); border-color: var(--ink); color: var(--surface); }
+  .board-tab-panel { display: none; }
+  .board-tab-panel.is-active { display: block; }
+  .report-board { margin-top: 0; }
   .summary-metrics { grid-template-columns: 1fr; }
   .presentation-list li { align-items: start; flex-direction: column; }
   .report-highlight-heading { display: grid; }
