@@ -64,6 +64,7 @@ flowchart LR
 - PPTX generation with `pptx-automizer`, preserving the approved template's shapes, icons, fonts, colors, and layout.
 - Immutable private storage for both presentation templates and generated deck versions.
 - Database-backed allowlist for template administrators.
+- Installable online-first PWA with a public offline fallback when connectivity is unavailable.
 
 ## Architecture
 
