@@ -12,6 +12,6 @@ const actions: Record<ReportStatus, { status: ReportStatus; label: string; class
 export function ReportStatusActions({ reportId, status }: { reportId: string; status: ReportStatus }) {
   return <div className="action-group report-status-actions" aria-label="Status do relatório">
     <span className="eyebrow">Status: {reportStatusLabel(status)}</span>
-    {actions[status].map((action) => <form action={transitionReportStatus} key={action.status}><input name="reportId" type="hidden" value={reportId} /><input name="status" type="hidden" value={action.status} /><button className={action.className} type="submit">{action.label}</button></form>)}
+    {actions[status].map((action) => <form action={transitionReportStatus} key={action.status}><input name="reportId" type="hidden" value={reportId} /><input name="status" type="hidden" value={action.status} /><button className={action.className} data-tour={status === "draft" ? "report-status" : undefined} type="submit">{action.label}</button></form>)}
   </div>;
 }
