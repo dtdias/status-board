@@ -60,7 +60,7 @@ export default async function AppPage({ searchParams }: { searchParams: Promise<
         <div className="topbar-actions">
           <Link className="text-link" href={"/app/settings" as Route}>Perfil</Link>
           {isAdmin ? <Link className="text-link" href={"/app/admin/templates" as Route}>Templates</Link> : null}
-          <Link className="outline-button" href={"/app/reports/new" as Route}>Nova semana</Link>
+          <Link className="outline-button" data-tour="new-week" href={"/app/reports/new" as Route}>Nova semana</Link>
         </div>
       </header>
       <section className="report-list" aria-labelledby="reports-heading">
@@ -97,7 +97,7 @@ export default async function AppPage({ searchParams }: { searchParams: Promise<
         ) : (
           <div className="empty-reports">
             <p>{selectedStatus ? `Nenhum relatório com status ${reportStatusLabel(selectedStatus).toLowerCase()}.` : "Nenhuma semana criada."}</p>
-            {selectedStatus ? <Link className="outline-button" href={"/app" as Route}>Ver todos os relatórios</Link> : <Link className="primary-button" href={"/app/reports/new" as Route}>Criar primeira semana</Link>}
+            {selectedStatus ? <Link className="outline-button" href={"/app" as Route}>Ver todos os relatórios</Link> : <Link className="primary-button" data-tour="new-week" href={"/app/reports/new" as Route}>Criar primeira semana</Link>}
           </div>
         )}
       </section>
