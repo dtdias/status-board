@@ -42,7 +42,7 @@ export function GeneratePresentation({ reportId }: { reportId: string }) {
   }
 
   return <div className="generate-presentation">
-    <button className="primary-button" type="button" onClick={generate} disabled={isGenerating}>{isGenerating ? "Gerando..." : "Gerar PowerPoint"}</button>
+    <button className="primary-button" data-tour="generate-pptx" type="button" onClick={generate} disabled={isGenerating}>{isGenerating ? "Gerando..." : "Gerar PowerPoint"}</button>
     <div aria-live="polite">
       {error ? <p className="form-error">{error}</p> : null}
       {presentation ? <div className="generated-presentation-actions"><a className="form-success" href={`/app/reports/${reportId}/presentations/${presentation.id}/preview`}>Visualizar PowerPoint</a><a className="form-success" href={presentation.downloadUrl} download={presentation.fileName}>PowerPoint pronto. Baixar arquivo.</a></div> : null}

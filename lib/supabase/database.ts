@@ -13,19 +13,25 @@ export type Database = {
           name: string;
           area: string;
           created_at: string;
-          updated_at: string;
+           updated_at: string;
+           onboarding_tour_seen_version: number;
+           onboarding_tour_completed_at: string | null;
         };
         Insert: {
           id: string;
           name: string;
           area: string;
           created_at?: string;
-          updated_at?: string;
+           updated_at?: string;
+           onboarding_tour_seen_version?: number;
+           onboarding_tour_completed_at?: string | null;
         };
         Update: {
           name?: string;
           area?: string;
-          updated_at?: string;
+           updated_at?: string;
+           onboarding_tour_seen_version?: number;
+           onboarding_tour_completed_at?: string | null;
         };
         Relationships: [];
       };

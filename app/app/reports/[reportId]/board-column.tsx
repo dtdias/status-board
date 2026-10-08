@@ -13,6 +13,7 @@ type BoardColumnProps = {
   addHref: Route;
   addLabel: string;
   className?: string;
+  dataTour?: string;
   children?: ReactNode;
 };
 
@@ -27,12 +28,13 @@ export function BoardColumn({
   addHref,
   addLabel,
   className = "",
+  dataTour,
   children,
 }: BoardColumnProps) {
   const addAction = <Link className="column-add" href={addHref}>{addLabel}</Link>;
 
   return (
-    <details className={`board-column${className ? ` ${className}` : ""}`} aria-labelledby={headingId} open>
+    <details className={`board-column${className ? ` ${className}` : ""}`} aria-labelledby={headingId} data-tour={dataTour} open>
       <summary className="column-heading">
         <span className={`status-dot ${statusClassName}`} aria-hidden="true" />
         <span className="column-title" id={headingId} role="heading" aria-level={3}>{title}</span>

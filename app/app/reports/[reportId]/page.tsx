@@ -75,7 +75,7 @@ export default async function ReportPage({ params }: { params: Promise<{ reportI
           <div className="action-group action-group-navigation">
             <BackLink href={"/app" as Route} label="Voltar às semanas" />
             {isEditable ? <Link className="outline-button" href={`/app/reports/${reportId}/details` as Route}>Editar detalhes</Link> : null}
-            <Link className="outline-button" href={`/app/reports/${reportId}/preview` as Route}>Pré-visualizar</Link>
+             <Link className="outline-button" data-tour="preview" href={`/app/reports/${reportId}/preview` as Route}>Pré-visualizar</Link>
           </div>
           {report.status === "ready" ? <GeneratePresentation reportId={reportId} /> : null}
           <ReportStatusActions reportId={reportId} status={report.status} />
@@ -102,9 +102,10 @@ export default async function ReportPage({ params }: { params: Promise<{ reportI
           countLabel={`${deliveries?.length ?? 0} entregas`}
           emptyMessage="Sem ocorrências na semana."
           emptyMark
-          addHref={`/app/reports/${reportId}/deliveries/new` as Route}
-          addLabel="Adicionar entrega"
-          className="deliveries-column"
+           addHref={`/app/reports/${reportId}/deliveries/new` as Route}
+           addLabel="Adicionar entrega"
+           dataTour="add-delivery"
+           className="deliveries-column"
         >
           {deliveries?.length ? <DeliverySortableList deliveries={deliveries} reportId={reportId} /> : null}
         </BoardColumn>
