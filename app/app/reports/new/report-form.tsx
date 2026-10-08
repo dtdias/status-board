@@ -12,19 +12,19 @@ export function ReportForm() {
     <form action={formAction} className="auth-form">
       <label>
         Data inicial
-        <input name="startDate" required type="date" />
+        <input data-tour="start-date" name="startDate" required type="date" />
       </label>
       <label>
         Data final
-        <input name="endDate" required type="date" />
+        <input data-tour="end-date" name="endDate" required type="date" />
       </label>
       <label>
         Data da apresentação
-        <input name="presentationDate" required type="date" />
+        <input data-tour="presentation-date" name="presentationDate" required type="date" />
       </label>
       <label>
         Destaque da semana
-        <textarea maxLength={180} name="highlight" required rows={4} />
+        <textarea data-tour="highlight" maxLength={180} name="highlight" required rows={4} />
       </label>
       <fieldset className="clone-options" data-tour="clone-options">
         <legend>Começar com</legend>
