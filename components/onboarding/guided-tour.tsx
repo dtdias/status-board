@@ -2,6 +2,7 @@
 
 import { usePathname, useSearchParams } from "next/navigation";
 import { useActionState, useEffect, useRef, useState, useTransition } from "react";
+import { autoUpdate, flip, offset, shift, size, useFloating } from "@floating-ui/react";
 import { markOnboardingTourSeen, type TourPersistenceState } from "@/app/app/actions";
 import { ONBOARDING_TOUR_VERSION, onboardingTourSteps, tourRouteMatches } from "@/lib/onboarding/tour";
 
@@ -32,6 +33,25 @@ export function GuidedTour({ eligible, userId }: GuidedTourProps) {
   const [isPending, startTransition] = useTransition();
   const dialogRef = useRef<HTMLDivElement>(null);
   const previousPathname = useRef(pathname);
+  const { refs, floatingStyles, update } = useFloating({
+    placement: "bottom-start",
+    strategy: "fixed",
+    middleware: [
+      offset(16),
+      flip({ fallbackPlacements: ["top-start", "right-start", "left-start"], padding: 16 }),
+      shift({ padding: 16 }),
+      size({
+        padding: 16,
+        apply({ availableHeight, availableWidth, elements }) {
+          Object.assign(elements.floating.style, {
+            maxHeight: `${Math.max(0, availableHeight)}px`,
+            maxWidth: `${Math.min(360, availableWidth)}px`,
+          });
+        },
+      }),
+    ],
+    whileElementsMounted: autoUpdate,
+  });
   const step = onboardingTourSteps[stepIndex];
   const pathMatches = step ? tourRouteMatches(step.route, pathname) : false;
 
@@ -61,11 +81,12 @@ export function GuidedTour({ eligible, userId }: GuidedTourProps) {
     };
     const target = targetFor(step);
     if (target) target.scrollIntoView({ block: "center", inline: "nearest", behavior: window.matchMedia("(prefers-reduced-motion: reduce)").matches ? "auto" : "smooth" });
+    refs.setReference(target);
     frame = window.requestAnimationFrame(update);
     window.addEventListener("resize", update);
     window.addEventListener("scroll", update, true);
-    return () => { window.cancelAnimationFrame(frame); window.removeEventListener("resize", update); window.removeEventListener("scroll", update, true); };
-  }, [active, pathMatches, step]);
+    return () => { window.cancelAnimationFrame(frame); refs.setReference(null); window.removeEventListener("resize", update); window.removeEventListener("scroll", update, true); };
+  }, [active, pathMatches, refs, step]);
   useEffect(() => {
     if (!active || !pathMatches || !targetRect) return;
     dialogRef.current?.focus();
@@ -80,6 +101,7 @@ export function GuidedTour({ eligible, userId }: GuidedTourProps) {
     document.addEventListener("click", onClick, true);
     return () => document.removeEventListener("click", onClick, true);
   }, [active, step]);
+  useEffect(() => { if (targetRect) void update(); }, [targetRect, update]);
   useEffect(() => { if (active) saveStep(userId, stepIndex); }, [active, stepIndex, userId]);
   useEffect(() => { if (!persisting && persistState.error) setActive(true); }, [persistState.error, persisting]);
 
@@ -87,21 +109,27 @@ export function GuidedTour({ eligible, userId }: GuidedTourProps) {
   const target = targetFor(step);
   const isFallback = Boolean(step.fallbackTarget && target && !document.querySelector(step.target));
   const isLast = stepIndex === onboardingTourSteps.length - 1;
-  const popupStyle = { top: Math.min(Math.max(targetRect.top + targetRect.height + 16, 16), window.innerHeight - 240), left: Math.min(Math.max(targetRect.left, 16), window.innerWidth - 376) };
   const persist = (intent: "skip" | "complete") => {
     clearStep(userId); setActive(false);
     const formData = new FormData(); formData.set("intent", intent);
     startTransition(() => persistAction(formData));
   };
   const next = () => {
-    if (step.advancesByNavigation) { const liveTarget = targetFor(step); if (liveTarget) { setPendingNavigation(true); liveTarget.click(); } return; }
+    if (step.advancesByNavigation) {
+      const liveTarget = targetFor(step);
+      if (!liveTarget) return;
+      if (step.navigationAction === "submit") { liveTarget.focus(); return; }
+      setPendingNavigation(true);
+      liveTarget.click();
+      return;
+    }
     if (isLast) { persist("complete"); return; }
     setStepIndex((current) => current + 1);
   };
 
   return <>
     <div aria-hidden="true" className="guided-tour-spotlight" style={{ height: targetRect.height + 12, left: targetRect.left - 6, top: targetRect.top - 6, width: targetRect.width + 12 }} />
-    <div aria-describedby="guided-tour-description" aria-labelledby="guided-tour-title" aria-modal="false" className="guided-tour-popover" ref={dialogRef} role="dialog" style={popupStyle} tabIndex={-1}>
+    <div aria-describedby="guided-tour-description" aria-labelledby="guided-tour-title" aria-modal="false" className="guided-tour-popover" ref={(node) => { dialogRef.current = node; refs.setFloating(node); }} role="dialog" style={floatingStyles} tabIndex={-1}>
       <p className="guided-tour-progress">Passo {stepIndex + 1} de {onboardingTourSteps.length}</p>
       <h2 id="guided-tour-title">{step.title}</h2>
       <p id="guided-tour-description">{step.description}</p>
