@@ -10,7 +10,7 @@ describe("first access tour", () => {
   it("keeps principal flow ordered and route-aware", () => {
     expect(ONBOARDING_TOUR_VERSION).toBe(1);
     expect(onboardingTourSteps.map((step) => step.id)).toEqual([
-      "new-week", "clone-mode", "create-week", "add-delivery", "edit-highlight", "preview", "mark-ready", "generate-pptx",
+      "new-week", "start-date", "end-date", "presentation-date", "highlight", "clone-mode", "create-week", "add-delivery", "edit-highlight", "preview", "mark-ready", "generate-pptx",
     ]);
     expect(tourRouteMatches("dashboard", "/app")).toBe(true);
     expect(tourRouteMatches("new-report", "/app/reports/new")).toBe(true);
@@ -33,5 +33,11 @@ describe("first access tour", () => {
     expect(tour).toContain("liveTarget.focus()");
     expect(dashboard).toContain('data-tour="new-week"');
     expect(settings).toContain('href={"/app?tour=1" as Route}');
+    const reportForm = read("app/app/reports/new/report-form.tsx");
+    expect(reportForm).toContain('data-tour="start-date"');
+    expect(reportForm).toContain('data-tour="end-date"');
+    expect(reportForm).toContain('data-tour="presentation-date"');
+    expect(reportForm).toContain('data-tour="highlight"');
+    expect(reportForm).toContain('data-tour="clone-options"');
   });
 });
