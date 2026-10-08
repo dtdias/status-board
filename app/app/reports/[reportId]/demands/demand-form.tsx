@@ -26,20 +26,20 @@ export function DemandForm({ reportId, demand }: { reportId: string; demand?: De
       {demand ? <input name="demandId" type="hidden" value={demand.id} /> : null}
       <p className="eyebrow">{demand ? "Editar demanda" : "Nova demanda"}</p>
       <h1>{demand ? demand.title : "O que foi solicitado?"}</h1>
-      <label>Título<input defaultValue={demand?.title} maxLength={60} name="title" required /></label>
-      <label>Solicitante<input defaultValue={demand?.requester_name} name="requesterName" required /></label>
-      <label>Área solicitante<input defaultValue={demand?.requester_area} name="requesterArea" required /></label>
-      <label>Áreas envolvidas<input defaultValue={demand?.involved_areas.join(", ")} name="involvedAreas" /></label>
-      <label>Objetivo<textarea defaultValue={demand?.objective} maxLength={220} name="objective" required rows={4} /></label>
-      <label>Status<input defaultValue={demand?.status_text ?? ""} maxLength={100} name="statusText" /></label>
+      <label>Título<input data-tour="form-demand-title" defaultValue={demand?.title} maxLength={60} name="title" required /></label>
+      <label>Solicitante<input data-tour="form-demand-requester" defaultValue={demand?.requester_name} name="requesterName" required /></label>
+      <label>Área solicitante<input data-tour="form-demand-area" defaultValue={demand?.requester_area} name="requesterArea" required /></label>
+      <label>Áreas envolvidas<input data-tour="form-demand-involved" defaultValue={demand?.involved_areas.join(", ")} name="involvedAreas" /></label>
+      <label>Objetivo<textarea data-tour="form-demand-objective" defaultValue={demand?.objective} maxLength={220} name="objective" required rows={4} /></label>
+      <label>Status<input data-tour="form-demand-status" defaultValue={demand?.status_text ?? ""} maxLength={100} name="statusText" /></label>
       <label>
         Fase
-        <select defaultValue={demand?.current_phase ?? "request_received"} name="currentPhase">
+        <select data-tour="form-demand-phase" defaultValue={demand?.current_phase ?? "request_received"} name="currentPhase">
           {demandPhases.map((phase, index) => <option key={phase} value={phase}>{demandPhaseLabels[index]}</option>)}
         </select>
       </label>
       {state.error ? <p className="form-error" role="alert">{state.error}</p> : null}
-      <button className="primary-button" disabled={pending} type="submit">{pending ? "Salvando..." : "Salvar demanda"}</button>
+      <button className="primary-button" data-tour="form-demand-submit" disabled={pending} type="submit">{pending ? "Salvando..." : "Salvar demanda"}</button>
     </form>
   );
 }
