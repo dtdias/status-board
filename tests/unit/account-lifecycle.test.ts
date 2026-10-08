@@ -56,13 +56,28 @@ describe("account lifecycle", () => {
     const reset = read("app/(auth)/reset-password/actions.ts");
     const recovery = read("docs/email-templates/supabase-recovery.html");
     const magic = read("docs/email-templates/supabase-magic-link.html");
-    expect(signup).toContain("email_confirmed_at");
+    expect(signup).toContain("identities.length === 0");
     expect(signup).toContain("accountConfirmed");
     expect(login).toContain("resetPasswordForEmail");
     expect(login).toContain("shouldCreateUser: false");
     expect(reset).toContain("supabase.auth.updateUser({ password");
     expect(recovery).toContain("{{ .ConfirmationURL }}");
     expect(magic).toContain("{{ .ConfirmationURL }}");
+  });
+
+  it("classifies duplicate and pending signup responses", () => {
+    const signup = read("app/(auth)/signup/actions.ts");
+    const form = read("app/(auth)/signup/signup-form.tsx");
+    const resend = read("app/(auth)/signup/resend-confirmation-form.tsx");
+    const config = read("supabase/config.toml");
+    expect(signup).toContain('error.code === "user_already_exists"');
+    expect(signup).toContain('error.code === "email_exists"');
+    expect(signup).toContain("identities.length === 0");
+    expect(signup).toContain("pendente de confirmação");
+    expect(signup).toContain("Não foi possível reenviar a confirmação.");
+    expect(form).toContain("initialCooldownUntil={state.cooldownUntil}");
+    expect(resend).toContain("initialCooldownUntil");
+    expect(config).toContain("enable_confirmations = true");
   });
 
   it("explains when recovery password matches the current password", () => {

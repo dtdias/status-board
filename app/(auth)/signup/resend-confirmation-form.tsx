@@ -12,17 +12,18 @@ function formatCooldown(seconds: number) {
   return `${minutes}:${remainder}`;
 }
 
-export function ResendConfirmationForm({ email }: { email: string }) {
+export function ResendConfirmationForm({ email, initialCooldownUntil }: { email: string; initialCooldownUntil?: number }) {
   const [state, formAction, pending] = useActionState(resendConfirmation, initialState);
-  const [remaining, setRemaining] = useState(0);
+  const [remaining, setRemaining] = useState(() => initialCooldownUntil ? Math.max(0, Math.ceil((initialCooldownUntil - Date.now()) / 1000)) : 0);
 
   useEffect(() => {
-    if (!state.cooldownUntil) return;
-    const update = () => setRemaining(Math.max(0, Math.ceil((state.cooldownUntil! - Date.now()) / 1000)));
+    const cooldownUntil = state.cooldownUntil ?? initialCooldownUntil;
+    if (!cooldownUntil) return;
+    const update = () => setRemaining(Math.max(0, Math.ceil((cooldownUntil - Date.now()) / 1000)));
     update();
     const timer = window.setInterval(update, 1000);
     return () => window.clearInterval(timer);
-  }, [state.cooldownUntil]);
+  }, [initialCooldownUntil, state.cooldownUntil]);
 
   return (
     <form action={formAction} className="resend-form">
