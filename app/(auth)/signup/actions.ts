@@ -8,8 +8,22 @@ import { createClient } from "@/lib/supabase/server";
 import { emailSchema, signUpSchema } from "@/lib/validation/auth";
 import { getRedirectOrigin } from "@/lib/auth/redirect-url";
 
-export type SignUpState = { error?: string; success?: string; email?: string };
+export type SignUpState = { error?: string; success?: string; email?: string; cooldownUntil?: number };
 export type ResendState = { error?: string; success?: string; email?: string; cooldownUntil?: number; accountConfirmed?: boolean };
+
+const RESEND_COOLDOWN_SECONDS = 300;
+
+function confirmationCooldownUntil() {
+  return Date.now() + RESEND_COOLDOWN_SECONDS * 1000;
+}
+
+function isExistingConfirmedAccount(user: { identities?: unknown[] | null } | null | undefined) {
+  return Boolean(user && Array.isArray(user.identities) && user.identities.length === 0);
+}
+
+function isAlreadyRegisteredError(error: { code?: string; message?: string } | null) {
+  return error?.code === "user_already_exists" || error?.code === "email_exists" || /already registered|already exists/i.test(error?.message ?? "");
+}
 
 export async function signUp(_: SignUpState, formData: FormData): Promise<SignUpState> {
   const parsed = signUpSchema.safeParse({
@@ -29,13 +43,23 @@ export async function signUp(_: SignUpState, formData: FormData): Promise<SignUp
     },
   });
 
-  if (error) return { error: "Não foi possível criar a conta. Verifique os dados e tente novamente." };
+  if (error) {
+    if (isAlreadyRegisteredError(error)) return { success: "Já existe uma conta com este e-mail. Entre usando sua senha ou um Magic Link." };
+    return { error: "Não foi possível criar a conta. Verifique os dados e tente novamente." };
+  }
   if (data.session) redirect("/app" as Route);
-  if (data.user?.email_confirmed_at || data.user?.confirmed_at) {
-    return { success: "Esta conta já está confirmada. Entre usando sua senha ou um Magic Link." };
+  if (isExistingConfirmedAccount(data.user)) {
+    return { success: "Já existe uma conta com este e-mail. Entre usando sua senha ou um Magic Link." };
   }
 
-  return { success: "Se o e-mail estiver disponível, enviaremos um link de confirmação.", email: parsed.data.email.toLowerCase() };
+  const email = parsed.data.email.toLowerCase();
+  const emailHash = createHash("sha256").update(email).digest("hex");
+  const { error: claimError } = await supabase.rpc("claim_signup_confirmation_resend", { target_email_hash: emailHash });
+  return {
+    success: "Este e-mail está pendente de confirmação. Enviamos um link; verifique sua caixa de entrada.",
+    email,
+    cooldownUntil: claimError ? undefined : confirmationCooldownUntil(),
+  };
 }
 
 export async function resendConfirmation(_: ResendState, formData: FormData): Promise<ResendState> {
@@ -64,13 +88,14 @@ export async function resendConfirmation(_: ResendState, formData: FormData): Pr
     options: { emailRedirectTo: `${getRedirectOrigin(await headers())}/auth/callback?next=/app` },
   });
 
-  const accountConfirmed = Boolean(error?.message.match(/already confirmed|email confirmed/i));
+  const accountConfirmed = Boolean(error && (error.code === "user_already_exists" || error.code === "email_exists" || /already confirmed|email confirmed/i.test(error.message ?? "")));
   return {
-    success: error
-      ? accountConfirmed
-        ? "Esta conta já está confirmada. Use o login ou um Magic Link."
-        : "Se houver uma conta pendente, enviaremos a confirmação quando o reenvio estiver disponível."
-      : "Se houver uma conta pendente, um novo e-mail de confirmação foi enviado.",
+    error: error && !accountConfirmed ? "Não foi possível reenviar a confirmação. Tente novamente quando o prazo terminar." : undefined,
+    success: accountConfirmed
+      ? "Já existe uma conta confirmada com este e-mail. Use o login ou um Magic Link."
+      : error
+        ? undefined
+        : "Novo e-mail de confirmação enviado.",
     email: accountConfirmed ? undefined : email,
     cooldownUntil,
     accountConfirmed,

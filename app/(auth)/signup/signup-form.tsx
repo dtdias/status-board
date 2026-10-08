@@ -32,7 +32,7 @@ export function SignUpForm() {
           {pending ? "Criando..." : "Criar conta"}
         </button>
       </form>
-      {state.email ? <ResendConfirmationForm email={state.email} /> : null}
+      {state.email ? <ResendConfirmationForm email={state.email} initialCooldownUntil={state.cooldownUntil} /> : null}
       <p className="auth-secondary-link"><Link href={"/login" as Route}>Já tenho uma conta</Link></p>
     </>
   );
