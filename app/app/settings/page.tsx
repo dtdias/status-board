@@ -1,4 +1,5 @@
 import type { Route } from "next";
+import Link from "next/link";
 import { redirect } from "next/navigation";
 import { BackLink } from "@/components/navigation/back-link";
 import { ProfileForm } from "../profile-form";
@@ -30,6 +31,7 @@ export default async function SettingsPage() {
         <p className="eyebrow">Configurações</p>
         <h1>Seu perfil.</h1>
         <p className="intro-copy">Nome e área aparecem na capa do status semanal.</p>
+        <Link className="outline-button settings-tour-link" href={"/app?tour=1" as Route}>Ver tutorial</Link>
         <ProfileForm profile={profile} submitLabel="Salvar alterações" />
         <DeleteAccountForm />
       </section>
