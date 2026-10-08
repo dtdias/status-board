@@ -29,6 +29,8 @@ describe("first access tour", () => {
     expect(tour).toContain("sessionStorage");
     expect(tour).toContain('role="dialog"');
     expect(tour).toContain('aria-modal="false"');
+    expect(tour).toContain("useFloating");
+    expect(tour).toContain("liveTarget.focus()");
     expect(dashboard).toContain('data-tour="new-week"');
     expect(settings).toContain('href={"/app?tour=1" as Route}');
   });

@@ -9,12 +9,13 @@ export type TourStep = {
   description: string;
   nextLabel?: string;
   advancesByNavigation?: boolean;
+  navigationAction?: "link" | "submit";
 };
 
 export const onboardingTourSteps: TourStep[] = [
-  { id: "new-week", route: "dashboard", target: '[data-tour="new-week"]', title: "Comece uma semana", description: "Crie um relatório semanal para registrar entregas, incidentes, demandas, sustentação e pontos de atenção.", nextLabel: "Abrir Nova semana", advancesByNavigation: true },
+  { id: "new-week", route: "dashboard", target: '[data-tour="new-week"]', title: "Comece uma semana", description: "Crie um relatório semanal para registrar entregas, incidentes, demandas, sustentação e pontos de atenção.", nextLabel: "Abrir Nova semana", advancesByNavigation: true, navigationAction: "link" },
   { id: "clone-mode", route: "new-report", target: '[data-tour="clone-options"]', title: "Escolha o ponto de partida", description: "Vazia começa do zero. As outras opções reaproveitam itens da semana anterior. No primeiro relatório, mantenha Vazia." },
-  { id: "create-week", route: "new-report", target: '[data-tour="create-week"]', title: "Crie o relatório", description: "Preencha as datas e o destaque da semana. Este botão salva a semana e abre o board para edição.", nextLabel: "Criar semana", advancesByNavigation: true },
+  { id: "create-week", route: "new-report", target: '[data-tour="create-week"]', title: "Crie o relatório", description: "Preencha as datas e o destaque da semana. Depois, use este botão para salvar a semana e abrir o board para edição.", nextLabel: "Focar Criar semana", advancesByNavigation: true, navigationAction: "submit" },
   { id: "add-delivery", route: "report", target: '[data-tour="add-delivery"]', title: "Preencha o board", description: "Use Adicionar em cada coluna para registrar os itens. Clique em um card depois para editar. Entregas também podem ser reordenadas." },
   { id: "edit-highlight", route: "report", target: '[data-tour="edit-highlight"]', title: "Edite o destaque", description: "O destaque resume a semana e aparece na apresentação. Use este botão para ajustar o texto antes de gerar o PowerPoint." },
   { id: "preview", route: "report", target: '[data-tour="preview"]', title: "Veja uma prévia", description: "Pré-visualizar mostra como o PowerPoint ficará sem criar uma versão final no histórico." },
