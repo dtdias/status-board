@@ -9,6 +9,7 @@ import { profileSchema } from "@/lib/validation/profile";
 export type ProfileState = { error?: string };
 export type SignOutState = { error?: string };
 export type DeleteAccountState = { error?: string };
+export type TourPersistenceState = { error?: string };
 
 export async function signOutAccount(previousState: SignOutState, formData: FormData): Promise<SignOutState> {
   if (formData.get("intent") !== "sign-out") return previousState;
@@ -45,6 +46,24 @@ export async function saveProfile(_: ProfileState, formData: FormData): Promise<
   }
 
   redirect("/app" as Route);
+}
+
+export async function markOnboardingTourSeen(_: TourPersistenceState, formData: FormData): Promise<TourPersistenceState> {
+  const intent = formData.get("intent");
+  if (intent !== "skip" && intent !== "complete") return { error: "Ação de tutorial inválida." };
+
+  const supabase = await createClient();
+  const { data: { user } } = await supabase.auth.getUser();
+  if (!user) redirect("/login" as Route);
+
+  const { error } = await supabase
+    .from("profiles")
+    .update({ onboarding_tour_seen_version: 1, onboarding_tour_completed_at: intent === "complete" ? new Date().toISOString() : null })
+    .eq("id", user.id);
+  if (error) return { error: "Não foi possível salvar o estado do tutorial." };
+
+  revalidatePath("/app", "layout");
+  return {};
 }
 
 export async function deleteAccount(_: DeleteAccountState, formData: FormData): Promise<DeleteAccountState> {

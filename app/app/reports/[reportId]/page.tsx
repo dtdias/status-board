@@ -75,7 +75,7 @@ export default async function ReportPage({ params }: { params: Promise<{ reportI
           <div className="action-group action-group-navigation">
             <BackLink href={"/app" as Route} label="Voltar às semanas" />
             {isEditable ? <Link className="outline-button" href={`/app/reports/${reportId}/details` as Route}>Editar detalhes</Link> : null}
-            <Link className="outline-button" href={`/app/reports/${reportId}/preview` as Route}>Pré-visualizar</Link>
+             <Link className="outline-button" data-tour="preview" href={`/app/reports/${reportId}/preview` as Route}>Pré-visualizar</Link>
           </div>
           {report.status === "ready" ? <GeneratePresentation reportId={reportId} /> : null}
           <ReportStatusActions reportId={reportId} status={report.status} />
@@ -93,7 +93,7 @@ export default async function ReportPage({ params }: { params: Promise<{ reportI
       </section>
       <ReportHighlight editable={isEditable} highlight={report.highlight} reportId={reportId} />
       {presentationHistoryError ? <p className="form-error" role="alert">{presentationHistoryError}</p> : <PresentationHistory presentations={presentations} reportId={reportId} />}
-      <section className="board report-board" aria-label="Board semanal" inert={isArchived ? true : undefined}>
+      <section className="board report-board" aria-label="Board semanal" data-tour="board-overview" inert={isArchived ? true : undefined}>
         <BoardColumn
           title="Entregas"
           headingId="deliveries-heading"
@@ -102,9 +102,10 @@ export default async function ReportPage({ params }: { params: Promise<{ reportI
           countLabel={`${deliveries?.length ?? 0} entregas`}
           emptyMessage="Sem ocorrências na semana."
           emptyMark
-          addHref={`/app/reports/${reportId}/deliveries/new` as Route}
-          addLabel="Adicionar entrega"
-          className="deliveries-column"
+           addHref={`/app/reports/${reportId}/deliveries/new` as Route}
+           addLabel="Adicionar entrega"
+           dataTour="board-deliveries"
+           className="deliveries-column"
         >
           {deliveries?.length ? <DeliverySortableList deliveries={deliveries} reportId={reportId} /> : null}
         </BoardColumn>
@@ -115,8 +116,9 @@ export default async function ReportPage({ params }: { params: Promise<{ reportI
           count={incidents?.length ?? 0}
           countLabel={`${incidents?.length ?? 0} incidentes`}
           emptyMessage="Sem incidentes na semana."
-          addHref={`/app/reports/${reportId}/incidents/new` as Route}
-          addLabel="Adicionar incidente"
+           addHref={`/app/reports/${reportId}/incidents/new` as Route}
+           addLabel="Adicionar incidente"
+           dataTour="board-incidents"
         >
           <div className="delivery-stack">
             {incidents?.map((incident) => (
@@ -138,8 +140,9 @@ export default async function ReportPage({ params }: { params: Promise<{ reportI
           count={demands?.length ?? 0}
           countLabel={`${demands?.length ?? 0} demandas`}
           emptyMessage="Sem ocorrências na semana."
-          addHref={`/app/reports/${reportId}/demands/new` as Route}
-          addLabel="Adicionar demanda"
+           addHref={`/app/reports/${reportId}/demands/new` as Route}
+           addLabel="Adicionar demanda"
+           dataTour="board-demands"
         >
           <div className="delivery-stack">
             {demands?.map((demand) => (
@@ -160,8 +163,9 @@ export default async function ReportPage({ params }: { params: Promise<{ reportI
           count={supportFronts?.length ?? 0}
           countLabel={`${supportFronts?.length ?? 0} frentes de sustentação`}
           emptyMessage="Sem ocorrências na semana."
-          addHref={`/app/reports/${reportId}/support-fronts/new` as Route}
-          addLabel="Adicionar frente"
+           addHref={`/app/reports/${reportId}/support-fronts/new` as Route}
+           addLabel="Adicionar frente"
+           dataTour="board-support"
         >
           <div className="delivery-stack">
             {supportFronts?.map((front) => {
@@ -178,14 +182,14 @@ export default async function ReportPage({ params }: { params: Promise<{ reportI
             })}
           </div>
         </BoardColumn>
-        <details className="board-column attention-column" aria-labelledby="attention-heading" open>
+        <details className="board-column attention-column" aria-labelledby="attention-heading" data-tour="board-attention" open>
           <summary className="column-heading">
             <span className="status-dot orange" aria-hidden="true" />
             <span className="column-title" id="attention-heading" role="heading" aria-level={3}>Atenção</span>
             <span className="count" aria-label={`${(dependencies?.length ?? 0) + (nextSteps?.length ?? 0)} itens de atenção`}>{(dependencies?.length ?? 0) + (nextSteps?.length ?? 0)}</span>
           </summary>
           <div className="attention-stack">
-            <h4 className="attention-label">Dependências</h4>
+            <h4 className="attention-label" data-tour="board-dependencies">Dependências</h4>
             {dependencies?.map((dependency) => (
               <Link className="delivery-card attention-card" href={`/app/reports/${reportId}/attention/dependencies/${dependency.id}` as Route} key={dependency.id}>
                 <strong>{dependency.title}</strong>
@@ -197,7 +201,7 @@ export default async function ReportPage({ params }: { params: Promise<{ reportI
             ))}
             {dependencies?.length ? null : <p className="attention-empty">Nenhuma dependência.</p>}
             <Link className="attention-add" href={`/app/reports/${reportId}/attention/dependencies/new` as Route}>Adicionar dependência</Link>
-            <h4 className="attention-label">Próximos passos</h4>
+            <h4 className="attention-label" data-tour="board-next-steps">Próximos passos</h4>
             {nextSteps?.map((nextStep) => (
               <Link className="delivery-card attention-card" href={`/app/reports/${reportId}/attention/next-steps/${nextStep.id}` as Route} key={nextStep.id}>
                 <strong>{nextStep.title}</strong>

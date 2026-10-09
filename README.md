@@ -120,7 +120,7 @@ APP_URL=http://localhost:3000
 PPTX_TEMPLATE_VERSION=v1
 ```
 
-Execute as migrations `0001` até `0007` e envie o template revisado para:
+Execute todas as migrations de `0001` até `0012` e envie o template revisado para:
 
 ```text
 presentation-templates/status-weekly/v1/template.pptx

@@ -117,6 +117,22 @@ button:disabled { cursor: not-allowed; opacity: .5; }
 .form-success { color: #176b42; font-size: .85rem; }
 .form-hint { color: var(--muted); font-size: .8rem; line-height: 1.4; }
 .danger-zone { border-top: 1px solid #ad1019; display: grid; gap: 16px; margin-top: 56px; padding-top: 24px; }
+.guided-tour-spotlight { border: 3px solid var(--yellow); border-radius: 10px; box-shadow: 0 0 0 9999px rgb(28 28 28 / 58%); pointer-events: none; position: fixed; transition: top .18s ease, left .18s ease, width .18s ease, height .18s ease; z-index: 1000; }
+.guided-tour-popover { background: var(--surface); border: 2px solid var(--ink); box-shadow: 8px 8px 0 var(--yellow); max-height: calc(100dvh - 32px); max-width: min(360px, calc(100vw - 32px)); overflow-y: auto; overscroll-behavior: contain; padding: 20px; position: fixed; width: min(360px, calc(100vw - 32px)); z-index: 1001; }
+.guided-tour-popover h2 { font-size: 1.55rem; margin: 6px 0 10px; }
+.guided-tour-popover > p:not(.guided-tour-progress):not(.guided-tour-note) { color: var(--muted); font-size: .9rem; line-height: 1.5; }
+.guided-tour-progress { font-size: .68rem; font-weight: 700; letter-spacing: .1em; margin: 0; text-transform: uppercase; }
+.guided-tour-note { color: var(--muted); font-size: .75rem; font-style: italic; margin: 12px 0 0; }
+.guided-tour-actions { align-items: center; display: flex; flex-wrap: wrap; gap: 8px; margin-top: 20px; }
+.guided-tour-actions .guided-tour-skip { margin-right: auto; }
+.settings-tour-link { display: inline-block; margin-bottom: 24px; text-decoration: none; }
+@media (max-width: 560px) {
+  .guided-tour-spotlight { transition: none; }
+  .guided-tour-popover { max-height: calc(100dvh - 32px); max-width: calc(100vw - 32px); width: calc(100vw - 32px); }
+}
+@media (prefers-reduced-motion: reduce) {
+  .guided-tour-spotlight { transition: none; }
+}
 .danger-zone h2 { font-size: clamp(1.8rem, 5vw, 3.2rem); margin-top: 8px; }
 .danger-zone label { display: grid; font-size: .75rem; font-weight: 700; gap: 8px; letter-spacing: .08em; text-transform: uppercase; }
 .danger-zone input { background: transparent; border: 0; border-bottom: 1px solid var(--ink); font: inherit; outline-offset: 4px; padding: 10px 0; }
