@@ -120,7 +120,7 @@ APP_URL=http://localhost:3000
 PPTX_TEMPLATE_VERSION=v1
 ```
 
-Apply migrations `0001` through `0007`, then upload the reviewed template to:
+Apply all migrations through `20261008150858_first_access_tour.sql`, then upload the reviewed template to:
 
 ```text
 presentation-templates/status-weekly/v1/template.pptx

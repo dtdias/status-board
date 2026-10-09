@@ -26,7 +26,7 @@ describe("first access tour", () => {
   });
 
   it("persists tour version and anchors controls", () => {
-    const migration = read("supabase/migrations/20261008100000_first_access_tour.sql");
+    const migration = read("supabase/migrations/20261008150858_first_access_tour.sql");
     const layout = read("app/app/layout.tsx");
     const tour = read("components/onboarding/guided-tour.tsx");
     const dashboard = read("app/app/page.tsx");
