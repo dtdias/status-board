@@ -64,8 +64,19 @@ deployed `delete-account` Edge Function secrets, never in Vercel or browser vari
 ## Supabase
 
 1. Create the production Supabase project and enable the intended Auth users.
-2. Apply migrations in repository order: `0001_initial_schema.sql` through
-   `20261003162707_fix_presentation_finalize_ambiguity.sql`.
+2. Apply migrations in repository order:
+   - `0001_initial_schema.sql`
+   - `0002_reorder_deliveries.sql`
+   - `0003_generated_presentation_storage.sql`
+   - `0004_presentation_template_storage.sql`
+   - `0005_template_admin_authorization.sql`
+   - `0006_report_status_lifecycle.sql`
+   - `0007_fix_report_content_editable_trigger.sql`
+   - `0008_signup_confirmation_resend_cooldown.sql`
+   - `0009_attention_presentation_visibility.sql`
+   - `0010_presentation_recipe_cache.sql`
+   - `0011_fix_presentation_finalize_ambiguity.sql`
+   - `0012_first_access_tour.sql`
  3. The standard Supabase CLI command for applying local migrations to a linked
  project is `supabase db push`. Alternatively, apply the repository SQL files in
  order through the Supabase SQL Editor. Do not reorder or omit a migration.
