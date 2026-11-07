@@ -9,6 +9,8 @@ import { incidentStatusMeta } from "@/lib/incidents/incident";
 import { demandPhaseLabels, demandPhases, phaseTone } from "@/lib/demands/demand";
 import { calculateReportSummary } from "@/lib/reports/summary";
 import { listGeneratedPresentations, type GeneratedPresentation } from "@/lib/storage/generated-presentation";
+import { loadPresentationInput, presentationValidationInput } from "@/lib/reports/load-presentation-input";
+import { validateReport, type ValidationIssue } from "@/lib/validation/report";
 import { BoardColumn } from "./board-column";
 import { DeliverySortableList } from "./delivery-sortable-list";
 import { GeneratePresentation } from "./generate-presentation";
@@ -16,8 +18,24 @@ import { PresentationHistory } from "./presentation-history";
 import { ReportStatusActions } from "./report-status-actions";
 import { ReportHighlight } from "./report-highlight";
 
-export default async function ReportPage({ params }: { params: Promise<{ reportId: string }> }) {
+function issueHref(reportId: string, issue: ValidationIssue): Route {
+  const base = `/app/reports/${reportId}`;
+  if (!issue.entityId) return `${base}/details` as Route;
+  const paths: Record<ValidationIssue["section"], string> = {
+    report: `${base}/details`,
+    delivery: `${base}/deliveries/${issue.entityId}`,
+    incident: `${base}/incidents/${issue.entityId}`,
+    demand: `${base}/demands/${issue.entityId}`,
+    support: `${base}/support-fronts/${issue.entityId}`,
+    dependency: `${base}/attention/dependencies/${issue.entityId}`,
+    next_step: `${base}/attention/next-steps/${issue.entityId}`,
+  };
+  return paths[issue.section] as Route;
+}
+
+export default async function ReportPage({ params, searchParams }: { params: Promise<{ reportId: string }>; searchParams: Promise<{ statusError?: string }> }) {
   const { reportId } = await params;
+  const { statusError } = await searchParams;
   const supabase = await createClient();
   const { data: { user } } = await supabase.auth.getUser();
 
@@ -61,6 +79,16 @@ export default async function ReportPage({ params }: { params: Promise<{ reportI
     })),
   });
 
+  let statusIssues: ValidationIssue[] = [];
+  if (statusError === "invalid") {
+    try {
+      const input = await loadPresentationInput(supabase, reportId, user.id);
+      if (input) statusIssues = validateReport(presentationValidationInput(input)).errors;
+    } catch {
+      statusIssues = [];
+    }
+  }
+
   const isArchived = report.status === "archived";
   const isEditable = report.status === "draft" || report.status === "ready";
 
@@ -81,6 +109,13 @@ export default async function ReportPage({ params }: { params: Promise<{ reportI
           <ReportStatusActions reportId={reportId} status={report.status} />
         </div>
       </header>
+      {statusError === "invalid" ? (
+        <section className="form-error" role="alert" aria-label="Pendências para marcar como pronto">
+          <p><strong>Não foi possível marcar como pronto. Corrija os itens abaixo:</strong></p>
+          {statusIssues.length ? <ul>{statusIssues.map((issue, index) => <li key={`${issue.entityId ?? "report"}-${issue.field ?? index}-${index}`}><Link href={issueHref(reportId, issue)}>{issue.message}</Link></li>)}</ul> : <p>Revise o conteúdo do relatório e tente novamente.</p>}
+        </section>
+      ) : null}
+      {statusError === "failed" ? <p className="form-error" role="alert">Não foi possível alterar o status do relatório. Tente novamente.</p> : null}
       {isArchived ? <p className="form-success" role="status">Este relatório está arquivado e disponível somente para consulta e download.</p> : null}
       <section className="report-summary" aria-label="Resumo automático da semana">
         <p className="eyebrow">Resumo automático</p>

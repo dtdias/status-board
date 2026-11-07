@@ -29,7 +29,7 @@ export function DemandForm({ reportId, demand }: { reportId: string; demand?: De
       <label>Título<input data-tour="form-demand-title" defaultValue={demand?.title} maxLength={60} name="title" required /></label>
       <label>Solicitante<input data-tour="form-demand-requester" defaultValue={demand?.requester_name} name="requesterName" required /></label>
       <label>Área solicitante<input data-tour="form-demand-area" defaultValue={demand?.requester_area} name="requesterArea" required /></label>
-      <label>Áreas envolvidas<input data-tour="form-demand-involved" defaultValue={demand?.involved_areas.join(", ")} name="involvedAreas" /></label>
+      <label>Áreas envolvidas<input data-tour="form-demand-involved" defaultValue={demand?.involved_areas.join(", ")} name="involvedAreas" placeholder="Ex.: Engenharia, TI" required /></label>
       <label>Objetivo<textarea data-tour="form-demand-objective" defaultValue={demand?.objective} maxLength={220} name="objective" required rows={4} /></label>
       <label>Status<input data-tour="form-demand-status" defaultValue={demand?.status_text ?? ""} maxLength={100} name="statusText" /></label>
       <label>
