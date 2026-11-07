@@ -28,7 +28,7 @@ export async function transitionReportStatus(formData: FormData) {
 
   if (target === "ready") {
     const input = await loadPresentationInput(supabase, reportId, user.id);
-    if (!input || !validateReport(presentationValidationInput(input)).valid) return;
+    if (!input || !validateReport(presentationValidationInput(input)).valid) redirect(`/app/reports/${reportId}?statusError=invalid` as Route);
   }
 
   const { error } = await supabase
@@ -37,7 +37,7 @@ export async function transitionReportStatus(formData: FormData) {
     .eq("id", reportId)
     .eq("user_id", user.id)
     .eq("status", report.status);
-  if (error) return;
+  if (error) redirect(`/app/reports/${reportId}?statusError=failed` as Route);
 
   if (target === "presented") await markLatestPresentationFinal(supabase, reportId);
 

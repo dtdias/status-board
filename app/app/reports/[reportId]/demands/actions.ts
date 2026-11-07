@@ -22,8 +22,11 @@ export async function saveDemand(_: DemandState, formData: FormData): Promise<De
   });
 
   if (typeof reportId !== "string" || !parsed.success) {
-    return { error: parsed.success ? "Relatório inválido." : "Revise os campos da demanda." };
+    return { error: parsed.success ? "Relatório inválido." : parsed.error.issues[0]?.message ?? "Revise os campos da demanda." };
   }
+
+  const involvedAreas = parsed.data.involvedAreas.split(",").map((item) => item.trim()).filter(Boolean);
+  if (!involvedAreas.length) return { error: "Informe as áreas envolvidas." };
 
   const supabase = await createClient();
   const { data: { user } } = await supabase.auth.getUser();
@@ -33,7 +36,7 @@ export async function saveDemand(_: DemandState, formData: FormData): Promise<De
     title: parsed.data.title,
     requester_name: parsed.data.requesterName,
     requester_area: parsed.data.requesterArea,
-    involved_areas: parsed.data.involvedAreas.split(",").map((item) => item.trim()).filter(Boolean),
+    involved_areas: involvedAreas,
     objective: parsed.data.objective,
     status_text: parsed.data.statusText || null,
     current_phase: parsed.data.currentPhase,
