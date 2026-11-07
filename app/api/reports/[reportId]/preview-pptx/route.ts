@@ -1,4 +1,5 @@
 import { NextResponse } from "next/server";
+import { DEFAULT_THEME_ID, themeIdSchema } from "@/lib/pptx/themes";
 import { generatePptx } from "@/lib/pptx/generate";
 import { classifyPptxGenerationError, type PptxGenerationStage } from "@/lib/pptx/generation-error";
 import { presentationFileName } from "@/lib/pptx/compose";
@@ -10,8 +11,11 @@ import { validateReport } from "@/lib/validation/report";
 export const runtime = "nodejs";
 export const maxDuration = 60;
 
-export async function POST(_: Request, { params }: { params: Promise<{ reportId: string }> }) {
+export async function POST(request: Request, { params }: { params: Promise<{ reportId: string }> }) {
   const { reportId } = await params;
+  const parsedTheme = themeIdSchema.default(DEFAULT_THEME_ID).safeParse(new URL(request.url).searchParams.get("theme") ?? undefined);
+  if (!parsedTheme.success) return NextResponse.json({ error: "Unknown presentation theme." }, { status: 400 });
+  const theme = parsedTheme.data;
   const supabase = await createClient();
   const { data: { user } } = await supabase.auth.getUser();
   if (!user) return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
@@ -25,7 +29,7 @@ export async function POST(_: Request, { params }: { params: Promise<{ reportId:
     if (!validation.valid) return NextResponse.json(validation, { status: 422 });
 
     stage = "template";
-    const template = await getPresentationTemplateBuffer(supabase);
+    const template = await getPresentationTemplateBuffer(supabase, undefined, theme);
     stage = "generate";
     const output = await generatePptx(input, template);
     const body = output.buffer.slice(output.byteOffset, output.byteOffset + output.byteLength) as ArrayBuffer;

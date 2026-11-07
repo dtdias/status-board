@@ -45,8 +45,12 @@ below the baseline, which looks misaligned inside the numbered circles and page 
 The status colours (`#D7191C`, `#2E8B57`, `#2F5D8A`, `#C77700`) are left as the PRD fixes them. The
 white step numbers on the grey "3" and "4" circles have low contrast, as in the base template.
 
-## Not wired into the app
+## Wired into the app as presentation themes
 
-These are design explorations. The app still uses
-`presentation-templates/status-weekly/<version>/template.pptx` (default `v1`).
-Uploading one of these as a template version has not been tested against the PPTX generator.
+Each file is a selectable theme in the "Gerar PowerPoint" picker (see
+`docs/template-administration.md`). `template-base.pptx` is the `base` theme
+(`presentation-templates/status-weekly/<version>/template.pptx`); the others are published at
+`status-weekly/<version>/themes/<name>.pptx`.
+`tests/unit/pptx-themes.integration.test.ts` runs the generator on every file here and checks the
+11-slide output, content, placeholders and unique shape ids. If you rebuild the variations, rerun
+`scripts/design/build-theme-thumbnails.ps1` to refresh `public/template-themes/`.

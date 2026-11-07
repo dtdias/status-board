@@ -9,6 +9,8 @@ import { incidentStatusMeta } from "@/lib/incidents/incident";
 import { demandPhaseLabels, demandPhases, phaseTone } from "@/lib/demands/demand";
 import { calculateReportSummary } from "@/lib/reports/summary";
 import { listGeneratedPresentations, type GeneratedPresentation } from "@/lib/storage/generated-presentation";
+import { normalizeThemeId } from "@/lib/pptx/themes";
+import { listAvailableThemeIds } from "@/lib/storage/presentation-template";
 import { loadPresentationInput, presentationValidationInput } from "@/lib/reports/load-presentation-input";
 import { validateReport, type ValidationIssue } from "@/lib/validation/report";
 import { BoardColumn } from "./board-column";
@@ -45,7 +47,7 @@ export default async function ReportPage({ params, searchParams }: { params: Pro
 
   const { data: report } = await supabase
     .from("weekly_reports")
-    .select("id, start_date, end_date, presentation_date, highlight, status")
+    .select("id, start_date, end_date, presentation_date, highlight, status, template_theme")
     .eq("id", reportId)
     .maybeSingle();
 
@@ -66,6 +68,7 @@ export default async function ReportPage({ params, searchParams }: { params: Pro
   } catch {
     presentationHistoryError = "Não foi possível carregar o histórico de apresentações. Atualize a página para tentar novamente.";
   }
+  const availableThemes = report.status === "ready" ? await listAvailableThemeIds(supabase) : ["base" as const];
   const supportFrontIds = supportFronts?.map((front) => front.id) ?? [];
   const { data: supportRoutines } = supportFrontIds.length
     ? await supabase.from("support_routines").select("id, support_front_id, title, position").in("support_front_id", supportFrontIds).order("position")
@@ -105,7 +108,7 @@ export default async function ReportPage({ params, searchParams }: { params: Pro
             {isEditable ? <Link className="outline-button" href={`/app/reports/${reportId}/details` as Route}>Editar detalhes</Link> : null}
              <Link className="outline-button" data-tour="preview" href={`/app/reports/${reportId}/preview` as Route}>Pré-visualizar</Link>
           </div>
-          {report.status === "ready" ? <GeneratePresentation reportId={reportId} /> : null}
+          {report.status === "ready" ? <GeneratePresentation availableThemes={availableThemes} defaultTheme={normalizeThemeId(report.template_theme)} reportId={reportId} /> : null}
           <ReportStatusActions reportId={reportId} status={report.status} />
         </div>
       </header>

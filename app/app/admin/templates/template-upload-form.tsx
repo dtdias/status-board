@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import { PRESENTATION_THEMES } from "@/lib/pptx/themes";
 
 type UploadState = { error?: string; success?: string };
 
@@ -31,6 +32,12 @@ export function TemplateUploadForm() {
       <label htmlFor="version">
         Versão
         <input defaultValue="v1" id="version" name="version" pattern="v[1-9][0-9]*(\.[0-9]+)*" required />
+      </label>
+      <label htmlFor="theme">
+        Tema
+        <select defaultValue="base" id="theme" name="theme">
+          {PRESENTATION_THEMES.map((theme) => <option key={theme.id} value={theme.id}>{theme.name}</option>)}
+        </select>
       </label>
       <label htmlFor="file">
         Arquivo PPTX
