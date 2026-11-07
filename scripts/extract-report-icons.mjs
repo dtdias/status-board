@@ -9,7 +9,7 @@ function attribute(tag, name) {
 }
 
 const root = process.cwd();
-const templatePath = resolve(root, "Template(1).pptx");
+const templatePath = resolve(root, "design/template-variations/template-base.pptx");
 const zip = await JSZip.loadAsync(await readFile(templatePath));
 const outputDirectory = resolve(root, "public/report-icons");
 await mkdir(outputDirectory, { recursive: true });

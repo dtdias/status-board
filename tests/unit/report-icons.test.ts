@@ -4,7 +4,7 @@ import { describe, expect, it } from "vitest";
 import { getReportIcon, isReportIconKey, reportIconCatalog, reportIconPath } from "@/lib/icons/report-icons";
 import { iconSource, readTemplateIconMedia } from "@/lib/pptx/icons";
 
-const templatePath = resolve(process.cwd(), "Template(1).pptx");
+const templatePath = resolve(process.cwd(), "design/template-variations/template-base.pptx");
 const assetsPath = resolve(process.cwd(), "public/report-icons");
 
 describe("report icon catalog", () => {

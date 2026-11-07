@@ -82,7 +82,7 @@ deployed `delete-account` Edge Function secrets, never in Vercel or browser vari
  order through the Supabase SQL Editor. Do not reorder or omit a migration.
 4. Confirm the migrations created private buckets `generated-presentations` and
    `presentation-templates`. They must remain private.
-5. Upload the supplied `Template(1).pptx` as
+5. Upload the supplied `design/template-variations/template-base.pptx` as
    `presentation-templates/status-weekly/v1/template.pptx`. The object must use
    the PPTX MIME type and be no larger than 25 MiB. Its version must match
    `PPTX_TEMPLATE_VERSION`.
