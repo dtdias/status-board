@@ -31,7 +31,7 @@
 
 ## PPTX Invariants
 
-- Reuse `Template(1).pptx` as visual master; preserve shapes, icons, fonts, colors, and positions. Do not replace template PPTX icons with Lucide.
+- Reuse `design/template-variations/template-base.pptx` (formerly `Template(1).pptx`) as visual master; preserve shapes, icons, fonts, colors, and positions. Do not replace template PPTX icons with Lucide.
 - Exclude template slides 1–3. Final order: cover, summary, deliveries, incidents, demands, support, attention.
 - Keep empty sections with their absence message; never expose placeholders.
 - Preserve board order; paginate deliveries by 4, incidents by 2, support fronts by 2, demands by 1 slide each.

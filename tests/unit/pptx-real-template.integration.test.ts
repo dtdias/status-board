@@ -9,7 +9,7 @@ import { readTemplateIconMedia } from "@/lib/pptx/icons";
 import { assertPptxIntegrity } from "@/lib/pptx/integrity";
 import type { PresentationInput } from "@/lib/pptx/types";
 
-const templatePath = resolve(process.cwd(), process.env.PPTX_REAL_TEMPLATE_PATH ?? "Template(1).pptx");
+const templatePath = resolve(process.cwd(), process.env.PPTX_REAL_TEMPLATE_PATH ?? "design/template-variations/template-base.pptx");
 const hasMasterTemplate = existsSync(templatePath);
 
 // This suite verifies generation against the reviewed master, not synthetic PPTX integrity.
@@ -135,7 +135,7 @@ describeRealTemplate(
     ? "real PPTX template integration"
     : "real PPTX template integration (skipped: master template absent; no real-template integration coverage)",
   () => {
-  it("generates the expected 11-slide presentation from Template(1).pptx", async () => {
+  it("generates the expected 11-slide presentation from template-base.pptx", async () => {
     const template = await readFile(templatePath);
     const templateZip = await JSZip.loadAsync(template, { checkCRC32: true });
     const templateIcons = await readTemplateIconMedia(template);

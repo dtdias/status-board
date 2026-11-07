@@ -101,7 +101,7 @@ O gerador recebe um DTO independente, `PresentationInput`, e o template em buffe
 - Node.js 22+
 - npm 10
 - Projeto Supabase com usuário Auth
-- Master `Template(1).pptx` aprovado
+- Master `design/template-variations/template-base.pptx` aprovado
 
 ### Instalação
 

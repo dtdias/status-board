@@ -101,7 +101,7 @@ The generator receives an independent `PresentationInput` DTO and the template a
 - Node.js 22+
 - npm 10
 - A Supabase project with an Auth user
-- The approved `Template(1).pptx` master
+- The approved `design/template-variations/template-base.pptx` master
 
 ### Install
 
