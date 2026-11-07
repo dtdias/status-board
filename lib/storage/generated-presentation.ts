@@ -1,6 +1,7 @@
 import type { createClient } from "@/lib/supabase/server";
 import { generatePptx } from "@/lib/pptx/generate";
 import type { PresentationInput } from "@/lib/pptx/types";
+import { DEFAULT_THEME_ID } from "@/lib/pptx/themes";
 import { getPresentationTemplateBuffer } from "./presentation-template";
 
 const GENERATED_PRESENTATIONS_BUCKET = "generated-presentations";
@@ -24,6 +25,7 @@ type GeneratedPresentationRow = {
   generated_at: string;
   input_snapshot: unknown | null;
   template_version: string;
+  template_theme: string;
   cached_until: string | null;
   storage_deleted_at: string | null;
   is_final: boolean;
@@ -60,11 +62,12 @@ export async function uploadGeneratedPresentation(supabase: Supabase, storagePat
   if (error) throw new Error("Unable to upload presentation.");
 }
 
-export async function finalizeGeneratedPresentation(supabase: Supabase, presentationId: string, input: PresentationInput, templateVersion: string) {
+export async function finalizeGeneratedPresentation(supabase: Supabase, presentationId: string, input: PresentationInput, templateVersion: string, templateTheme: string = DEFAULT_THEME_ID) {
   const { data, error } = await supabase.rpc("finalize_generated_presentation", {
     target_presentation_id: presentationId,
     target_snapshot: input,
     target_template_version: templateVersion,
+    target_template_theme: templateTheme,
   });
   const presentation = data?.[0];
   if (error || !presentation) throw new Error("Unable to finalize presentation recipe.");
@@ -104,7 +107,7 @@ export async function listGeneratedPresentations(supabase: Supabase, reportId: s
   await cleanupExpiredGeneratedPresentations(supabase, reportId);
   const { data, error } = await supabase
     .from("generated_presentations")
-    .select("id, version, storage_path, file_name, generated_at, input_snapshot, template_version, cached_until, storage_deleted_at, is_final")
+    .select("id, version, storage_path, file_name, generated_at, input_snapshot, template_version, template_theme, cached_until, storage_deleted_at, is_final")
     .eq("weekly_report_id", reportId)
     .order("version", { ascending: false });
   if (error) throw new Error("Unable to load presentation history.");
@@ -114,7 +117,7 @@ export async function listGeneratedPresentations(supabase: Supabase, reportId: s
 export async function downloadGeneratedPresentation(supabase: Supabase, reportId: string, presentationId: string) {
   const { data: presentation, error } = await supabase
     .from("generated_presentations")
-    .select("id, version, storage_path, file_name, generated_at, input_snapshot, template_version, cached_until, storage_deleted_at, is_final")
+    .select("id, version, storage_path, file_name, generated_at, input_snapshot, template_version, template_theme, cached_until, storage_deleted_at, is_final")
     .eq("weekly_report_id", reportId)
     .eq("id", presentationId)
     .maybeSingle();
@@ -124,7 +127,7 @@ export async function downloadGeneratedPresentation(supabase: Supabase, reportId
   let { data } = await supabase.storage.from(GENERATED_PRESENTATIONS_BUCKET).download(presentation.storage_path);
   if (!data) {
     if (!presentation.input_snapshot) throw new Error("Generated presentation is unavailable.");
-    const output = await generatePptx(presentation.input_snapshot as PresentationInput, await getPresentationTemplateBuffer(supabase, presentation.template_version));
+    const output = await generatePptx(presentation.input_snapshot as PresentationInput, await getPresentationTemplateBuffer(supabase, presentation.template_version, presentation.template_theme));
     const body = output.buffer.slice(output.byteOffset, output.byteOffset + output.byteLength) as ArrayBuffer;
     const { error: uploadError } = await supabase.storage.from(GENERATED_PRESENTATIONS_BUCKET).upload(presentation.storage_path, body, {
       contentType: "application/vnd.openxmlformats-officedocument.presentationml.presentation",

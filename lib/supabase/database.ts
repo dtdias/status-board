@@ -45,6 +45,7 @@ export type Database = {
           highlight: string | null;
           status: "draft" | "ready" | "generated" | "presented" | "archived";
           template_version: string;
+          template_theme: string;
           created_at: string;
           updated_at: string;
         };
@@ -57,6 +58,7 @@ export type Database = {
           highlight?: string | null;
           status?: "draft" | "ready" | "generated" | "presented" | "archived";
           template_version?: string;
+          template_theme?: string;
           created_at?: string;
           updated_at?: string;
         };
@@ -67,6 +69,7 @@ export type Database = {
           highlight?: string | null;
           status?: "draft" | "ready" | "generated" | "presented" | "archived";
           template_version?: string;
+          template_theme?: string;
           updated_at?: string;
         };
         Relationships: [];
@@ -136,9 +139,9 @@ export type Database = {
         Relationships: [];
       };
        generated_presentations: {
-         Row: { id: string; weekly_report_id: string; version: number; storage_path: string; file_name: string; generated_at: string; generated_by: string; input_snapshot: unknown | null; template_version: string; cached_until: string | null; storage_deleted_at: string | null; is_final: boolean; };
-         Insert: { id?: string; weekly_report_id: string; version: number; storage_path: string; file_name: string; generated_at?: string; generated_by: string; input_snapshot?: unknown | null; template_version?: string; cached_until?: string | null; storage_deleted_at?: string | null; is_final?: boolean; };
-         Update: { input_snapshot?: unknown | null; template_version?: string; cached_until?: string | null; storage_deleted_at?: string | null; is_final?: boolean; };
+         Row: { id: string; weekly_report_id: string; version: number; storage_path: string; file_name: string; generated_at: string; generated_by: string; input_snapshot: unknown | null; template_version: string; template_theme: string; cached_until: string | null; storage_deleted_at: string | null; is_final: boolean; };
+         Insert: { id?: string; weekly_report_id: string; version: number; storage_path: string; file_name: string; generated_at?: string; generated_by: string; input_snapshot?: unknown | null; template_version?: string; template_theme?: string; cached_until?: string | null; storage_deleted_at?: string | null; is_final?: boolean; };
+         Update: { input_snapshot?: unknown | null; template_version?: string; template_theme?: string; cached_until?: string | null; storage_deleted_at?: string | null; is_final?: boolean; };
         Relationships: [];
       };
     };
@@ -153,7 +156,7 @@ export type Database = {
         Returns: { id: string; version: number; storage_path: string; file_name: string; generated_at: string; }[];
       };
       finalize_generated_presentation: {
-        Args: { target_presentation_id: string; target_snapshot: unknown; target_template_version: string };
+        Args: { target_presentation_id: string; target_snapshot: unknown; target_template_version: string; target_template_theme?: string };
         Returns: { id: string; version: number; storage_path: string; file_name: string; generated_at: string }[];
       };
       mark_latest_presentation_final: {
