@@ -1,4 +1,4 @@
-import { existsSync, readFileSync } from "node:fs";
+import { existsSync, readFileSync, statSync } from "node:fs";
 import { resolve } from "node:path";
 import { describe, expect, it } from "vitest";
 
@@ -14,6 +14,24 @@ describe("README contract", () => {
     expect(readmeEnglish).toContain("README.md");
     expect(readme).toContain("docs/assets/readme-hero-pt.svg");
     expect(readmeEnglish).toContain("docs/assets/readme-hero-en.svg");
+  });
+
+  it.each(["pt", "en"])("keeps the %s hero accessible, vector-only and lightweight", (lang) => {
+    const file = resolve(root, `docs/assets/readme-hero-${lang}.svg`);
+    const svg = readFileSync(file, "utf8");
+
+    expect(svg).toContain('viewBox="0 0 1400 420"');
+    expect(svg).toContain('role="img"');
+    expect(svg).toMatch(/<title id="title">[^<]+<\/title>/);
+    expect(svg).toMatch(/<desc id="description">[^<]+<\/desc>/);
+    expect(svg).not.toMatch(/<image\b/);
+    expect(svg).not.toContain("@font-face");
+    expect(svg).not.toContain("Arial Bold");
+    expect(statSync(file).size).toBeLessThan(40 * 1024);
+  });
+
+  it("versions the editable VectorCraft source of the hero", () => {
+    expect(existsSync(resolve(root, "design/readme-hero/readme-hero.vectorcraft"))).toBe(true);
   });
 
   it("documents the server-only Supabase environment contract", () => {
