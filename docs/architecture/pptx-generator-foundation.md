@@ -41,7 +41,7 @@ Apply migration `0003_generated_presentation_storage.sql`. It creates private `g
 
 ## Impact
 
-The `presentation-templates` bucket must contain `status-weekly/v1/template.pptx` and permit authenticated users to download it. The original `Template(1).pptx` is required for an end-to-end integration fixture and shape-name verification.
+The `presentation-templates` bucket must contain `status-weekly/v1/template.pptx` and permit authenticated users to download it. The original template, now `design/template-variations/template-base.pptx`, is required for an end-to-end integration fixture and shape-name verification.
 
 ## Template Storage Management
 
