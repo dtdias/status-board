@@ -144,3 +144,5 @@ playwright-report/
 /graphify-out
 .vercel
 .env*
+.playwright-mcp/page-2026-11-07T12-29-51-168Z.yml
+/.playwright-mcp
