@@ -26,8 +26,8 @@
 - Target stack: Next.js App Router, TypeScript, Node.js 22+, Supabase, Tailwind/shadcn-style UI, `dnd-kit`, Zod, Vitest, Playwright, Vercel.
 - PPTX routes must declare Node runtime, never Edge. Generator uses one `pptx-automizer` instance per generation and returns a `Buffer`; it must consume independent `PresentationInput`, never query DB.
 - Treat Vercel filesystem as temporary. Store templates/generated PPTX in private Supabase Storage; do not use Office, LibreOffice, Python, or persistent local files in server generation.
-- Apply migrations `0001_initial_schema.sql` through `0007_fix_report_content_editable_trigger.sql` in order. Keep `generated-presentations` and `presentation-templates` buckets private; no service-role key is used by app.
-- Template uploads require `template_admins` allowlist. Template path is `status-weekly/<version>/template.pptx`; configured version defaults to `v1` via `PPTX_TEMPLATE_VERSION`.
+- Apply migrations `0001_initial_schema.sql` through `0013_presentation_template_themes.sql` in order. Keep `generated-presentations` and `presentation-templates` buckets private; no service-role key is used by app.
+- Template uploads require `template_admins` allowlist. Template path is `status-weekly/<version>/template.pptx` (theme `base`); other themes live at `status-weekly/<version>/themes/<theme>.pptx`, catalog in `lib/pptx/themes.ts`. Configured version defaults to `v1` via `PPTX_TEMPLATE_VERSION`.
 
 ## PPTX Invariants
 

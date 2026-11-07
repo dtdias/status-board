@@ -23,6 +23,32 @@ The bootstrap SQL must run through a database administrator context such as the 
 Editor. It cannot be run by the browser session because no client insert/update/delete policy
 exists for this table.
 
+## Presentation themes
+
+Clicking "Gerar PowerPoint" opens a picker with one card per theme. Themes are colour and
+typography variations of the approved master; the catalog lives in `lib/pptx/themes.ts`
+(`base`, `navy-corporate`, `light-minimal`, `graphite-emerald`, `warm-terracotta`).
+
+| Theme | Storage path | Source file |
+| --- | --- | --- |
+| `base` | `status-weekly/<version>/template.pptx` | `design/template-variations/template-base.pptx` |
+| any other | `status-weekly/<version>/themes/<theme>.pptx` | `design/template-variations/<theme>.pptx` |
+
+- The picker lists only themes published for the configured version (`PPTX_TEMPLATE_VERSION`);
+  `base` is always offered. A theme missing from Storage is simply not shown.
+- Upload each theme at `/app/admin/templates`, choosing the version and the theme. Paths stay
+  immutable (`upsert: false`), so a changed theme needs a new version.
+- The chosen theme is saved on the report (`weekly_reports.template_theme`) as the next default and
+  on every generated presentation (`generated_presentations.template_theme`), so rebuilding an
+  expired file from its snapshot always uses the theme it was generated with.
+- "Visualizar com este tema" in the picker opens `/app/reports/<id>/preview?theme=<theme>`, which
+  renders the same generator in memory without saving a version.
+- Migration `0013_presentation_template_themes.sql` adds both columns, the extra
+  `target_template_theme` argument of `finalize_generated_presentation`, and widens the
+  `presentation-templates` storage policies to `themes/<theme>.pptx`.
+- Picker thumbnails are `public/template-themes/<theme>.png`, built from the preview overviews by
+  `scripts/design/build-theme-thumbnails.ps1`.
+
 ## Remove access
 
 ```sql

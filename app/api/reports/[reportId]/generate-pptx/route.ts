@@ -1,4 +1,5 @@
 import { NextResponse } from "next/server";
+import { generateRequestSchema } from "@/lib/pptx/themes";
 import { generatePptx } from "@/lib/pptx/generate";
 import { classifyPptxGenerationError, type PptxGenerationStage } from "@/lib/pptx/generation-error";
 import { presentationFileName } from "@/lib/pptx/compose";
@@ -11,8 +12,12 @@ import { validateReport } from "@/lib/validation/report";
 export const runtime = "nodejs";
 export const maxDuration = 60;
 
-export async function POST(_: Request, { params }: { params: Promise<{ reportId: string }> }) {
+export async function POST(request: Request, { params }: { params: Promise<{ reportId: string }> }) {
   const { reportId } = await params;
+  const body = await request.json().catch(() => ({}));
+  const parsedRequest = generateRequestSchema.safeParse(body ?? {});
+  if (!parsedRequest.success) return NextResponse.json({ error: "Unknown presentation theme." }, { status: 400 });
+  const theme = parsedRequest.data.theme;
   const requestId = crypto.randomUUID();
   const startedAt = Date.now();
   const supabase = await createClient();
@@ -35,7 +40,7 @@ export async function POST(_: Request, { params }: { params: Promise<{ reportId:
 
     stage = "template";
     const templateVersion = configuredTemplateVersion();
-    const templateBuffer = await getPresentationTemplateBuffer(supabase, templateVersion);
+    const templateBuffer = await getPresentationTemplateBuffer(supabase, templateVersion, theme);
     stage = "generate";
     const output = await generatePptx(input, templateBuffer);
     stage = "reserve";
@@ -44,9 +49,9 @@ export async function POST(_: Request, { params }: { params: Promise<{ reportId:
       stage = "upload";
       await uploadGeneratedPresentation(supabase, presentation.storage_path, output);
       stage = "finalize";
-      await finalizeGeneratedPresentation(supabase, presentation.id, input, templateVersion);
+      await finalizeGeneratedPresentation(supabase, presentation.id, input, templateVersion, theme);
       stage = "status";
-      const { data: updatedReport, error: statusError } = await supabase.from("weekly_reports").update({ status: "generated" }).eq("id", reportId).eq("status", "ready").select("id").maybeSingle();
+      const { data: updatedReport, error: statusError } = await supabase.from("weekly_reports").update({ status: "generated", template_theme: theme }).eq("id", reportId).eq("status", "ready").select("id").maybeSingle();
       if (statusError || !updatedReport) throw statusError ?? new Error("Report status changed before generation completed.");
     } catch (error) {
       try {
