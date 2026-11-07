@@ -2,10 +2,12 @@ import { notFound, redirect } from "next/navigation";
 import type { Route } from "next";
 import { PptxFilePreview } from "@/components/preview/pptx-file-preview";
 import { BackLink } from "@/components/navigation/back-link";
+import { normalizeThemeId, themeById } from "@/lib/pptx/themes";
 import { createClient } from "@/lib/supabase/server";
 
-export default async function PreviewPage({ params }: { params: Promise<{ reportId: string }> }) {
+export default async function PreviewPage({ params, searchParams }: { params: Promise<{ reportId: string }>; searchParams: Promise<{ theme?: string }> }) {
   const { reportId } = await params;
+  const theme = themeById(normalizeThemeId((await searchParams).theme));
   const supabase = await createClient();
   const { data: { user } } = await supabase.auth.getUser();
   if (!user) redirect("/login" as Route);
@@ -17,7 +19,7 @@ export default async function PreviewPage({ params }: { params: Promise<{ report
     <main className="shell preview-shell">
       <header className="topbar">
         <div>
-          <p className="eyebrow">Preview PPTX atual</p>
+          <p className="eyebrow">Preview PPTX atual · tema {theme.name}</p>
           <h1>Pré-visualização</h1>
         </div>
         <BackLink href={`/app/reports/${reportId}` as Route} label="Voltar ao board" />
@@ -25,7 +27,7 @@ export default async function PreviewPage({ params }: { params: Promise<{ report
       <PptxFilePreview
         caption="Gerado em memória com o template e o mesmo gerador do arquivo final. Preview renderizado localmente no navegador; nenhum PPTX é salvo ou enviado a serviço externo."
         method="POST"
-        src={`/api/reports/${reportId}/preview-pptx`}
+        src={`/api/reports/${reportId}/preview-pptx?theme=${theme.id}`}
       />
     </main>
   );

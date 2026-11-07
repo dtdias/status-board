@@ -172,6 +172,24 @@ button:disabled { cursor: not-allowed; opacity: .5; }
 .presentation-list li { align-items: center; background: var(--surface); border: 1px solid var(--line); display: flex; gap: 18px; justify-content: space-between; padding: 14px; }
 .presentation-list li > div { display: grid; gap: 4px; min-width: 0; }
 .presentation-actions, .generated-presentation-actions { align-items: center; display: flex; flex-wrap: wrap; gap: 8px; }
+.visually-hidden { border: 0; clip: rect(0 0 0 0); height: 1px; margin: -1px; overflow: hidden; padding: 0; position: absolute; white-space: nowrap; width: 1px; }
+.theme-picker { background: var(--surface); border: 1px solid var(--ink); color: var(--ink); max-height: min(92vh, 860px); max-width: min(960px, calc(100vw - 32px)); overflow: auto; padding: 0; width: 100%; }
+.theme-picker::backdrop { background: rgb(28 28 28 / .62); }
+.theme-picker-form { display: grid; gap: 20px; padding: 24px; }
+.theme-picker-header { display: grid; gap: 6px; }
+.theme-picker-header h2 { font-size: clamp(1.5rem, 3vw, 2.2rem); letter-spacing: -.05em; margin: 0; }
+.theme-picker-grid { border: 0; display: grid; gap: 14px; grid-template-columns: repeat(auto-fill, minmax(260px, 1fr)); margin: 0; min-width: 0; padding: 0; }
+.theme-card { background: #fff; border: 1px solid var(--line); cursor: pointer; display: grid; grid-template-rows: auto 1fr; position: relative; transition: border-color .18s ease, box-shadow .18s ease; }
+.theme-card:hover { border-color: var(--ink); }
+.theme-card[data-selected="true"] { border-color: var(--ink); box-shadow: 0 0 0 3px var(--yellow); }
+.theme-card:has(input:focus-visible) { outline: 3px solid var(--ink); outline-offset: 2px; }
+.theme-card input { height: 1px; opacity: 0; position: absolute; width: 1px; }
+.theme-card-thumb { aspect-ratio: 648 / 180; background: var(--line); display: block; height: auto; width: 100%; }
+.theme-card-body { display: grid; gap: 6px; padding: 12px; }
+.theme-card-meta { align-items: center; color: var(--muted); display: flex; font-size: .78rem; gap: 6px; }
+.theme-swatch { border: 1px solid var(--line); border-radius: 50%; display: inline-block; height: 14px; width: 14px; }
+.theme-card-preview { color: var(--ink); font-size: .8rem; font-weight: 700; justify-self: start; text-underline-offset: 3px; }
+.theme-picker-actions { display: flex; flex-wrap: wrap; gap: 8px; justify-content: flex-end; }
 .presentation-version, .presentation-list time { color: var(--muted); font-size: .72rem; }
 .presentation-version { font-weight: 700; letter-spacing: .08em; text-transform: uppercase; }
 .presentation-list strong { overflow-wrap: anywhere; }
